@@ -16,7 +16,11 @@ final _dioProvider = Provider<Dio>((ref) {
         defaultValue: 'https://cip-ai-service-xxxx-uc.a.run.app'),
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 30),
-    headers: {'Content-Type': 'application/json'},
+    headers: {
+      'Content-Type': 'application/json',
+      if (const String.fromEnvironment('AI_SERVICE_TOKEN').isNotEmpty)
+        'X-Service-Token': const String.fromEnvironment('AI_SERVICE_TOKEN'),
+    },
   ));
 
   // Auth interceptor — inject Firebase ID token

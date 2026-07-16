@@ -29,7 +29,7 @@ class CIPApp extends ConsumerWidget {
       // Theming
       theme: CIPTheme.lightTheme,
       darkTheme: CIPTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
 
       // Localization
       // F29: Arabic was authored (app_ar.arb, settings toggle, RTL-aware
