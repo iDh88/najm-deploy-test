@@ -1,0 +1,1114 @@
+openapi: 3.0.3
+info:
+  title: Crew Intelligence Platform — AI Services API
+  description: |
+    REST API for the CIP Python microservices layer.
+    Provides Excel parsing, legality engine, AI assistant (Najm), smart ranking, and auto-bid services.
+    
+    **Authentication:** All endpoints require a valid Firebase ID token passed as `Authorization: Bearer <token>`.
+    Service-to-service calls use a signed service account JWT.
+    
+    **Base URL (production):** `https://cip-python-xxxx.run.app`
+    **Base URL (development):** `http://localhost:8080`
+  version: 1.0.0
+  contact:
+    name: CIP Support
+    email: support@cip.app
+
+servers:
+  - url: https://cip-python-xxxx.run.app
+    description: Production (Google Cloud Run — me-central1)
+  - url: http://localhost:8080
+    description: Local development
+
+security:
+  - FirebaseAuth: []
+
+tags:
+  - name: Health
+    description: Service health check
+  - name: Parser
+    description: Excel roster file parsing
+  - name: Legality
+    description: GACA/ICAO FTL legality checking engine
+  - name: AI Assistant
+    description: Najm NLP assistant — natural language queries
+  - name: Ranking
+    description: Smart line ranking and scoring
+  - name: Auto Bid
+    description: Behavior-based auto-bid suggestions
+
+paths:
+
+  /v1/ai/status:
+    get:
+      summary: AI subsystem status (model, engines, knowledge base)
+      description: >
+        Reports the AI subsystem from real sources only. `status` is `online`
+        ONLY when an Anthropic API key is configured; otherwise `unconfigured`
+        with the reason in `status_detail`. `model` and `engines` are read from
+        the shared CLAUDE_MODEL / ENGINE_REGISTRY constants. An empty knowledge
+        base returns `last_updated: null` — clients must render that as unknown,
+        never as "today".
+      tags: [ai]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: AI status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [online, unconfigured] }
+                  status_detail: { type: string }
+                  provider: { type: string }
+                  model: { type: string }
+                  service_version: { type: string }
+                  engines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        engine: { type: string }
+                        trigger: { type: string, enum: [triggered, queued, on_demand] }
+                  knowledge_base:
+                    type: object
+                    properties:
+                      available: { type: boolean }
+                      documents: { type: integer }
+                      documents_disabled: { type: integer }
+                      latest_version: { type: integer, nullable: true }
+                      last_updated: { type: string, format: date-time, nullable: true }
+
+  # ─── Health ────────────────────────────────────────────────────────────────
+
+  /health:
+    get:
+      tags: [Health]
+      summary: Service health check
+      security: []
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: healthy }
+                  service: { type: string, example: cip-python-services }
+                  version: { type: string, example: 1.0.0 }
+
+  # ─── Parser ────────────────────────────────────────────────────────────────
+
+  /v1/parser/parse:
+    post:
+      tags: [Parser]
+      summary: Parse a monthly Excel roster file
+      description: |
+        Parses an uploaded Excel file from Firebase Storage.
+        Each sheet named "Line NNN" is parsed into a flight line with legs.
+        UTC normalization, legality pre-checks, and rest interval computation are performed automatically.
+        Results are persisted to Firestore asynchronously.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParseRequest'
+      responses:
+        "200":
+          description: Parse completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParseResponse'
+        "422":
+          description: File could not be parsed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─── Legality ──────────────────────────────────────────────────────────────
+
+  /v1/legality/rules:
+    get:
+      tags: [Legality]
+      summary: The EFFECTIVE FTL rule set (single source of truth)
+      description: |
+        Canonical GOM 7.5.3 Table (F) defaults merged with any admin
+        overrides from the Firestore `legalityRules` collection (TTL-cached,
+        fail-safe to defaults). Every legality/rest/intelligence engine and
+        the AI grounding block use exactly these values (P0-1/P0-2 fix).
+      responses:
+        "200":
+          description: Effective rules with provenance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EffectiveRulesResponse'
+
+  /v1/legality/check:
+    post:
+      tags: [Legality]
+      summary: Full schedule legality check (optionally with a proposed duty)
+      description: |
+        Checks a complete schedule for all FTL violations — backward AND
+        forward rest, FDP (conservative intersection of the flat category cap
+        and the per-sector table), daily block, sector counts, cumulative
+        limits. Omit `rules` to use the effective (admin-configured) rule set;
+        a caller-supplied `rules` object is honored for what-if analysis and
+        the result's `rules_version` is stamped "caller-supplied (what-if)".
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegalityCheckRequest'
+      responses:
+        "200":
+          description: Legality check result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalityResult'
+
+  /v1/legality/check-trade:
+    post:
+      tags: [Legality]
+      summary: Check legality of a trade for both parties
+      description: |
+        Checks BOTH the initiator and receiver schedules after the proposed trade.
+        Both checks must pass for the trade to proceed.
+        Includes backward and forward rest validation for each party.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeCheckRequest'
+      responses:
+        "200":
+          description: Legality result for trade (both parties)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TradeCheckResponse'
+
+  # ─── Roster Sync ────────────────────────────────────────────────────────────
+
+  /v1/roster-sync/providers:
+    get:
+      tags: [Roster Sync]
+      summary: Roster-source catalog (priority order CAE → ICS → manual)
+      description: |
+        Providers with availability status. CAE Crew Access ships
+        config-activated: until the official/enterprise integration is
+        configured it reports `pending_official_integration` with a
+        plain-language note — no unofficial automation exists or will exist.
+      responses:
+        "200":
+          description: Catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  providers:
+                    type: array
+                    items: { $ref: '#/components/schemas/RosterProviderInfo' }
+
+  /v1/roster-sync/connections:
+    post:
+      tags: [Roster Sync]
+      summary: Register a connection (status tracking only — NEVER credentials)
+      description: |
+        Credentials live exclusively in device secure storage. This endpoint
+        (like every roster-sync endpoint) rejects any payload containing a
+        credential-shaped key with 422 (`assert_no_credentials`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider_id]
+              properties:
+                provider_id: { type: string, example: ics_feed }
+                user_id: { type: string, description: Service callers only. }
+                client_meta: { type: object }
+      responses:
+        "200":
+          description: Connection state
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [connected, awaiting_official_integration] }
+                  note: { type: string }
+        "422": { description: Credential-shaped key detected in payload }
+
+  /v1/roster-sync/connections/{provider_id}:
+    delete:
+      tags: [Roster Sync]
+      summary: Disconnect (imported rosters are kept)
+      parameters:
+        - { name: provider_id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Disconnected; device performs the local credential wipe }
+
+  /v1/roster-sync/connections/{provider_id}/sync-now:
+    post:
+      tags: [Roster Sync]
+      summary: Manual sync trigger
+      description: |
+        server_orchestrated providers sync here; client_orchestrated
+        providers answer `client_sync_required` and the device performs the
+        fetch + import.
+      parameters:
+        - { name: provider_id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Action taken
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  action: { type: string, enum: [server_synced, client_sync_required, unavailable] }
+                  detail: { type: string }
+
+  /v1/roster-sync/import:
+    post:
+      tags: [Roster Sync]
+      summary: Import a fetched roster (dedup + versioning + engine fan-out)
+      description: |
+        Identity is pinned to the caller's token. Duplicate rosters
+        (identical checksum) short-circuit without writes; changed rosters
+        produce a leg-level diff, supersede the previous ACTIVE line
+        (kept as history), and trigger the engine fan-out. Failures leave
+        the previous roster untouched (422 with a meaningful message).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RosterImportRequest'
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RosterImportResponse'
+        "409": { description: Provider awaiting official integration }
+        "422": { description: Parse failure or credential-shaped key — previous roster kept }
+
+  /v1/roster-sync/status:
+    get:
+      tags: [Roster Sync]
+      summary: Connections, providers, preferred source, latest versions
+      responses:
+        "200":
+          description: Full sync status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RosterSyncStatus'
+
+  # ─── Line Search — Filter Engine (single source of truth) ──────────────────
+
+  /v1/lines/filters:
+    get:
+      tags: [Line Search]
+      summary: The filter catalog (registry)
+      description: |
+        Every filter the engine supports, active and pending, with kind/unit/
+        enum metadata. Clients render Manual-Mode controls from this — new
+        server-side filters require no app release. `requires_field` entries
+        carry a note naming the missing data.
+      responses:
+        "200":
+          description: Catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  engine: { type: string, example: filter_engine.v1 }
+                  filters:
+                    type: array
+                    items: { $ref: '#/components/schemas/FilterCatalogEntry' }
+
+  /v1/lines/search:
+    post:
+      tags: [Line Search]
+      summary: Search flight lines (Manual / AI / Hybrid — one endpoint)
+      description: |
+        Manual Mode: send `clauses` only. AI Mode: send `ai_instruction`
+        only. Hybrid Mode: both — manual clauses are LOCKED; the AI may only
+        ADD constraints, and every AI clause it proposed that was dropped is
+        returned in `applied.dropped_ai` with the reason ("locked by a manual
+        filter", validation message, …). Identity is pinned to the caller's
+        token; results are ranked with a fully transparent component
+        breakdown plus human-readable reasons.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineSearchRequest'
+      responses:
+        "200":
+          description: Ranked, explained results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineSearchResponse'
+        "422": { description: Invalid manual clause (message names the filter and the expected shape) }
+
+  # ─── PDF Intelligence ──────────────────────────────────────────────────────
+
+  /v1/intelligence/upload:
+    post:
+      tags: [PDF Intelligence]
+      summary: Upload a schedule PDF for analysis
+      description: |
+        Multipart upload. Identity is taken from the Firebase ID token — a
+        user_id form field, if sent, is ignored for non-service callers
+        (F11). Files above 20 MB are rejected (413); `period` must look like
+        MMM-YYYY and `year` must be plausible. Processing is asynchronous —
+        poll the status endpoint.
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema: { type: string }
+          description: Ignored for non-service callers — identity is pinned
+            to the Firebase token uid (F11).
+        - name: period
+          in: query
+          required: true
+          schema: { type: string, example: JUN-2026 }
+        - name: year
+          in: query
+          required: true
+          schema: { type: integer, example: 2026 }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary, description: PDF ≤ 20 MB }
+      responses:
+        "200":
+          description: Upload accepted; analysis queued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uploadId: { type: string }
+                  status: { type: string, example: queued }
+        "400": { description: Non-PDF payload, bad period format, or implausible year }
+        "413": { description: File exceeds the 20 MB limit }
+        "503": { description: Upload tracking unavailable — retry }
+
+  /v1/intelligence/upload/{upload_id}/status:
+    get:
+      tags: [PDF Intelligence]
+      summary: Poll an upload's processing status
+      description: Owner-only — the requesting token must match the upload's user.
+      parameters:
+        - name: upload_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Current status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uploadId: { type: string }
+                  status:
+                    type: string
+                    enum: [queued, processing, complete, failed, not_found, error]
+                  lineId: { type: string, nullable: true }
+                  error: { type: string, nullable: true }
+        "403": { description: Not the upload owner }
+
+  # ─── AI Assistant ──────────────────────────────────────────────────────────
+
+  /v1/ai/chat:
+    post:
+      tags: [AI Assistant]
+      summary: Send a message to the Najm AI assistant
+      description: |
+        Routes the user message through the NLP intent classifier then
+        to the appropriate handler (filter, calculation, comparison, legality, recommendation).
+        Returns a text response plus optional rich content cards.
+        Rate limited per user per day; the limit is admin-configurable via
+        subscriptionConfig/main.aiDailyFreeLimit (default 50) and enforced
+        identically by the Cloud Function bridge and this endpoint (F20).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        "429":
+          description: Daily query limit reached (free tier)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/ai/filter:
+    post:
+      tags: [AI Assistant]
+      summary: Parse a natural language filter query into structured JSON
+      description: |
+        Converts Arabic or English natural language into a structured filter object
+        that can be applied client-side to the flight lines list.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, query]
+              properties:
+                userId: { type: string }
+                query: { type: string, maxLength: 500 }
+                locale: { type: string, enum: [ar, en], default: ar }
+      responses:
+        "200":
+          description: Structured filter object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterObject'
+
+  # ─── Ranking ───────────────────────────────────────────────────────────────
+
+  /v1/ranking/rank:
+    post:
+      tags: [Ranking]
+      summary: Get ranked flight lines for a user
+      description: |
+        Scores and ranks all available lines for the month against the user's
+        preference vector and active optimization mode.
+        Returns lines with composite scores and human-readable explanations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RankingRequest'
+      responses:
+        "200":
+          description: Ranked lines with scores and explanations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankingResponse'
+
+  # ─── Auto Bid ──────────────────────────────────────────────────────────────
+
+  /v1/auto-bid/suggest:
+    post:
+      tags: [Auto Bid]
+      summary: Generate auto-bid suggestions for a user
+      description: |
+        Uses the preference vector and scoring engine to suggest the best lines
+        to bid on for the upcoming month. Filters out illegal lines.
+        Returns suggestions with priorities, scores, and explanations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BidSuggestionRequest'
+      responses:
+        "200":
+          description: Bid suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BidSuggestionResponse'
+
+  /v1/auto-bid/update-preference:
+    post:
+      tags: [Auto Bid]
+      summary: Update user preference vector from a behavioral event
+      description: |
+        Asynchronously updates the user's preference vector based on an observed behavior.
+        Always returns 202 Accepted immediately; processing happens in background.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreferenceUpdateRequest'
+      responses:
+        "202":
+          description: Event accepted for processing
+
+  /v1/auto-bid/preference/{userId}:
+    get:
+      tags: [Auto Bid]
+      summary: Get current preference vector for a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Preference vector
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceVector'
+
+# ─── Components ───────────────────────────────────────────────────────────────
+
+components:
+  securitySchemes:
+    FirebaseAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Firebase ID Token
+
+  schemas:
+
+    ParseRequest:
+      type: object
+      required: [userId, month, storageRef]
+      properties:
+        userId: { type: string, description: Firebase UID }
+        month: { type: string, example: "2026-06", description: "YYYY-MM format" }
+        storageRef: { type: string, description: Firebase Storage path to .xlsx file }
+
+    ParseResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        linesProcessed: { type: integer }
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParsedLine'
+        errors: { type: array, items: { type: string } }
+        warnings: { type: array, items: { type: string } }
+
+    ParsedLine:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        lineNumber: { type: string, example: "411" }
+        month: { type: string, example: "2026-06" }
+        userId: { type: string }
+        summary: { $ref: '#/components/schemas/LineSummary' }
+        destinations: { type: array, items: { type: string } }
+        daysOff: { type: array, items: { type: integer } }
+        validationStatus: { type: string, enum: [valid, warnings, errors] }
+        legs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParsedLeg'
+
+    ParsedLeg:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        lineId: { type: string }
+        flightNumber: { type: string, example: "SV123" }
+        origin: { type: string, example: "RUH" }
+        destination: { type: string, example: "LHR" }
+        legType: { type: string, enum: [domestic, international, positioning] }
+        departureLT: { type: string, format: date-time }
+        arrivalLT: { type: string, format: date-time }
+        departureUTC: { type: string, format: date-time }
+        arrivalUTC: { type: string, format: date-time }
+        dutyStart: { type: string, format: date-time }
+        dutyEnd: { type: string, format: date-time }
+        releaseTime: { type: string, format: date-time, description: "dutyEnd + 30 min buffer" }
+        blockHours: { type: number, format: float }
+        fdpHours: { type: number, format: float }
+        aircraftType: { type: string }
+        layover: { type: boolean }
+        layoverHours: { type: number }
+        payRate: { type: number, description: "SAR per block hour" }
+        estimatedPay: { type: number, description: "SAR" }
+        perDiem: { type: number, description: "SAR" }
+        legalityStatus: { type: string, enum: [legal, warning, violation] }
+        legalityFlags: { type: array, items: { type: string } }
+        restAfterHours: { type: number }
+        restBeforeHours: { type: number }
+        sequence: { type: integer }
+
+    LineSummary:
+      type: object
+      properties:
+        totalLegs: { type: integer }
+        totalBlockHours: { type: number }
+        totalDutyHours: { type: number }
+        totalDutyDays: { type: integer }
+        internationalLegs: { type: integer }
+        domesticLegs: { type: integer }
+        layoverCount: { type: integer }
+        estimatedSalaryMin: { type: number }
+        estimatedSalaryMax: { type: number }
+        salaryScore: { type: number, minimum: 0, maximum: 100 }
+        restQualityScore: { type: number, minimum: 0, maximum: 100 }
+        compositeScore: { type: number, minimum: 0, maximum: 100 }
+
+    LegalityResult:
+      type: object
+      properties:
+        passed: { type: boolean }
+        violations:
+          type: array
+          items: { $ref: '#/components/schemas/LegalityViolation' }
+        warnings:
+          type: array
+          items: { $ref: '#/components/schemas/LegalityViolation' }
+        checked_at: { type: string, format: date-time }
+        rules_version:
+          type: string
+          description: |
+            Provenance of the rule set used, e.g.
+            "GACA-GOM-7.5.3-TF (defaults)",
+            "GACA-GOM-7.5.3-TF (+2 admin overrides)", or
+            "caller-supplied (what-if)".
+
+    LegalityViolation:
+      type: object
+      properties:
+        rule_id: { type: string, example: "GACA-REST-INTL-001" }
+        rule_description: { type: string }
+        rule_description_ar: { type: string }
+        actual_value: { type: number }
+        required_value: { type: number }
+        unit: { type: string, example: hours }
+        severity: { type: string, enum: [blocking, warning] }
+        affected_leg_ids: { type: array, items: { type: string } }
+
+    TradeCheckRequest:
+      type: object
+      required: [initiator_schedule, receiver_schedule, offered_duty]
+      properties:
+        initiator_schedule:
+          type: array
+          items: { $ref: '#/components/schemas/DutyPeriod' }
+        receiver_schedule:
+          type: array
+          items: { $ref: '#/components/schemas/DutyPeriod' }
+        offered_duty: { $ref: '#/components/schemas/DutyPeriod' }
+        requested_duty: { $ref: '#/components/schemas/DutyPeriod' }
+        rules:
+          allOf: [{ $ref: '#/components/schemas/FTLRules' }]
+          description: Omit to use the effective (admin-configured) rules.
+
+    TradeCheckResponse:
+      type: object
+      properties:
+        overall_passed: { type: boolean, description: "True only if BOTH checks pass" }
+        initiator_result: { $ref: '#/components/schemas/LegalityResult' }
+        receiver_result: { $ref: '#/components/schemas/LegalityResult' }
+
+    LegalityCheckRequest:
+      type: object
+      required: [crew_schedule]
+      properties:
+        crew_schedule:
+          type: array
+          items: { $ref: '#/components/schemas/DutyPeriod' }
+        proposed_duty:
+          allOf: [{ $ref: '#/components/schemas/DutyPeriod' }]
+          description: Omit to check the existing schedule only.
+        rules:
+          allOf: [{ $ref: '#/components/schemas/FTLRules' }]
+          description: |
+            Omit to use the EFFECTIVE rules (canonical defaults + admin
+            overrides). Supplying rules marks the result as what-if.
+
+    DutyPeriod:
+      type: object
+      required: [id, flight_number, origin, destination, leg_type,
+                 duty_start, duty_end, release_time, block_hours, fdp_hours]
+      properties:
+        id: { type: string }
+        flight_number: { type: string, example: SV123 }
+        origin: { type: string, example: JED }
+        destination: { type: string, example: LHR }
+        leg_type: { type: string, enum: [domestic, international] }
+        duty_start: { type: string, format: date-time, description: UTC }
+        duty_end: { type: string, format: date-time, description: UTC }
+        release_time:
+          type: string
+          format: date-time
+          description: duty_end + release buffer (default 30 min)
+        block_hours: { type: number }
+        fdp_hours: { type: number }
+        is_augmented: { type: boolean, default: false }
+        sector_count: { type: integer, default: 1 }
+
+    FTLRules:
+      type: object
+      description: |
+        What-if override of the FTL thresholds. All fields optional; anything
+        omitted keeps its effective value. Field names mirror
+        legality/rules_source.py CANONICAL_DEFAULTS (min_rest_domestic_hours,
+        max_fdp_international_hours, max_daily_block_hours, …).
+      additionalProperties: { type: number }
+
+    RosterProviderInfo:
+      type: object
+      properties:
+        provider_id: { type: string, example: cae_crew_access }
+        display_name: { type: string }
+        recommended: { type: boolean }
+        auth_kind: { type: string, enum: [prn_password, feed_url, none] }
+        orchestration: { type: string, enum: [client_orchestrated, server_orchestrated] }
+        availability: { type: string, enum: [available, pending_official_integration] }
+        availability_note: { type: string }
+
+    RosterImportRequest:
+      type: object
+      required: [provider_id, period, year, payload_kind, payload]
+      properties:
+        provider_id: { type: string }
+        user_id: { type: string, description: Service callers only. }
+        period: { type: string, example: JUL-2026 }
+        year: { type: integer, example: 2026 }
+        payload_kind: { type: string, enum: [ics, normalized] }
+        payload:
+          description: Raw ICS text, or a normalized roster object. Never credentials.
+
+    RosterImportResponse:
+      type: object
+      properties:
+        result: { type: string, enum: [imported, duplicate, failed] }
+        line_id: { type: string, nullable: true }
+        version: { type: integer, nullable: true }
+        imported_flights: { type: integer }
+        checksum: { type: string, nullable: true }
+        diff:
+          type: object
+          properties:
+            added: { type: integer }
+            removed: { type: integer }
+            changed: { type: integer }
+        engines:
+          type: array
+          items:
+            type: object
+            properties:
+              engine: { type: string, example: salary_engine }
+              status: { type: string, enum: [triggered, queued, on_demand, error] }
+              detail: { type: string }
+
+    RosterSyncStatus:
+      type: object
+      properties:
+        preferred_source: { type: string, example: ics_feed }
+        connections:
+          type: array
+          items:
+            type: object
+            properties:
+              provider_id: { type: string }
+              status: { type: string, enum: [connected, awaiting_official_integration, error, disconnected] }
+              connected_at: { type: string, format: date-time, nullable: true }
+              last_sync_at: { type: string, format: date-time, nullable: true }
+              last_success_at: { type: string, format: date-time, nullable: true }
+              next_sync: { type: string, example: automatic }
+              last_error: { type: string, nullable: true }
+              imported_flights_last: { type: integer }
+              auto_sync: { type: boolean }
+        providers:
+          type: array
+          items: { $ref: '#/components/schemas/RosterProviderInfo' }
+        versions_latest:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              version: { type: integer }
+              checksum: { type: string }
+              imported_flights: { type: integer }
+              at: { type: string, format: date-time }
+              added: { type: integer }
+              removed: { type: integer }
+              changed: { type: integer }
+
+    FilterCatalogEntry:
+      type: object
+      properties:
+        id: { type: string, example: destinations_any }
+        category: { type: string, example: destinations }
+        label: { type: string }
+        kind: { type: string, enum: [range, set_any, set_all, set_none, bool, enum] }
+        status: { type: string, enum: [active, requires_field] }
+        unit: { type: string }
+        enum_values: { type: array, items: { type: string } }
+        note: { type: string }
+
+    FilterClause:
+      type: object
+      required: [filter_id, value]
+      properties:
+        filter_id: { type: string, example: salary_min }
+        value:
+          description: |
+            range → {"min"?: number, "max"?: number} · set_* → [string] ·
+            bool → boolean · enum → string. Validated against the registry.
+        source: { type: string, enum: [manual, ai], default: manual }
+
+    LineSearchRequest:
+      type: object
+      properties:
+        user_id: { type: string, description: Service callers only; user tokens are pinned to their own uid. }
+        month: { type: string, example: JUN-2026 }
+        clauses:
+          type: array
+          items: { $ref: '#/components/schemas/FilterClause' }
+        ai_instruction: { type: string, maxLength: 500 }
+        rank_mode: { type: string, enum: [money, rest, balanced], default: balanced }
+        limit: { type: integer, minimum: 1, maximum: 200, default: 50 }
+
+    LineSearchResponse:
+      type: object
+      properties:
+        engine: { type: string, example: filter_engine.v1 }
+        rank_mode: { type: string }
+        total_matched: { type: integer }
+        total_scanned: { type: integer }
+        ai_summary: { type: string, nullable: true }
+        applied:
+          type: object
+          properties:
+            manual: { type: array, items: { $ref: '#/components/schemas/FilterClause' } }
+            ai: { type: array, items: { $ref: '#/components/schemas/FilterClause' } }
+            dropped_ai:
+              type: array
+              items:
+                type: object
+                properties:
+                  clause: { type: object }
+                  reason: { type: string }
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              line_id: { type: string }
+              line_number: { type: string }
+              rank: { type: integer }
+              total_score: { type: number }
+              component_scores:
+                type: object
+                additionalProperties: { type: number }
+              matched_filters:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    filter_id: { type: string }
+                    label: { type: string }
+                    source: { type: string }
+              explanation:
+                type: array
+                items: { type: string }
+
+    EffectiveRulesResponse:
+      type: object
+      properties:
+        version:
+          type: string
+          example: "GACA-GOM-7.5.3-TF (defaults)"
+        source: { type: string, enum: [defaults, firestore-override] }
+        overridden_fields:
+          type: array
+          items: { type: string }
+        values:
+          type: object
+          additionalProperties: { type: number }
+        metadata:
+          type: object
+          description: Per-rule description/unit/legType/severity for admin UI.
+
+    ChatRequest:
+      type: object
+      required: [user_id, message]
+      properties:
+        user_id:
+          type: string
+          description: |
+            Snake_case (F17). Non-service callers are pinned to their token
+            uid server-side regardless of this value.
+        message: { type: string, maxLength: 1000 }
+        history:
+          type: array
+          maxItems: 10
+          items:
+            type: object
+            properties:
+              role: { type: string, enum: [user, assistant] }
+              content: { type: string }
+              timestamp: { type: string, format: date-time }
+        context:
+          type: object
+          description: Read server-side for prompt grounding.
+          properties:
+            userMode: { type: string, enum: [money, rest, balanced] }
+            activeMonth: { type: string, example: JUN-2026 }
+            userBase: { type: string, example: RUH }
+            locale: { type: string, enum: [en, ar] }
+            activeLineId: { type: string }
+
+    ChatResponse:
+      type: object
+      properties:
+        text: { type: string }
+        intentType:
+          type: string
+          enum: [filter, calculation, comparison, legality, recommendation, unknown, error]
+        responseTimeMs: { type: integer }
+        legalityCard: { $ref: '#/components/schemas/LegalityResult' }
+        filterObject: { $ref: '#/components/schemas/FilterObject' }
+
+    FilterObject:
+      type: object
+      description: Structured filter derived from natural language query
+      properties:
+        destinations: { type: array, items: { type: string } }
+        noDaysOfWeek: { type: array, items: { type: integer }, description: "KSA dow, 0=Sun" }
+        maxDutyHours: { type: number }
+        minLayoverHours: { type: number }
+        requiresLayover: { type: boolean }
+        maxLegs: { type: integer }
+        origins: { type: array, items: { type: string } }
+        minSalary: { type: number }
+        maxSalary: { type: number }
+        legType: { type: string, enum: [domestic, international, any] }
+
+    RankingRequest:
+      type: object
+      required: [userId, month, userMode]
+      properties:
+        userId: { type: string }
+        month: { type: string }
+        userMode: { type: string, enum: [money, rest, balanced] }
+        lineIds:
+          type: array
+          items: { type: string }
+          description: "Optional subset. If empty, all lines for the month are ranked."
+
+    RankingResponse:
+      type: object
+      properties:
+        userId: { type: string }
+        month: { type: string }
+        rankedLines:
+          type: array
+          items:
+            type: object
+            properties:
+              lineId: { type: string }
+              lineNumber: { type: string }
+              rank: { type: integer }
+              compositeScore: { type: number }
+              salaryScore: { type: number }
+              restScore: { type: number }
+              destPrefScore: { type: number }
+              estimatedSalary: { type: number }
+              explanation: { type: string }
+              explanationAr: { type: string }
+
+    BidSuggestionRequest:
+      type: object
+      required: [userId, month, userMode]
+      properties:
+        userId: { type: string }
+        month: { type: string }
+        userMode: { type: string, enum: [money, rest, balanced] }
+        availableLineIds: { type: array, items: { type: string } }
+
+    BidSuggestionResponse:
+      type: object
+      properties:
+        userId: { type: string }
+        month: { type: string }
+        suggestions:
+          type: array
+          items:
+            type: object
+            properties:
+              lineId: { type: string }
+              lineNumber: { type: string }
+              suggestedPriority: { type: integer }
+              confidenceScore: { type: number, minimum: 0, maximum: 1 }
+              compositeScore: { type: number }
+              salaryScore: { type: number }
+              restScore: { type: number }
+              reasons: { type: array, items: { type: string } }
+              reasonsAr: { type: array, items: { type: string } }
+              estimatedSalary: { type: number }
+              isLegal: { type: boolean }
+        coldStartPhase: { type: integer, enum: [1, 2, 3] }
+        generatedAt: { type: string, format: date-time }
+
+    PreferenceUpdateRequest:
+      type: object
+      required: [userId, eventType, metadata, userMode]
+      properties:
+        userId: { type: string }
+        eventType:
+          type: string
+          enum: [line_viewed, leg_bookmarked, bid_submitted, bid_outcome,
+                 trade_initiated, filter_applied, mode_switched, assistant_query,
+                 auto_bid_accepted, auto_bid_modified]
+        metadata: { type: object }
+        userMode: { type: string, enum: [money, rest, balanced] }
+
+    PreferenceVector:
+      type: object
+      properties:
+        userId: { type: string }
+        destAffinities:
+          type: object
+          additionalProperties: { type: number, minimum: -1, maximum: 1 }
+        layoverPreference: { type: number, minimum: 0, maximum: 1 }
+        salarySensitivity: { type: number, minimum: 0, maximum: 1 }
+        dayOffPreferences:
+          type: array
+          items: { type: number }
+          minItems: 7
+          maxItems: 7
+        eventCount: { type: integer }
+        updatedAt: { type: string, format: date-time }
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail: { type: string }
+        code: { type: string }

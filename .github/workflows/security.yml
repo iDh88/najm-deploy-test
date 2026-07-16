@@ -1,0 +1,51 @@
+# Security scanning — CodeQL (Python + TypeScript) and secret scanning (F34).
+#
+# CodeQL covers the two server-side languages GitHub's analyzer supports
+# here; Dart is not a CodeQL language, so the Flutter app relies on
+# `flutter analyze` in ci.yml plus dependency scanning via Dependabot.
+#
+# Gitleaks runs on every push/PR to catch committed credentials early; the
+# repository history should also be scanned once manually after import
+# (`gitleaks detect --source . --log-opts="--all"`).
+
+name: Security scanning
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"   # weekly Monday scan catches newly-added CodeQL queries
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript-typescript]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # scan full history reachable from this ref
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

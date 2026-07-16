@@ -1,0 +1,10 @@
+{
+  "name": "najm-admin-panel",
+  "version": "1.0.0",
+  "description": "Najm CIP Admin Panel — hosted on Firebase Hosting",
+  "scripts": {
+    "dev": "node server.js",
+    "deploy": "firebase deploy --only hosting:admin",
+    "serve": "firebase serve --only hosting:admin"
+  }
+}

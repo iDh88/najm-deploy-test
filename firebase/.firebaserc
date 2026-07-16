@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "cip-najm"
+  },
+  "targets": {
+    "cip-najm": {
+      "hosting": {
+        "app": ["cip-najm"],
+        "admin": ["cip-najm-admin"]
+      }
+    }
+  },
+  "etags": {}
+}

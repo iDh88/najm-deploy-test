@@ -1,0 +1,219 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2026-01-01T00:00:00.000Z",
+
+  "appName": "Najm — Crew Intelligence Platform",
+  "appTagline": "Your intelligent flight scheduling assistant",
+
+  "greeting_morning": "Good Morning",
+  "greeting_afternoon": "Good Afternoon",
+  "greeting_evening": "Good Evening",
+
+  "nav_home": "Home",
+  "nav_lines": "Lines",
+  "nav_bids": "Bids",
+  "nav_trades": "Trades",
+  "nav_assistant": "Najm",
+
+  "home_active_line": "My Current Line",
+  "home_no_line": "No line awarded for this month",
+  "home_quick_stats_duty": "Duty Hours",
+  "home_quick_stats_days_off": "Days Off",
+  "home_quick_stats_bids": "My Bids",
+  "home_auto_bid_banner": "Najm has bids ready",
+  "home_auto_bid_subtitle": "{count} suggestions ready for your review",
+  "@home_auto_bid_subtitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "home_trade_opportunities": "{count} trade opportunities available",
+  "@home_trade_opportunities": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "lines_title": "Flight Lines",
+  "lines_filter_hint": "Search or ask Najm...",
+  "lines_empty_title": "No Lines Available",
+  "lines_empty_subtitle": "Upload your monthly roster Excel file to view available flight lines",
+  "lines_upload_button": "Select Excel File",
+  "lines_sort_best_match": "Best Match",
+  "lines_sort_salary": "Salary",
+  "lines_sort_rest": "Rest",
+  "lines_sort_days_off": "Days Off",
+  "lines_legs_count": "{count} legs",
+  "@lines_legs_count": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "lines_layovers_count": "{count} layovers",
+  "@lines_layovers_count": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "line_detail_timeline": "Timeline",
+  "line_detail_legs": "Legs",
+  "line_detail_salary": "Salary",
+  "line_detail_bid_button": "Bid on Line {number}",
+  "@line_detail_bid_button": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "line_detail_bid_blocked": "Cannot Bid — Legal Violations",
+  "line_detail_preview": "Preview",
+  "line_detail_bid_submitted": "Bid submitted for Line {number} ✓",
+  "@line_detail_bid_submitted": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "line_detail_bid_exists": "You already have an active bid on this line",
+
+  "bids_title": "My Bids",
+  "bids_empty": "No bids for this month",
+  "bids_priority_hint": "Drag to reorder priorities",
+  "bids_withdraw_confirm": "Are you sure you want to withdraw this bid?",
+  "bids_status_pending": "Pending",
+  "bids_status_submitted": "Submitted",
+  "bids_status_awarded": "Awarded ✓",
+  "bids_status_rejected": "Rejected",
+  "bids_status_withdrawn": "Withdrawn",
+
+  "trades_title": "Trade Board",
+  "trades_tab_open": "Available",
+  "trades_tab_mine": "My Trades",
+  "trades_empty_open": "No trades available",
+  "trades_empty_mine": "You have not initiated any trades yet",
+  "trades_new_button": "New Trade Request",
+  "trades_legality_pass": "Legally compliant ✓",
+  "trades_legality_fail": "Legal violation — trade cannot proceed",
+  "trades_accept": "Accept",
+  "trades_cancel": "Cancel",
+  "trades_confirm": "Confirm Trade",
+  "trades_expires_in": "Expires in {duration}",
+  "@trades_expires_in": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+
+  "assistant_title": "Najm",
+  "assistant_subtitle": "AI Assistant",
+  "assistant_input_hint": "Ask Najm...",
+  "assistant_welcome_title": "Hi, I am Najm",
+  "assistant_welcome_subtitle": "Your intelligent flight scheduling assistant",
+  "assistant_suggestions_header": "Try asking",
+  "assistant_voice_tooltip": "Voice Search",
+  "assistant_why_button": "Why?",
+
+  "mode_money": "Money",
+  "mode_rest": "Rest",
+  "mode_balanced": "Balanced",
+  "mode_money_desc": "Max salary",
+  "mode_rest_desc": "Max rest",
+  "mode_balanced_desc": "Both",
+
+  "legality_legal": "Legal",
+  "legality_warning": "Warning",
+  "legality_violation": "Violation",
+  "legality_all_passed": "All legality checks passed",
+  "legality_violations_found": "{count} violation(s) found",
+  "@legality_violations_found": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "legality_rest_dom": "Minimum 14h rest required after domestic duty (from release time)",
+  "legality_rest_int": "Minimum 15h rest required after international duty (from release time)",
+  "legality_fdp": "Maximum Flight Duty Period exceeded",
+  "legality_actual": "Actual: {value} {unit}",
+  "@legality_actual": {
+    "placeholders": {
+      "value": { "type": "String" },
+      "unit": { "type": "String" }
+    }
+  },
+  "legality_required": "Required: {value} {unit}",
+  "@legality_required": {
+    "placeholders": {
+      "value": { "type": "String" },
+      "unit": { "type": "String" }
+    }
+  },
+
+  "profile_title": "Profile",
+  "profile_subscription": "Subscription",
+  "profile_mode": "Optimization Mode",
+  "profile_preferences": "Preferences",
+  "profile_preferred_dest": "Preferred Destinations",
+  "profile_preferred_off": "Preferred Days Off",
+  "profile_save_prefs": "Save Preferences",
+  "profile_prefs_saved": "Preferences saved ✓",
+  "profile_privacy": "Privacy",
+  "profile_sign_out": "Sign Out",
+  "profile_sign_out_confirm": "Are you sure you want to sign out?",
+
+  "subscription_free": "Free Plan",
+  "subscription_pro": "Pro Plan",
+  "subscription_elite": "Elite Plan",
+  "subscription_enterprise": "Enterprise Plan",
+  "subscription_upgrade": "Upgrade",
+  "subscription_renews": "Renews: {date}",
+  "@subscription_renews": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "settings_title": "Settings",
+  "settings_language": "Language",
+  "settings_notifications": "Notifications",
+  "settings_calendar": "Calendar",
+  "settings_support": "Support",
+  "settings_legal": "Legal",
+  "settings_about": "About",
+  "settings_version": "Version",
+
+  "disclaimer_title": "Disclaimer",
+  "disclaimer_body": "Crew Intelligence Platform (Najm) is an UNOFFICIAL, independent tool created to assist Saudi Airlines cabin crew with scheduling decisions.\n\nCIP is NOT affiliated with, endorsed by, or connected to Saudi Arabian Airlines Corporation (Saudia) or any of its systems.\n\nAll data entered into this app is user-provided and user-owned. CIP does not access any airline internal systems.\n\nAlways verify schedules and legality through official airline channels.",
+  "disclaimer_confirm": "I Understand",
+
+  "onboarding_welcome": "Welcome to Najm",
+  "onboarding_step1_title": "Upload Your Monthly Roster",
+  "onboarding_step1_body": "Upload your monthly Excel file and Najm will automatically analyse all available flight lines",
+  "onboarding_step2_title": "Bid & Trade Intelligently",
+  "onboarding_step2_body": "Compare lines, check legality, and submit bids with one tap",
+  "onboarding_step3_title": "Meet Najm AI",
+  "onboarding_step3_body": "Ask Najm in Arabic or English for instant recommendations and answers",
+  "onboarding_get_started": "Get Started",
+  "onboarding_skip": "Skip",
+
+  "auth_error_user_not_found": "Email address not found",
+  "auth_error_wrong_password": "Incorrect password",
+  "auth_error_email_in_use": "Email address already in use",
+  "auth_error_weak_password": "Password is too weak (minimum 6 characters)",
+  "auth_error_invalid_email": "Invalid email address",
+  "auth_error_too_many_requests": "Too many attempts, please wait before trying again",
+  "auth_error_network": "Network connection error",
+  "auth_error_unknown": "An unexpected error occurred, please try again",
+
+  "generic_error": "Something went wrong. Please try again",
+  "generic_loading": "Loading...",
+  "generic_save": "Save",
+  "generic_cancel": "Cancel",
+  "generic_confirm": "Confirm",
+  "generic_back": "Back",
+  "generic_next": "Next",
+  "generic_done": "Done",
+  "generic_retry": "Retry",
+  "generic_refresh": "Refresh",
+  "generic_search": "Search",
+  "generic_filter": "Filter",
+  "generic_sort": "Sort",
+  "generic_share": "Share",
+  "generic_delete": "Delete",
+  "generic_edit": "Edit",
+  "generic_yes": "Yes",
+  "generic_no": "No",
+
+  "currency_sar": "SAR",
+  "unit_hours": "hours",
+  "unit_days": "days",
+  "unit_legs": "legs",
+
+  "weekday_sun": "Sun",
+  "weekday_mon": "Mon",
+  "weekday_tue": "Tue",
+  "weekday_wed": "Wed",
+  "weekday_thu": "Thu",
+  "weekday_fri": "Fri",
+  "weekday_sat": "Sat"
+}

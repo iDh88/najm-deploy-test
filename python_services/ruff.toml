@@ -1,0 +1,27 @@
+# Ruff configuration — python_services
+#
+# F32: lint is a BLOCKING CI step (the previous `|| true` advisory mode let
+# real defects merge). Scope starts with the "fatal" classes that indicate
+# genuinely broken code, so the gate is meaningful without requiring a
+# style-cleanup of the whole tree first:
+#
+#   E9  — syntax errors / IO errors
+#   F63 — invalid comparisons (is-literal, == on unequal-length tuples, …)
+#   F7  — syntax-adjacent statement errors (return outside function, …)
+#   F82 — undefined names
+#
+# Widening to the full E/F/W set is tracked as a follow-up; do it one rule
+# family at a time so each diff stays reviewable.
+#
+# The tree was pre-verified clean against this set (syntax via py_compile,
+# undefined names via tools/offline_harness/check_undefined_names.py).
+
+target-version = "py311"
+line-length = 100
+
+[lint]
+select = ["E9", "F63", "F7", "F82"]
+
+[lint.per-file-ignores]
+# Offline shims intentionally shadow third-party module names.
+"../tools/offline_harness/shims/*" = ["F82"]

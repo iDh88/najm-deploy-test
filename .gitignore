@@ -1,0 +1,26 @@
+# Secrets
+.env
+*.env
+TOKEN.txt
+*TOKEN*.txt
+Najm ID.txt
+serviceAccountKey.json
+*.key
+*.pem
+
+# Python
+python_services/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Flutter/Dart
+flutter_app/.dart_tool/
+flutter_app/build/
+flutter_app/.flutter-plugins
+flutter_app/.flutter-plugins-dependencies
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/

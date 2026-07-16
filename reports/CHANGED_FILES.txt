@@ -1,0 +1,80 @@
+# Machine-generated change inventory (diff -rq vs najm_complete_master_final.zip)
+
+## Modified (51)
+- .github/workflows/ci.yml
+- NAJM_ARCHITECTURE.md
+- README.md
+- REMEDIATION_CHANGELOG.md
+- VERSION.md
+- docs/openapi.yaml
+- firebase/firestore.indexes.json
+- firebase/firestore.rules
+- firebase/functions/package.json
+- firebase/functions/src/admin_setup.ts
+- firebase/functions/src/index.ts
+- firebase/functions/tsconfig.json
+- firebase/storage.rules
+- flutter_app/lib/app/app.dart
+- flutter_app/lib/app/router.dart
+- flutter_app/lib/core/models/models.dart
+- flutter_app/lib/features/assistant/ask_operations_screen.dart
+- flutter_app/lib/features/intelligence/screens/intelligence_hub_screen.dart
+- flutter_app/lib/features/intelligence/screens/line_dashboard_screen.dart
+- flutter_app/lib/features/intelligence/screens/upload_search_comparison_screens.dart
+- flutter_app/lib/features/intelligence/services/intelligence_service.dart
+- flutter_app/lib/features/layover/screens/add_recommendation_screen.dart
+- flutter_app/lib/features/layover/screens/cities_hub_screen.dart
+- flutter_app/lib/features/layover/screens/city_detail_screen.dart
+- flutter_app/lib/features/layover/screens/saved_screen.dart
+- flutter_app/lib/features/layover/services/auth_service.dart
+- flutter_app/lib/features/layover/services/layover_service.dart
+- flutter_app/lib/features/layover/widgets/recommendation_card.dart
+- flutter_app/lib/features/lines/lines_screen.dart
+- flutter_app/lib/features/rest_legality/screens/rest_calculator_screen.dart
+- flutter_app/lib/features/rest_legality/screens/trade_legality_screen.dart
+- flutter_app/lib/features/rest_legality/widgets/legality_card.dart
+- flutter_app/lib/features/rest_legality/widgets/timeline_widget.dart
+- flutter_app/lib/features/trades/recommendation/preference_insights_screen.dart
+- flutter_app/lib/shared/constants/constants.dart
+- flutter_app/lib/shared/widgets/offline_widgets.dart
+- flutter_app/pubspec.yaml
+- python_services/ai/nlp_router.py
+- python_services/intelligence/router.py
+- python_services/intelligence/utils/legality_checker.py
+- python_services/knowledge_engine/router.py
+- python_services/layover/router.py
+- python_services/legality/engine.py
+- python_services/rest_engine/calculator.py
+- python_services/rest_engine/rules.py
+- python_services/subscription_engine/router.py
+- python_services/tests/unit/test_legality.py
+- python_services/tests/unit/test_parser_ranking.py
+- python_services/tests/unit/test_rest_engine.py
+- python_services/trade_engine/router.py
+- python_services/utils/auth.py
+
+## Added
+- .github/workflows/deploy.yml
+- .github/workflows/rollback.yml
+- .github/workflows/security.yml
+- .github/CODEOWNERS
+- .github/dependabot.yml
+- (new top-level) OWNER_DECISION_REQUEST.md
+- (new top-level) reports
+- (new top-level) tools
+- firebase/functions/src/mapping.ts
+- firebase/functions/.gitignore
+- firebase/functions/test
+- firebase/test
+- flutter_app/lib/core/utils/content_filter.dart
+- flutter_app/lib/core/utils/period_utils.dart
+- flutter_app/lib/core/constants
+- flutter_app/lib/core/theme
+- flutter_app/test/unit/app_constants_test.dart
+- flutter_app/test/unit/content_filter_test.dart
+- python_services/legality/rules_source.py
+- python_services/tests/unit/test_engine_consistency.py
+- python_services/tests/unit/test_layover_content.py
+- python_services/tests/unit/test_rules_source.py
+- python_services/ruff.toml
+- scripts/seed_legality_rules.py

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "266574565630",
+    "project_id": "najm-dev-9159c",
+    "storage_bucket": "najm-dev-9159c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266574565630:android:e4e6633fbf0c8dff39d5af",
+        "android_client_info": {
+          "package_name": "com.example.crew_intelligence_platform"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKR38iNgW6CmYUO6tbRZUjwmUuJft6jLw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

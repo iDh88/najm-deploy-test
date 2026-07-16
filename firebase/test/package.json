@@ -1,0 +1,14 @@
+{
+  "name": "cip-firebase-rules-tests",
+  "private": true,
+  "type": "module",
+  "description": "Firestore + Storage security-rules tests. Run inside the Firebase emulator: firebase emulators:exec --only firestore,storage \"npm --prefix test install && npm --prefix test test\"",
+  "scripts": {
+    "test": "node --test rules.spec.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "firebase": "^10.12.0"
+  }
+}

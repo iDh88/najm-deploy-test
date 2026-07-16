@@ -1,0 +1,222 @@
+{
+  "@@locale": "ar",
+  "@@last_modified": "2026-01-01T00:00:00.000Z",
+
+  "appName": "نجم — منصة الذكاء للطاقم",
+  "@appName": { "description": "Application name in Arabic" },
+
+  "appTagline": "مساعدك الذكي لجداول الطيران",
+  "@appTagline": { "description": "Tagline shown on splash screen" },
+
+  "greeting_morning": "صباح الخير",
+  "greeting_afternoon": "مساء النور",
+  "greeting_evening": "مساء الخير",
+
+  "nav_home": "الرئيسية",
+  "nav_lines": "الخطوط",
+  "nav_bids": "العطاءات",
+  "nav_trades": "التبادل",
+  "nav_assistant": "نجم",
+
+  "home_active_line": "خطي الحالي",
+  "home_no_line": "لا توجد خطة محددة لهذا الشهر",
+  "home_quick_stats_duty": "ساعات الواجب",
+  "home_quick_stats_days_off": "أيام إجازة",
+  "home_quick_stats_bids": "عطاءاتي",
+  "home_auto_bid_banner": "نجم جاهز للمزايدة",
+  "home_auto_bid_subtitle": "لديك {count} اقتراحات جاهزة للمراجعة",
+  "@home_auto_bid_subtitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "home_trade_opportunities": "{count} فرصة تبادل متاحة",
+  "@home_trade_opportunities": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "lines_title": "خطوط الطيران",
+  "lines_filter_hint": "ابحث أو اسأل نجم...",
+  "lines_empty_title": "لا توجد خطوط",
+  "lines_empty_subtitle": "ارفع ملف جدول الرحلات الشهري لعرض الخطوط المتاحة",
+  "lines_upload_button": "رفع ملف Excel",
+  "lines_sort_best_match": "الأنسب",
+  "lines_sort_salary": "الراتب",
+  "lines_sort_rest": "الراحة",
+  "lines_sort_days_off": "أيام الإجازة",
+  "lines_legs_count": "{count} رحلة",
+  "@lines_legs_count": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "lines_layovers_count": "{count} توقف",
+  "@lines_layovers_count": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "line_detail_timeline": "الجدول الزمني",
+  "line_detail_legs": "الرحلات",
+  "line_detail_salary": "الراتب",
+  "line_detail_bid_button": "المزايدة على الخط {number}",
+  "@line_detail_bid_button": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "line_detail_bid_blocked": "لا يمكن المزايدة — مخالفات قانونية",
+  "line_detail_preview": "معاينة",
+  "line_detail_bid_submitted": "تم تقديم العطاء للخط {number} ✓",
+  "@line_detail_bid_submitted": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "line_detail_bid_exists": "لديك عطاء مقدم بالفعل على هذا الخط",
+
+  "bids_title": "عطاءاتي",
+  "bids_empty": "لا توجد عطاءات لهذا الشهر",
+  "bids_priority_hint": "اسحب لإعادة ترتيب الأولويات",
+  "bids_withdraw_confirm": "هل أنت متأكد من سحب هذا العطاء؟",
+  "bids_status_pending": "قيد الانتظار",
+  "bids_status_submitted": "مقدم",
+  "bids_status_awarded": "تم المنح ✓",
+  "bids_status_rejected": "مرفوض",
+  "bids_status_withdrawn": "مسحوب",
+
+  "trades_title": "سوق التبادل",
+  "trades_tab_open": "المتاحة",
+  "trades_tab_mine": "عطاءاتي",
+  "trades_empty_open": "لا توجد طلبات تبادل متاحة",
+  "trades_empty_mine": "لم تبدأ أي تبادل بعد",
+  "trades_new_button": "طلب تبادل جديد",
+  "trades_legality_pass": "مطابق للأنظمة ✓",
+  "trades_legality_fail": "مخالفة قانونية — لا يمكن إتمام التبادل",
+  "trades_accept": "قبول",
+  "trades_cancel": "إلغاء",
+  "trades_confirm": "تأكيد التبادل",
+  "trades_expires_in": "ينتهي خلال {duration}",
+  "@trades_expires_in": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+
+  "assistant_title": "نجم",
+  "assistant_subtitle": "المساعد الذكي",
+  "assistant_input_hint": "اسأل نجم...",
+  "assistant_welcome_title": "مرحباً، أنا نجم",
+  "assistant_welcome_subtitle": "مساعدك الذكي لجداول رحلات الطيران",
+  "assistant_suggestions_header": "اقتراحات",
+  "assistant_voice_tooltip": "البحث الصوتي",
+  "assistant_why_button": "لماذا؟",
+
+  "mode_money": "المال",
+  "mode_rest": "الراحة",
+  "mode_balanced": "المتوازن",
+  "mode_money_desc": "أقصى راتب",
+  "mode_rest_desc": "أقصى راحة",
+  "mode_balanced_desc": "كلاهما",
+
+  "legality_legal": "مطابق للأنظمة",
+  "legality_warning": "تحذير",
+  "legality_violation": "مخالفة",
+  "legality_all_passed": "اجتازت جميع فحوصات الأنظمة",
+  "legality_violations_found": "تم العثور على {count} مخالفة",
+  "@legality_violations_found": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "legality_rest_dom": "يجب توفر 14 ساعة راحة كحد أدنى بعد الواجب المحلي (من وقت الإفراج)",
+  "legality_rest_int": "يجب توفر 15 ساعة راحة كحد أدنى بعد الواجب الدولي (من وقت الإفراج)",
+  "legality_fdp": "تجاوز الحد الأقصى لفترة واجب الطيران",
+  "legality_actual": "الفعلي: {value} {unit}",
+  "@legality_actual": {
+    "placeholders": {
+      "value": { "type": "String" },
+      "unit": { "type": "String" }
+    }
+  },
+  "legality_required": "المطلوب: {value} {unit}",
+  "@legality_required": {
+    "placeholders": {
+      "value": { "type": "String" },
+      "unit": { "type": "String" }
+    }
+  },
+
+  "profile_title": "الملف الشخصي",
+  "profile_subscription": "الاشتراك",
+  "profile_mode": "وضع التحسين",
+  "profile_preferences": "التفضيلات",
+  "profile_preferred_dest": "الوجهات المفضلة",
+  "profile_preferred_off": "أيام الإجازة المفضلة",
+  "profile_save_prefs": "حفظ التفضيلات",
+  "profile_prefs_saved": "تم حفظ التفضيلات ✓",
+  "profile_privacy": "الخصوصية",
+  "profile_sign_out": "تسجيل الخروج",
+  "profile_sign_out_confirm": "هل أنت متأكد من تسجيل الخروج؟",
+
+  "subscription_free": "الباقة الأساسية",
+  "subscription_pro": "باقة المحترف",
+  "subscription_elite": "باقة النخبة",
+  "subscription_enterprise": "باقة المؤسسة",
+  "subscription_upgrade": "ترقية",
+  "subscription_renews": "يتجدد في: {date}",
+  "@subscription_renews": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "settings_title": "الإعدادات",
+  "settings_language": "اللغة",
+  "settings_notifications": "الإشعارات",
+  "settings_calendar": "التقويم",
+  "settings_support": "الدعم",
+  "settings_legal": "القانونية",
+  "settings_about": "عن التطبيق",
+  "settings_version": "الإصدار",
+
+  "disclaimer_title": "إخلاء المسؤولية",
+  "disclaimer_body": "منصة نجم هي أداة غير رسمية ومستقلة مصممة لمساعدة طاقم كابينة الطيران في إدارة جداولهم.\n\nهذه المنصة غير مرتبطة أو معتمدة من الخطوط الجوية العربية السعودية (السعودية) أو أي من أنظمتها.\n\nجميع البيانات المدخلة في التطبيق يقدمها المستخدم ومملوكة له. منصة نجم لا تصل إلى أي أنظمة داخلية للشركة.\n\nتحقق دائمًا من الجداول والأنظمة القانونية من خلال القنوات الرسمية.",
+  "disclaimer_confirm": "أفهم وأوافق",
+
+  "onboarding_welcome": "مرحباً بك في نجم",
+  "onboarding_step1_title": "رفع جدولك الشهري",
+  "onboarding_step1_body": "ارفع ملف Excel الشهري وسيقوم نجم بتحليل جميع خطوط الرحلات تلقائياً",
+  "onboarding_step2_title": "المزايدة والتبادل بذكاء",
+  "onboarding_step2_body": "قارن الخطوط وتحقق من الأنظمة القانونية وقدم عطاءاتك بنقرة واحدة",
+  "onboarding_step3_title": "مساعد نجم الذكي",
+  "onboarding_step3_body": "اسأل نجم بالعربية أو الإنجليزية للحصول على توصيات وإجابات فورية",
+  "onboarding_get_started": "ابدأ الآن",
+  "onboarding_skip": "تخطي",
+
+  "auth_error_user_not_found": "البريد الإلكتروني غير مسجل",
+  "auth_error_wrong_password": "كلمة المرور غير صحيحة",
+  "auth_error_email_in_use": "البريد الإلكتروني مستخدم بالفعل",
+  "auth_error_weak_password": "كلمة المرور ضعيفة جداً (6 أحرف على الأقل)",
+  "auth_error_invalid_email": "البريد الإلكتروني غير صالح",
+  "auth_error_too_many_requests": "تم تجاوز الحد الأقصى للمحاولات، يرجى الانتظار",
+  "auth_error_network": "خطأ في الاتصال بالإنترنت",
+  "auth_error_unknown": "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى",
+
+  "generic_error": "حدث خطأ. يرجى المحاولة مرة أخرى",
+  "generic_loading": "جارٍ التحميل...",
+  "generic_save": "حفظ",
+  "generic_cancel": "إلغاء",
+  "generic_confirm": "تأكيد",
+  "generic_back": "رجوع",
+  "generic_next": "التالي",
+  "generic_done": "تم",
+  "generic_retry": "إعادة المحاولة",
+  "generic_refresh": "تحديث",
+  "generic_search": "بحث",
+  "generic_filter": "تصفية",
+  "generic_sort": "ترتيب",
+  "generic_share": "مشاركة",
+  "generic_delete": "حذف",
+  "generic_edit": "تعديل",
+  "generic_yes": "نعم",
+  "generic_no": "لا",
+
+  "currency_sar": "ريال سعودي",
+  "unit_hours": "ساعة",
+  "unit_days": "يوم",
+  "unit_legs": "رحلة",
+
+  "weekday_sun": "أحد",
+  "weekday_mon": "اثنين",
+  "weekday_tue": "ثلاثاء",
+  "weekday_wed": "أربعاء",
+  "weekday_thu": "خميس",
+  "weekday_fri": "جمعة",
+  "weekday_sat": "سبت"
+}

@@ -1,0 +1,727 @@
+openapi: 3.1.0
+info:
+  title: Crew Intelligence Platform — AI Services API
+  description: |
+    Internal API for the Crew Intelligence Platform (CIP / Najm).
+    All endpoints require a Firebase ID token via Bearer authentication.
+    Service-to-service calls (Cloud Functions → Python) use a signed internal token.
+  version: 1.0.0
+  contact:
+    name: CIP Engineering
+    email: engineering@cip.app
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://cip-python-xxxx-uc.a.run.app
+    description: Production (Cloud Run — me-central1)
+  - url: http://localhost:8080
+    description: Local development
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Parser
+    description: Excel roster file parsing and ingestion
+  - name: Legality
+    description: GACA/ICAO FTL rule enforcement engine
+  - name: AI Assistant
+    description: Najm natural language assistant (Claude-powered)
+  - name: Ranking
+    description: Smart line ranking with mode-based scoring
+  - name: Auto Bid
+    description: Preference learning and auto-bid suggestion engine
+  - name: Health
+    description: Service health and diagnostics
+
+paths:
+
+  # ─── Health ─────────────────────────────────────────────────────────────────
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: healthy }
+                  service: { type: string, example: cip-python-services }
+                  version: { type: string, example: 1.0.0 }
+
+  # ─── Parser ─────────────────────────────────────────────────────────────────
+  /v1/parser/parse:
+    post:
+      tags: [Parser]
+      summary: Parse a monthly roster Excel file
+      description: |
+        Triggered after a user uploads a .xlsx file to Firebase Storage.
+        Parses each sheet as a flight line, computes derived fields (UTC,
+        rest intervals, legality flags), and saves results to Firestore.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParseRequest'
+      responses:
+        '200':
+          description: Parsing completed (may contain warnings)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParseResponse'
+        '422':
+          description: File could not be parsed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ─── Legality ────────────────────────────────────────────────────────────────
+  /v1/legality/check-bid:
+    post:
+      tags: [Legality]
+      summary: Check legality of bidding on a flight line
+      description: |
+        Runs a full backward + forward FTL check against the user's
+        current schedule. Returns all violations and warnings with
+        rule references, actual vs required values, and affected legs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, lineId]
+              properties:
+                userId:
+                  type: string
+                  description: Firebase UID of the crew member
+                lineId:
+                  type: string
+                  description: Firestore document ID of the flight line
+      responses:
+        '200':
+          description: Legality check result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalityResult'
+        '404':
+          description: Line or user not found
+
+  /v1/legality/check-trade:
+    post:
+      tags: [Legality]
+      summary: Check legality of a leg trade for both parties
+      description: |
+        Checks both the initiator's and receiver's schedules after the
+        proposed swap. Both must pass for the trade to proceed.
+        Uses backward AND forward rest window checks.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [initiatorId, offeredLegId]
+              properties:
+                initiatorId:
+                  type: string
+                receiverId:
+                  type: string
+                  nullable: true
+                  description: Null for open drop posts
+                offeredLegId:
+                  type: string
+                requestedLegId:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: Trade legality check result for both parties
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  passed:
+                    type: boolean
+                    description: True only if BOTH parties pass all checks
+                  initiatorResult:
+                    $ref: '#/components/schemas/LegalityResult'
+                  receiverResult:
+                    $ref: '#/components/schemas/LegalityResult'
+
+  /v1/legality/rules:
+    get:
+      tags: [Legality]
+      summary: List all active FTL rules
+      description: Returns all configurable legality rules currently in effect.
+      responses:
+        '200':
+          description: Active rules list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LegalityRule'
+
+  # ─── AI Assistant ────────────────────────────────────────────────────────────
+  /v1/ai/chat:
+    post:
+      tags: [AI Assistant]
+      summary: Send a message to the Najm AI assistant
+      description: |
+        Routes the user's natural language message through intent
+        classification then to the appropriate handler:
+        - filter → structured Firestore query
+        - calculation → computed from schedule data
+        - comparison → multi-line narrative (Claude)
+        - legality → legality engine + Claude explanation
+        - recommendation → ranking engine + Claude explanation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Assistant response with optional rich card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '429':
+          description: Daily query limit reached (free tier)
+
+  /v1/ai/filter:
+    post:
+      tags: [AI Assistant]
+      summary: Convert a natural language query into a structured filter
+      description: |
+        Passes the query to Claude API which returns a JSON filter object.
+        Flutter applies the filter client-side against cached line data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query, locale]
+              properties:
+                query:
+                  type: string
+                  example: "Show lines with London layovers and no Friday duties"
+                locale:
+                  type: string
+                  enum: [ar, en]
+                  default: ar
+      responses:
+        '200':
+          description: Structured filter object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineFilter'
+
+  # ─── Ranking ─────────────────────────────────────────────────────────────────
+  /v1/ranking/rank:
+    post:
+      tags: [Ranking]
+      summary: Rank all available flight lines for a user
+      description: |
+        Scores each available line using salary, rest quality, destination
+        preference, and schedule regularity scores. Weights are determined
+        by the user's active mode (money / rest / balanced).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, month, userMode]
+              properties:
+                userId: { type: string }
+                month:
+                  type: string
+                  example: "2026-06"
+                  pattern: '^\d{4}-\d{2}$'
+                userMode:
+                  type: string
+                  enum: [money, rest, balanced]
+                lineIds:
+                  type: array
+                  items: { type: string }
+                  description: Optional subset of line IDs to rank. If omitted, ranks all lines for the month.
+      responses:
+        '200':
+          description: Ranked lines with scores and explanations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rankedLines:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RankedLine'
+                  generatedAt: { type: string, format: date-time }
+
+  # ─── Auto Bid ────────────────────────────────────────────────────────────────
+  /v1/auto-bid/suggest:
+    post:
+      tags: [Auto Bid]
+      summary: Generate bid suggestions based on learned preferences
+      description: |
+        Scores available lines against the user's preference vector,
+        validates legality, and returns a ranked suggestion list with
+        explanations. Cold-start phase affects suggestion confidence.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, month, userMode]
+              properties:
+                userId: { type: string }
+                month: { type: string, example: "2026-06" }
+                userMode: { type: string, enum: [money, rest, balanced] }
+                availableLineIds:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: Ranked bid suggestions with reasons
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BidSuggestionResponse'
+
+  /v1/auto-bid/update-preference:
+    post:
+      tags: [Auto Bid]
+      summary: Update preference vector from a behavioral event
+      description: |
+        Called after any user action (bid, trade, mode switch, filter).
+        Updates the user's preference vector using time-decayed weighted signals.
+        Fire-and-forget — failures are logged silently and never block UX.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, eventType, metadata, userMode]
+              properties:
+                userId: { type: string }
+                eventType:
+                  type: string
+                  enum:
+                    - line_viewed
+                    - leg_bookmarked
+                    - bid_submitted
+                    - bid_outcome
+                    - trade_initiated
+                    - filter_applied
+                    - mode_switched
+                    - assistant_query
+                    - auto_bid_accepted
+                    - auto_bid_modified
+                metadata:
+                  type: object
+                  description: Event-specific payload (schema varies per eventType)
+                userMode: { type: string, enum: [money, rest, balanced] }
+      responses:
+        '202':
+          description: Accepted for background processing
+
+  /v1/auto-bid/preference/{userId}:
+    get:
+      tags: [Auto Bid]
+      summary: Get current preference vector for a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: User preference vector
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceVector'
+
+# ─── Components ──────────────────────────────────────────────────────────────
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Firebase ID token (user calls) or signed service token (Cloud Function calls)
+
+  schemas:
+
+    ParseRequest:
+      type: object
+      required: [userId, month, storageRef]
+      properties:
+        userId:
+          type: string
+          description: Firebase UID of the uploading crew member
+        month:
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+          example: "2026-06"
+        storageRef:
+          type: string
+          description: Firebase Storage path to the uploaded .xlsx file
+          example: "users/abc123/rosters/2026-06.xlsx"
+
+    ParseResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        linesProcessed: { type: integer }
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParsedLine'
+        errors:
+          type: array
+          items: { type: string }
+        warnings:
+          type: array
+          items: { type: string }
+
+    ParsedLine:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        lineNumber: { type: string, example: "411" }
+        month: { type: string, example: "2026-06" }
+        userId: { type: string }
+        legs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParsedLeg'
+        summary:
+          $ref: '#/components/schemas/LineSummary'
+        destinations:
+          type: array
+          items: { type: string, example: "LHR" }
+        daysOff:
+          type: array
+          items: { type: integer, minimum: 0, maximum: 6 }
+          description: Day-of-week indices with no duty (0=Sun KSA)
+        validationStatus:
+          type: string
+          enum: [valid, warnings, errors]
+
+    ParsedLeg:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        lineId: { type: string }
+        flightNumber: { type: string, example: "SV117" }
+        origin: { type: string, example: "RUH", minLength: 3, maxLength: 3 }
+        destination: { type: string, example: "LHR", minLength: 3, maxLength: 3 }
+        legType:
+          type: string
+          enum: [domestic, international, positioning]
+        departureLT: { type: string, format: date-time }
+        arrivalLT: { type: string, format: date-time }
+        departureUTC: { type: string, format: date-time }
+        arrivalUTC: { type: string, format: date-time }
+        dutyStart: { type: string, format: date-time }
+        dutyEnd: { type: string, format: date-time }
+        releaseTime:
+          type: string
+          format: date-time
+          description: dutyEnd + 30 minute ground buffer
+        blockHours: { type: number, example: 7.5 }
+        fdpHours: { type: number, example: 9.2 }
+        aircraftType: { type: string, example: "B787" }
+        layover: { type: boolean }
+        layoverHours: { type: number, example: 36.0 }
+        payRate: { type: number, example: 50.0 }
+        estimatedPay: { type: number, example: 525.0 }
+        perDiem: { type: number, example: 150.0 }
+        legalityStatus:
+          type: string
+          enum: [legal, warning, violation]
+        legalityFlags:
+          type: array
+          items: { type: string, example: "GACA-REST-INT-001" }
+        restAfterHours: { type: number, example: 18.5 }
+        restBeforeHours: { type: number, example: 15.2 }
+        sequence: { type: integer }
+
+    LineSummary:
+      type: object
+      properties:
+        totalLegs: { type: integer }
+        totalBlockHours: { type: number }
+        totalDutyHours: { type: number }
+        totalDutyDays: { type: integer }
+        internationalLegs: { type: integer }
+        domesticLegs: { type: integer }
+        layoverCount: { type: integer }
+        estimatedSalaryMin: { type: number, description: SAR }
+        estimatedSalaryMax: { type: number, description: SAR }
+        salaryScore: { type: number, minimum: 0, maximum: 100 }
+        restQualityScore: { type: number, minimum: 0, maximum: 100 }
+        compositeScore: { type: number, minimum: 0, maximum: 100 }
+
+    LegalityResult:
+      type: object
+      properties:
+        passed:
+          type: boolean
+          description: True only when zero blocking violations exist
+        violations:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalityViolation'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalityViolation'
+
+    LegalityViolation:
+      type: object
+      properties:
+        ruleId:
+          type: string
+          example: "GACA-REST-INT-001"
+        ruleDescription:
+          type: string
+          example: "Minimum 15h rest required after international duty (from release time)"
+        ruleDescriptionAr:
+          type: string
+          example: "يجب توفر 15 ساعة راحة كحد أدنى بعد الواجب الدولي"
+        actualValue:
+          type: number
+          example: 13.5
+        requiredValue:
+          type: number
+          example: 15.0
+        unit:
+          type: string
+          example: hours
+        severity:
+          type: string
+          enum: [blocking, warning]
+        affectedLegIds:
+          type: array
+          items: { type: string }
+
+    LegalityRule:
+      type: object
+      properties:
+        ruleId: { type: string }
+        category:
+          type: string
+          enum: [rest, fdp, cumulative, sector]
+        legType:
+          type: string
+          enum: [domestic, international, both]
+        parameter: { type: string, example: minRestHours }
+        value: { type: number }
+        unit: { type: string }
+        effectiveDate: { type: string, format: date }
+        description: { type: string }
+        descriptionAr: { type: string }
+        severity:
+          type: string
+          enum: [blocking, warning]
+        source: { type: string, example: "GACA OPS SPEC 2024 §4.2" }
+
+    ChatRequest:
+      type: object
+      required: [userId, message]
+      properties:
+        userId: { type: string }
+        message:
+          type: string
+          maxLength: 500
+          example: "Show me lines with London layovers and salary above 12000"
+        history:
+          type: array
+          maxItems: 10
+          items:
+            type: object
+            properties:
+              role: { type: string, enum: [user, assistant] }
+              content: { type: string }
+              timestamp: { type: string, format: date-time }
+        context:
+          type: object
+          properties:
+            activeMonth: { type: string }
+            activeLineId: { type: string, nullable: true }
+
+    ChatResponse:
+      type: object
+      properties:
+        text:
+          type: string
+          description: Human-readable assistant response
+        intentType:
+          type: string
+          enum: [filter, calculation, comparison, legality, recommendation, general, error]
+        filterResult:
+          $ref: '#/components/schemas/LineFilter'
+          nullable: true
+        legalityCard:
+          $ref: '#/components/schemas/LegalityResult'
+          nullable: true
+        lineCard:
+          type: object
+          nullable: true
+          description: Inline flight line summary card data
+        responseTimeMs: { type: integer }
+
+    LineFilter:
+      type: object
+      description: Structured filter derived from NLP query
+      properties:
+        destinations:
+          type: array
+          items: { type: string }
+          example: ["LHR", "CDG"]
+        origins:
+          type: array
+          items: { type: string }
+        noDaysOfWeek:
+          type: array
+          items: { type: integer, minimum: 0, maximum: 6 }
+          description: Days of week with no duty required (0=Sun KSA)
+          example: [5, 6]
+        maxDutyHours:
+          type: number
+          nullable: true
+          example: 100.0
+        minLayoverHours:
+          type: number
+          nullable: true
+          example: 24.0
+        requiresLayover:
+          type: boolean
+          nullable: true
+        maxLegs:
+          type: integer
+          nullable: true
+        minSalary:
+          type: number
+          nullable: true
+          description: SAR
+        legType:
+          type: string
+          enum: [domestic, international, both]
+          nullable: true
+
+    RankedLine:
+      type: object
+      properties:
+        lineId: { type: string }
+        lineNumber: { type: string }
+        rank: { type: integer }
+        compositeScore: { type: number, minimum: 0, maximum: 100 }
+        salaryScore: { type: number, minimum: 0, maximum: 100 }
+        restScore: { type: number, minimum: 0, maximum: 100 }
+        destPrefScore: { type: number, minimum: 0, maximum: 100 }
+        regularityScore: { type: number, minimum: 0, maximum: 100 }
+        estimatedSalary: { type: number }
+        explanation:
+          type: string
+          description: English explanation of why this line is ranked here
+        explanationAr:
+          type: string
+          description: Arabic explanation
+
+    BidSuggestionResponse:
+      type: object
+      properties:
+        userId: { type: string }
+        month: { type: string }
+        suggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/BidSuggestion'
+        generatedAt: { type: string, format: date-time }
+        coldStartPhase:
+          type: integer
+          enum: [1, 2, 3]
+          description: "1=<10 events (explicit prefs only), 2=10-50, 3=50+ (full ML)"
+        modelVersion: { type: string, example: "preference-v1" }
+
+    BidSuggestion:
+      type: object
+      properties:
+        lineId: { type: string }
+        lineNumber: { type: string }
+        suggestedPriority: { type: integer }
+        confidenceScore: { type: number, minimum: 0, maximum: 1 }
+        salaryScore: { type: number }
+        restScore: { type: number }
+        prefScore: { type: number }
+        compositeScore: { type: number }
+        reasons:
+          type: array
+          items: { type: string }
+          description: English explanation sentences (max 3)
+        reasonsAr:
+          type: array
+          items: { type: string }
+          description: Arabic explanation sentences (max 3)
+        estimatedSalary: { type: number }
+        isLegal: { type: boolean }
+        legalityWarnings:
+          type: array
+          items: { type: string }
+
+    PreferenceVector:
+      type: object
+      properties:
+        userId: { type: string }
+        destAffinities:
+          type: object
+          additionalProperties: { type: number, minimum: -1, maximum: 1 }
+          description: IATA code → affinity score (-1 to 1)
+        layoverPreference:
+          type: number
+          minimum: 0
+          maximum: 1
+        dayOffPreferences:
+          type: array
+          items: { type: number, minimum: 0, maximum: 1 }
+          minItems: 7
+          maxItems: 7
+        intlDomRatio: { type: number }
+        salarySensitivity: { type: number }
+        eventCount: { type: integer }
+        updatedAt: { type: string, format: date-time }
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message
+        code: { type: string }

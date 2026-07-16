@@ -1,0 +1,397 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helpers ─────────────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isSuperAdmin() {
+      return request.auth != null && request.auth.token.superAdmin == true;
+    }
+
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.superAdmin == true ||
+        request.auth.token.admin == true
+      );
+    }
+
+    function hasPrivilege(privilege) {
+      return isSuperAdmin() ||
+        (request.auth.token.admin == true &&
+         request.auth.token.privileges != null &&
+         privilege in request.auth.token.privileges);
+    }
+
+    function isApproved() {
+      return isAuthenticated() &&
+        request.auth.token.accountStatus == 'approved';
+    }
+
+    function getUserRank() {
+      return request.auth.token.rank;
+    }
+
+    function isSameRank(docRank) {
+      return isAuthenticated() && getUserRank() == docRank;
+    }
+
+    function isApprovedAndSameRank(docRank) {
+      return isApproved() && isSameRank(docRank);
+    }
+
+    // ─── Users ────────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['crewId', 'name', 'email', 'rankCode'])
+        && request.resource.data.accountStatus == 'pending';
+      allow update: if (isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'name', 'preferences', 'userMode', 'locale',
+            'fleetTypes', 'preferenceVector', 'totalBehaviorEvents', 'lastActiveAt'
+          ]))
+        || hasPrivilege('approve_users');
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── Flight Lines — RANK SEPARATED ───────────────────────────────────────
+    match /flightLines/{lineId} {
+      // Only approved crew can read lines that match their rank
+      allow read: if (isApproved() && isSameRank(resource.data.rank))
+                  || isAdmin();
+
+      // Only admin can create/update lines (uploaded by admin or bulk upload)
+      allow create: if hasPrivilege('upload_lines') || isSuperAdmin();
+      allow update: if hasPrivilege('upload_lines') || isSuperAdmin();
+      allow delete: if isSuperAdmin();
+
+      // Legs subcollection — same rank restriction
+      match /legs/{legId} {
+        allow read: if (isApproved() && isSameRank(get(/databases/$(database)/documents/flightLines/$(lineId)).data.rank))
+                    || isAdmin();
+        allow write: if hasPrivilege('upload_lines') || isSuperAdmin();
+      }
+    }
+
+    // ─── Bids — RANK SEPARATED ────────────────────────────────────────────────
+    match /bids/{bidId} {
+      // User reads only their own bids
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+
+      // User creates bids only for their own rank lines
+      allow create: if isApproved()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.rank == getUserRank()
+        && request.resource.data.keys().hasAll(['userId', 'lineId', 'month', 'priority', 'rank']);
+
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'priority', 'status', 'withdrawnAt'
+          ]);
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── Trades — STRICT RANK SEPARATION ─────────────────────────────────────
+    match /trades/{tradeId} {
+      // Only approved crew can read trades that match their rank
+      allow read: if (isApproved() && isSameRank(resource.data.initiatorRank))
+                  || isAdmin();
+
+      // Create trade — must be same rank, must be approved
+      allow create: if isApproved()
+        && request.resource.data.initiatorId == request.auth.uid
+        && request.resource.data.initiatorRank == getUserRank()
+        && request.resource.data.type in ['direct', 'openDrop', 'pickUp', 'swap']
+        && request.resource.data.status in ['draft', 'open'];
+
+      // Accept trade — receiver must have same rank as initiator
+      allow update: if isApproved()
+        && (
+          // Initiator can cancel
+          (isOwner(resource.data.initiatorId)
+           && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status', 'note', 'expiresAt']))
+          ||
+          // Receiver accepts — must be same rank
+          (getUserRank() == resource.data.initiatorRank
+           && resource.data.status == 'open'
+           && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['receiverId', 'status', 'legality']))
+          ||
+          // Both confirm
+          ((request.auth.uid == resource.data.initiatorId
+            || request.auth.uid == resource.data.receiverId)
+           && resource.data.status == 'pendingConfirm'
+           && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status', 'confirmedAt']))
+          ||
+          hasPrivilege('manage_trades')
+        );
+      allow delete: if isSuperAdmin() || hasPrivilege('manage_trades');
+    }
+
+    // ─── Legality Rules — read approved users, write super admin ─────────────
+    match /legalityRules/{ruleId} {
+      allow read: if isApproved();
+      allow write: if isSuperAdmin();
+    }
+
+    // ─── Behavior Events ──────────────────────────────────────────────────────
+    match /behaviorEvents/{eventId} {
+      allow read: if isAdmin();
+      allow create: if isApproved()
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ─── AI Sessions ─────────────────────────────────────────────────────────
+    match /aiSessions/{sessionId} {
+      allow read, write: if isApproved()
+        && request.auth.uid == resource.data.userId;
+      allow create: if isApproved()
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ─── Notifications ────────────────────────────────────────────────────────
+    match /notifications/{notifId} {
+      allow read: if isOwner(resource.data.userId);
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow create, delete: if isAdmin();
+    }
+
+    // ─── Admin Management ─────────────────────────────────────────────────────
+    match /adminUsers/{adminId} {
+      allow read: if isSuperAdmin() || isOwner(adminId);
+      allow write: if isSuperAdmin();
+    }
+
+    // ─── Pending Approvals Queue ──────────────────────────────────────────────
+    match /pendingApprovals/{requestId} {
+      allow read: if isSuperAdmin() || hasPrivilege('approve_users');
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if hasPrivilege('approve_users') || isSuperAdmin();
+    }
+
+    // ─── Rate Limits ──────────────────────────────────────────────────────────
+    match /rateLimits/{limitId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ─── Deletion Requests ────────────────────────────────────────────────────
+    match /deletionRequests/{requestId} {
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isSuperAdmin();
+    }
+
+    // ─── Subscriptions ────────────────────────────────────────────────────────
+    match /subscriptions/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isSuperAdmin();
+    }
+
+    // ─── FCM Tokens ───────────────────────────────────────────────────────────
+    match /fcmTokens/{tokenId} {
+      allow read, write: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ─── Auto Bid Suggestions ────────────────────────────────────────────────
+    match /autoBidSuggestions/{suggestionId} {
+      allow read: if isApproved()
+        && resource.data.userId == request.auth.uid;
+      allow write: if isAdmin();
+    }
+
+    // ─── Phase 2: PDF Intelligence ────────────────────────────────────────────
+
+    match /uploads/{uploadId} {
+      allow read:   if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isApproved();
+      allow update: if isAdmin() || resource.data.userId == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /monthly_lines/{lineId} {
+      allow read:   if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isApproved();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+
+      match /timeline/{pointId} {
+        allow read:  if isAuthenticated();
+        allow write: if isAdmin();
+      }
+    }
+
+    match /pairings/{pairingId} {
+      allow read:  if isApproved();
+      allow write: if isAdmin();
+    }
+
+    match /fleet_analytics/{period} {
+      allow read:  if isApproved();
+      allow write: if isAdmin();
+    }
+
+    // ─── Phase 3: Layover Intelligence ────────────────────────────────────────
+
+    match /layoverCities/{cityId} {
+      allow read:  if isApproved();
+      allow write: if isAdmin();
+    }
+
+    match /recommendations/{recId} {
+      allow read:   if isApproved()
+                      && resource.data.isDeleted == false
+                      && resource.data.isApproved == true;
+      allow create: if isApproved();
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /comments/{commentId} {
+      allow read:   if isApproved() && resource.data.isDeleted == false;
+      allow create: if isApproved();
+      allow update: if isAdmin() || isOwner(resource.data.userId);
+      allow delete: if false;
+    }
+
+    match /userLikes/{docId}   { allow read, write: if isApproved() && docId.matches(request.auth.uid + '_.*'); }
+    // F30: the docId regex alone is not provable for collection queries, so
+    // owner *list* access is granted via resource.data.userId — this is what
+    // lets the Saved Places screen run
+    //   where('userId','==',uid).orderBy('createdAt')
+    // Writes stay pinned to the {uid}_{recId} docId convention.
+    match /userSaves/{docId} {
+      allow read: if isApproved()
+        && (docId.matches(request.auth.uid + '_.*')
+            || resource.data.userId == request.auth.uid);
+      allow write: if isApproved() && docId.matches(request.auth.uid + '_.*');
+    }
+    match /userRatings/{docId} { allow read, write: if isApproved() && docId.matches(request.auth.uid + '_.*'); }
+
+    // ─── Operational Knowledge Management System ─────────────────────────────
+    // Documents themselves are NEVER readable client-side — only metadata.
+    // All file content access goes through the Python API with signed URLs.
+
+    match /knowledgeDocuments/{docId} {
+      allow read: if isApproved();   // metadata only — name/category/description
+      allow create, update: if hasPrivilege('manage_knowledge_base') || isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    match /documentVersions/{versionId} {
+      // Crew never read version records directly — only via the AI assistant API.
+      allow read:   if hasPrivilege('manage_knowledge_base') || isSuperAdmin();
+      allow create, update: if hasPrivilege('manage_knowledge_base') || isSuperAdmin();
+      allow delete: if false;   // versions are archived, never deleted
+    }
+
+    match /knowledgeChunks/{chunkId} {
+      // Never readable by any client — retrieval happens server-side only.
+      allow read, write: if false;
+    }
+
+    match /documentChangeSummaries/{summaryId} {
+      allow read:  if hasPrivilege('manage_knowledge_base') || isSuperAdmin();
+      allow write: if false;   // written only by the backend service account
+    }
+
+    // ─── Trade Recommendation Engine ──────────────────────────────────────────
+
+    match /tradeContacts/{docId} {
+      // T4 — scope to the owning user; aligns with the userId-filtered query.
+      allow read:  if isApproved() && resource.data.userId == request.auth.uid;
+      allow write: if isApproved() && request.resource.data.userId == request.auth.uid;
+    }
+    // behaviorEvents rule is defined once above (create is admin-SDK only in
+    // practice); the duplicate block here was removed in T4 to avoid a rule that
+    // silently never matched (it keyed on `user_id`, the canonical field is `userId`).
+
+    // ─── Subscription System ──────────────────────────────────────────────────
+    // Free launch today; fully subscription-ready architecture underneath.
+    // All entitlement decisions are computed server-side via /v1/subscription/* —
+    // these rules only govern direct Firestore reads, not feature access itself.
+
+    match /subscriptionConfig/{docId} {
+      allow read:  if isApproved();
+      allow write: if hasPrivilege('manage_subscriptions') || isSuperAdmin();
+    }
+
+    match /userSubscriptions/{userId} {
+      allow read:  if isOwner(userId) || hasPrivilege('manage_subscriptions') || isSuperAdmin();
+      allow write: if false;
+    }
+
+    match /usageCounters/{counterId} {
+      allow read:  if isApproved() &&
+                     counterId.matches(request.auth.uid + '_.*');
+      allow write: if false;
+    }
+
+    match /subscriptionEvents/{eventId} {
+      allow read:  if (isApproved() && resource.data.userId == request.auth.uid)
+                      || hasPrivilege('manage_subscriptions') || isSuperAdmin();
+      allow write: if false;
+    }
+
+    match /referralCampaigns/{campaignId} {
+      allow read:  if isApproved();
+      allow write: if hasPrivilege('manage_subscriptions') || isSuperAdmin();
+    }
+
+    match /userReferralStatus/{userId} {
+      allow read:  if isOwner(userId) || hasPrivilege('manage_subscriptions') || isSuperAdmin();
+      allow write: if false;
+    }
+
+    match /referralInvites/{invitedUserId} {
+      allow read:  if hasPrivilege('manage_subscriptions') || isSuperAdmin();
+      allow write: if false;
+    }
+
+    // ─── Deny all other access ────────────────────────────────────────────────
+    // ── Roster synchronization (v1.4.0-dev) ─────────────────────────────
+    // All three collections are written EXCLUSIVELY by the Python service
+    // (Admin SDK bypasses rules); clients get read-only views of their own
+    // connection state and version history. Credentials never exist in any
+    // of these documents (server-side assert_no_credentials guard) — these
+    // rules are the second wall.
+    match /rosterSources/{docId} {
+      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      allow write: if false;
+    }
+    match /rosterVersions/{docId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+    match /syncEvents/{eventId} {
+      allow read, write: if false;   // service-written analytics; admin
+                                     // consumption via Admin SDK only
+    }
+    match /autoBidRefresh/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

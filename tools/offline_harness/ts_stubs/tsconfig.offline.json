@@ -1,0 +1,15 @@
+{
+  "extends": "../../../firebase/functions/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "typeRoots": [
+      "./types"
+    ],
+    "types": [],
+    "rootDir": "../../.."
+  },
+  "include": [
+    "../../../firebase/functions/src/**/*.ts",
+    "./types/**/*.d.ts"
+  ]
+}

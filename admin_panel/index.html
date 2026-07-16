@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Najm Admin Panel</title>
+<script>
+window.__NAJM_LOCAL__ = location.protocol === 'file:' || ['localhost', '127.0.0.1'].includes(location.hostname);
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+<style>
+  :root {
+    --navy: #1B4F8A; --navy-dark: #0D3266; --gold: #C8A84B;
+    --green: #2ECC71; --green-bg: #E8FAF0;
+    --amber: #F39C12; --amber-bg: #FEF9E7;
+    --red: #E74C3C; --red-bg: #FDECEB;
+    --grey-50: #F8F9FA; --grey-100: #F1F3F5; --grey-200: #E9ECEF;
+    --grey-500: #ADB5BD; --grey-700: #495057; --grey-900: #212529;
+    --sidebar-w: 240px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--grey-50); color: var(--grey-900); }
+
+  /* ── Login ── */
+  #loginPage {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+  }
+  .login-box {
+    background: white; border-radius: 16px; padding: 40px;
+    width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .login-logo { text-align: center; margin-bottom: 28px; }
+  .login-logo .star { font-size: 48px; }
+  .login-logo h1 { font-size: 24px; font-weight: 800; color: var(--navy); margin: 8px 0 4px; }
+  .login-logo p { color: var(--grey-500); font-size: 13px; }
+  .login-notice {
+    background: var(--amber-bg); border: 1px solid var(--amber);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 20px;
+    font-size: 12px; color: var(--grey-700);
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .form-group input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--grey-200);
+    border-radius: 8px; font-size: 14px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus { border-color: var(--navy); }
+  .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px;
+    font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+  .btn-primary { background: var(--navy); color: white; }
+  .btn-primary:hover { opacity: 0.9; }
+  .login-error { color: var(--red); font-size: 12px; text-align: center; margin-top: 10px; }
+
+  /* ── Layout ── */
+  #adminApp { display: none; min-height: 100vh; }
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: var(--sidebar-w);
+    height: 100vh; background: var(--navy-dark);
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .sidebar-header {
+    padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .sidebar-logo { display: flex; align-items: center; gap: 10px; }
+  .sidebar-logo .star { font-size: 24px; }
+  .sidebar-logo div h2 { color: var(--gold); font-size: 18px; font-weight: 800; }
+  .sidebar-logo div p { color: rgba(255,255,255,0.5); font-size: 11px; }
+  .sidebar-admin { padding: 12px 16px; background: rgba(255,255,255,0.05); margin: 12px; border-radius: 8px; }
+  .sidebar-admin .name { color: white; font-size: 13px; font-weight: 600; }
+  .sidebar-admin .role { color: var(--gold); font-size: 11px; }
+  .sidebar-nav { padding: 8px 0; flex: 1; }
+  .nav-section { padding: 16px 16px 8px; color: rgba(255,255,255,0.3); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+    color: rgba(255,255,255,0.65); font-size: 13px; cursor: pointer;
+    transition: all 0.15s; border-right: 3px solid transparent;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: white; }
+  .nav-item.active { background: rgba(200,168,75,0.12); color: var(--gold); border-right-color: var(--gold); }
+  .nav-item .icon { width: 18px; text-align: center; font-size: 15px; }
+  .nav-badge { margin-left: auto; background: var(--red); color: white; font-size: 10px;
+    font-weight: 700; padding: 2px 6px; border-radius: 10px; }
+  .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .btn-signout { width: 100%; padding: 8px; background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3);
+    color: var(--red); border-radius: 8px; cursor: pointer; font-size: 13px; }
+
+  /* ── Main Content ── */
+  .main { margin-left: var(--sidebar-w); padding: 24px; min-height: 100vh; }
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { font-size: 22px; font-weight: 800; color: var(--grey-900); }
+  .page-header p { color: var(--grey-500); font-size: 13px; margin-top: 4px; }
+
+  /* ── Cards ── */
+  .card { background: white; border-radius: 12px; border: 1px solid var(--grey-200); padding: 20px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: white; border-radius: 12px; border: 1px solid var(--grey-200); padding: 20px; }
+  .stat-card .num { font-size: 32px; font-weight: 800; }
+  .stat-card .lbl { color: var(--grey-500); font-size: 13px; margin-top: 4px; }
+  .stat-card .change { font-size: 11px; margin-top: 8px; }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--grey-50); padding: 10px 14px; text-align: left; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.5px; color: var(--grey-500); border-bottom: 1px solid var(--grey-200); }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--grey-200); vertical-align: middle; }
+  tr:hover td { background: var(--grey-50); }
+  tr:last-child td { border-bottom: none; }
+
+  /* ── Rank Badge ── */
+  .rank-badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 6px;
+    font-size: 11px; font-weight: 700; }
+  .rank-GD  { background: rgba(142,68,173,0.1); color: #8E44AD; }
+  .rank-PCA { background: rgba(27,79,138,0.1); color: var(--navy); }
+  .rank-BUT { background: rgba(200,168,75,0.15); color: #A0852A; }
+  .rank-CHF { background: rgba(231,76,60,0.1); color: var(--red); }
+  .rank-SNF { background: rgba(46,204,113,0.1); color: #27AE60; }
+  .rank-YCA { background: rgba(41,128,185,0.1); color: #2980B9; }
+  .rank-CA  { background: rgba(44,62,80,0.1); color: #2C3E50; }
+  .rank-FO  { background: rgba(52,73,94,0.1); color: #34495E; }
+
+  /* ── Status Badge ── */
+  .status { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+    border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .status-pending  { background: var(--amber-bg); color: var(--amber); }
+  .status-approved { background: var(--green-bg); color: var(--green); }
+  .status-rejected { background: var(--red-bg); color: var(--red); }
+  .status-suspended{ background: var(--grey-100); color: var(--grey-500); }
+
+  /* ── Action Buttons ── */
+  .btn-sm { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: none; transition: opacity 0.2s; }
+  .btn-approve { background: var(--green-bg); color: var(--green); }
+  .btn-reject  { background: var(--red-bg); color: var(--red); }
+  .btn-suspend { background: var(--grey-100); color: var(--grey-700); }
+  .btn-sm:hover { opacity: 0.8; }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--grey-200); }
+  .tab { padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+    color: var(--grey-500); border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+
+  /* ── Filters ── */
+  .filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .filter-select, .filter-input {
+    padding: 7px 12px; border: 1.5px solid var(--grey-200); border-radius: 8px;
+    font-size: 13px; outline: none; background: white;
+  }
+  .filter-select:focus, .filter-input:focus { border-color: var(--navy); }
+
+  /* ── Privilege Toggles ── */
+  .privilege-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+  .privilege-item { display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border: 1px solid var(--grey-200); border-radius: 8px; }
+  .privilege-item label { font-size: 13px; color: var(--grey-700); }
+  .toggle { position: relative; width: 40px; height: 22px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--grey-200); border-radius: 22px; transition: 0.3s;
+  }
+  .toggle-slider:before {
+    position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background: white; border-radius: 50%; transition: 0.3s;
+  }
+  .toggle input:checked + .toggle-slider { background: var(--navy); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+  /* ── Modal ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000;
+    display: none; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 16px; padding: 28px; width: 520px;
+    max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .modal p { color: var(--grey-500); font-size: 13px; margin-bottom: 20px; }
+  .modal .form-group label { font-weight: 500; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+  .btn-cancel { padding: 9px 20px; border: 1.5px solid var(--grey-200); border-radius: 8px;
+    background: white; font-size: 13px; cursor: pointer; }
+  .btn-save { padding: 9px 20px; border: none; border-radius: 8px; background: var(--navy);
+    color: white; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+  /* ── Empty State ── */
+  .empty { text-align: center; padding: 60px 20px; color: var(--grey-500); }
+  .empty .emoji { font-size: 48px; margin-bottom: 12px; }
+  .empty p { font-size: 15px; }
+
+  /* ── Loading ── */
+  .loading { text-align: center; padding: 40px; color: var(--grey-500); }
+  .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--grey-200);
+    border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Toast ── */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--grey-900); color: white;
+    padding: 12px 20px; border-radius: 10px; font-size: 13px; z-index: 2000;
+    transform: translateY(100px); opacity: 0; transition: all 0.3s; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+
+  .local-banner {
+    position: fixed; top: 0; left: var(--sidebar-w); right: 0; z-index: 20;
+    background: #E8FAF0; border-bottom: 1px solid #2ECC71;
+    color: #1E7B45; padding: 8px 24px; font-size: 12px; font-weight: 700;
+  }
+  .main.has-local-banner { padding-top: 56px; }
+  .page { display: none; }
+  .page.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN PAGE ── -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="star">⭐</div>
+      <h1>Najm Admin</h1>
+      <p>Crew Intelligence Platform — Admin Panel</p>
+    </div>
+    <div class="login-notice">
+      🔒 Access restricted to authorized administrators only.
+      This panel is monitored and all actions are logged.
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="admin@example.com">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter password">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Sign In to Admin Panel</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ── ADMIN APP ── -->
+<div id="adminApp">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="star">⭐</div>
+        <div><h2>Najm</h2><p>Admin Panel</p></div>
+      </div>
+    </div>
+    <div class="sidebar-admin">
+      <div class="name" id="adminName">Loading...</div>
+      <div class="role" id="adminRole">Super Admin</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <span class="icon">📊</span> Dashboard
+      </div>
+
+      <div class="nav-section">Users</div>
+      <div class="nav-item" onclick="showPage('approvals')">
+        <span class="icon">⏳</span> Pending Approvals
+        <span class="nav-badge" id="pendingBadge">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('users')">
+        <span class="icon">👥</span> All Users
+      </div>
+
+      <div class="nav-section">Scheduling</div>
+      <div class="nav-item" onclick="showPage('lines')">
+        <span class="icon">✈️</span> Flight Lines
+      </div>
+      <div class="nav-item" onclick="showPage('trades')">
+        <span class="icon">🔄</span> Trade Board
+      </div>
+      <div class="nav-item" onclick="showPage('bids')">
+        <span class="icon">🎯</span> Bids
+      </div>
+
+      <div class="nav-section">Communications</div>
+      <div class="nav-item" onclick="showPage('notifications')">
+        <span class="icon">🔔</span> Notifications
+      </div>
+
+      <div class="nav-section">System</div>
+      <div class="nav-item" onclick="showPage('admins')">
+        <span class="icon">🛡️</span> Admin Management
+      </div>
+      <div class="nav-item" onclick="showPage('legality')">
+        <span class="icon">⚖️</span> Legality Rules
+      </div>
+      <div class="nav-item" onclick="showPage('analytics')">
+        <span class="icon">📈</span> Analytics
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="localBanner" class="local-banner" style="display:none;">Local development mode: Firebase is mocked, Python API health is checked from localhost.</div>
+  <div id="mainContent" class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Overview of the Najm platform</p>
+      </div>
+      <div class="stats-grid" id="dashStats">
+        <div class="stat-card"><div class="num" style="color:var(--navy)" id="statTotal">—</div><div class="lbl">Total Users</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--amber)" id="statPending">—</div><div class="lbl">Pending Approval</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--green)" id="statApproved">—</div><div class="lbl">Approved Users</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--red)" id="statSuspended">—</div><div class="lbl">Suspended</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:16px;">Users by Rank</h3>
+          <div id="rankBreakdown"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:16px;">Recent Signups</h3>
+          <div id="recentSignups"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PENDING APPROVALS -->
+    <div class="page" id="page-approvals">
+      <div class="page-header">
+        <h1>Pending Approvals</h1>
+        <p>New user accounts waiting for verification</p>
+      </div>
+      <div class="card">
+        <div class="filters">
+          <select class="filter-select" id="approvalRankFilter" onchange="loadPending()">
+            <option value="">All Ranks</option>
+            <option>GD</option><option>PCA</option><option>BUT</option><option>CHF</option>
+            <option>SNF</option><option>YCA</option><option>CA</option><option>FO</option>
+          </select>
+          <input class="filter-input" id="approvalSearch" placeholder="Search by name or crew ID..." oninput="filterPendingTable()">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Crew ID</th><th>Rank</th><th>Base</th>
+              <th>Email</th><th>Signed Up</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="pendingTable">
+              <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL USERS -->
+    <div class="page" id="page-users">
+      <div class="page-header">
+        <h1>All Users</h1>
+        <p>Manage all crew member accounts</p>
+      </div>
+      <div class="card">
+        <div class="filters">
+          <select class="filter-select" id="userRankFilter" onchange="loadUsers()">
+            <option value="">All Ranks</option>
+            <option>GD</option><option>PCA</option><option>BUT</option><option>CHF</option>
+            <option>SNF</option><option>YCA</option><option>CA</option><option>FO</option>
+          </select>
+          <select class="filter-select" id="userStatusFilter" onchange="loadUsers()">
+            <option value="">All Statuses</option>
+            <option value="approved">Approved</option>
+            <option value="pending">Pending</option>
+            <option value="suspended">Suspended</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <select class="filter-select" id="userBaseFilter" onchange="loadUsers()">
+            <option value="">All Bases</option>
+            <option>RUH</option><option>JED</option><option>DMM</option>
+          </select>
+          <input class="filter-input" id="userSearch" placeholder="Search name or crew ID..." oninput="loadUsers()">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Crew ID</th><th>Rank</th><th>Base</th>
+              <th>Status</th><th>Subscription</th><th>Last Active</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="usersTable">
+              <tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN MANAGEMENT -->
+    <div class="page" id="page-admins">
+      <div class="page-header">
+        <h1>Admin Management</h1>
+        <p>Only you can create, edit, or remove admins and their privileges</p>
+      </div>
+      <div style="margin-bottom:16px;">
+        <button class="btn btn-primary" style="width:auto;padding:10px 20px;font-size:13px;"
+          onclick="openCreateAdminModal()">+ Create New Admin</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Email</th><th>Type</th><th>Rank Scope</th><th>Privileges</th><th>Created</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="adminsTable">
+              <tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEGALITY RULES -->
+    <div class="page" id="page-legality">
+      <div class="page-header">
+        <h1>Legality Rules</h1>
+        <p>Edit GACA/ICAO rest and duty rules. Changes apply immediately to all users.</p>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div style="background:var(--amber-bg);border:1px solid var(--amber);border-radius:8px;padding:12px;font-size:13px;color:var(--grey-700);margin-bottom:16px;">
+          ⚠️ Only modify these values if you have confirmed the regulatory change. Incorrect values may affect crew safety.
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Rule ID</th><th>Description</th><th>Leg Type</th><th>Current Value</th><th>Unit</th><th>Severity</th><th>Actions</th></tr></thead>
+            <tbody id="rulesTable">
+              <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="page" id="page-notifications">
+      <div class="page-header">
+        <h1>Send Notifications</h1>
+        <p>Push notifications to users</p>
+      </div>
+      <div class="card" style="max-width:600px;">
+        <div class="form-group">
+          <label>Target Audience</label>
+          <select class="filter-select" id="notifTarget" style="width:100%;">
+            <option value="all">All Users</option>
+            <option value="rank">Specific Rank</option>
+            <option value="base">Specific Base</option>
+          </select>
+        </div>
+        <div class="form-group" id="notifRankGroup" style="display:none;">
+          <label>Rank</label>
+          <select class="filter-select" id="notifRank" style="width:100%;">
+            <option>GD</option><option>PCA</option><option>BUT</option><option>CHF</option>
+            <option>SNF</option><option>YCA</option><option>CA</option><option>FO</option>
+          </select>
+        </div>
+        <div class="form-group" id="notifBaseGroup" style="display:none;">
+          <label>Base</label>
+          <select class="filter-select" id="notifBase" style="width:100%;">
+            <option>RUH</option><option>JED</option><option>DMM</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Title</label>
+          <input class="filter-input" id="notifTitle" style="width:100%;" placeholder="Notification title">
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea id="notifBody" style="width:100%;padding:10px;border:1.5px solid var(--grey-200);border-radius:8px;font-size:14px;height:100px;resize:vertical;" placeholder="Enter your message..."></textarea>
+        </div>
+        <button class="btn btn-primary" style="width:auto;padding:10px 24px;" onclick="sendNotification()">
+          Send Notification
+        </button>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="page" id="page-analytics">
+      <div class="page-header"><h1>Analytics</h1><p>Platform usage statistics</p></div>
+      <div class="stats-grid" id="analyticsStats">
+        <div class="stat-card"><div class="num" style="color:var(--navy)" id="statLines">—</div><div class="lbl">Lines Uploaded</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--green)" id="statBids">—</div><div class="lbl">Bids This Month</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--amber)" id="statTrades">—</div><div class="lbl">Active Trades</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--balanced,#8E44AD)" id="statAI">—</div><div class="lbl">AI Queries Today</div></div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:16px;">Users per Rank</h3>
+        <div id="analyticsRankChart"></div>
+      </div>
+    </div>
+
+    <!-- LINES, TRADES, BIDS (read-only overview) -->
+    <div class="page" id="page-lines">
+      <div class="page-header"><h1>Flight Lines</h1><p>All lines uploaded per rank</p></div>
+      <div class="card">
+        <div class="filters">
+          <select class="filter-select" id="lineRankFilter" onchange="loadLines()">
+            <option value="">All Ranks</option>
+            <option>GD</option><option>PCA</option><option>BUT</option><option>CHF</option>
+            <option>SNF</option><option>YCA</option><option>CA</option><option>FO</option>
+          </select>
+          <input class="filter-input" id="lineMonthFilter" type="month" onchange="loadLines()">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Line</th><th>Rank</th><th>Month</th><th>Legs</th><th>Block Hrs</th><th>Est. Salary</th><th>Legality</th></tr></thead>
+            <tbody id="linesTable"><tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-trades">
+      <div class="page-header"><h1>Trade Board</h1><p>All active trades per rank</p></div>
+      <div class="card">
+        <div class="filters">
+          <select class="filter-select" id="tradeRankFilter" onchange="loadTrades()">
+            <option value="">All Ranks</option>
+            <option>GD</option><option>PCA</option><option>BUT</option><option>CHF</option>
+            <option>SNF</option><option>YCA</option><option>CA</option><option>FO</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Type</th><th>Rank</th><th>Offered</th><th>Requested</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead>
+            <tbody id="tradesTable"><tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-bids">
+      <div class="page-header"><h1>Bids</h1><p>All bids for current month</p></div>
+      <div class="card">
+        <div class="filters">
+          <select class="filter-select" id="bidRankFilter" onchange="loadBids()">
+            <option value="">All Ranks</option>
+            <option>GD</option><option>PCA</option><option>BUT</option><option>CHF</option>
+            <option>SNF</option><option>YCA</option><option>CA</option><option>FO</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Rank</th><th>Line</th><th>Priority</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+            <tbody id="bidsTable"><tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /adminApp -->
+
+<!-- ── MODALS ── -->
+<div class="modal-overlay" id="createAdminModal">
+  <div class="modal">
+    <h2>Create New Admin</h2>
+    <p>Only you can create other admins. They will never have super admin powers.</p>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input class="filter-input" id="newAdminEmail" style="width:100%;" placeholder="admin@example.com">
+    </div>
+    <div class="form-group">
+      <label>Rank Scope (which ranks they can manage)</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;" id="rankScopeCheckboxes"></div>
+    </div>
+    <div class="form-group">
+      <label>Privileges</label>
+      <div class="privilege-grid" id="privilegeToggles"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('createAdminModal')">Cancel</button>
+      <button class="btn-save" onclick="createAdmin()">Create Admin</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editRuleModal">
+  <div class="modal">
+    <h2>Edit Legality Rule</h2>
+    <p>This change applies immediately to all users.</p>
+    <input type="hidden" id="editRuleId">
+    <div class="form-group">
+      <label>Rule Description</label>
+      <input class="filter-input" id="editRuleDesc" style="width:100%;" readonly>
+    </div>
+    <div class="form-group">
+      <label>Value</label>
+      <input class="filter-input" id="editRuleValue" type="number" style="width:100%;" step="0.5">
+    </div>
+    <div class="form-group">
+      <label>Unit</label>
+      <input class="filter-input" id="editRuleUnit" style="width:100%;" readonly>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('editRuleModal')">Cancel</button>
+      <button class="btn-save" onclick="saveRule()">Save Rule</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Firebase Config — REPLACE WITH YOUR VALUES ────────────────────────────────
+const firebaseConfig = {
+  apiKey: "REPLACE_WITH_YOUR_API_KEY",
+  authDomain: "REPLACE_WITH_YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+  storageBucket: "REPLACE_WITH_YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "REPLACE_WITH_SENDER_ID",
+  appId: "REPLACE_WITH_APP_ID"
+};
+
+const SUPER_ADMIN_EMAIL = "NajmAssistance@gmail.com";
+const RANKS = ['GD','PCA','BUT','CHF','SNF','YCA','CA','FO'];
+const ALL_PRIVILEGES = [
+  { key: 'approve_users',     label: 'Approve / Reject Users' },
+  { key: 'suspend_users',     label: 'Suspend Users' },
+  { key: 'view_users',        label: 'View User Profiles' },
+  { key: 'upload_lines',      label: 'Upload Flight Lines' },
+  { key: 'award_bids',        label: 'Award Bids Manually' },
+  { key: 'manage_trades',     label: 'Manage Trade Board' },
+  { key: 'send_notifications',label: 'Send Notifications' },
+  { key: 'view_analytics',    label: 'View Analytics' },
+  { key: 'manage_subscriptions', label: 'Manage Subscriptions' },
+];
+
+function createLocalFirebase() {
+  const now = () => ({ seconds: Math.floor(Date.now() / 1000) });
+  const state = {
+    users: [
+      { id:'u_001', name:'Aisha Alharbi', email:'aisha@example.com', crewId:'SV1023', rankCode:'PCA', baseStation:'JED', accountStatus:'approved', createdAt:now() },
+      { id:'u_002', name:'Fahad Alotaibi', email:'fahad@example.com', crewId:'SV2044', rankCode:'SNF', baseStation:'RUH', accountStatus:'pending', createdAt:now() },
+      { id:'u_003', name:'Mona Saad', email:'mona@example.com', crewId:'SV3319', rankCode:'YCA', baseStation:'JED', accountStatus:'suspended', createdAt:now() },
+    ],
+    admins: [
+      { id:'admin_local', email:SUPER_ADMIN_EMAIL, admin:true, superAdmin:true, accountStatus:'approved', privileges:['all'], rankScope:['all'], createdAt:now() },
+    ],
+    legalityRules: [
+      { id:'min_rest_home', ruleCode:'MIN_REST_HOME', description:'Minimum home-base rest', legType:'both', value:14, unit:'hours', severity:'blocking' },
+      { id:'max_fdp', ruleCode:'MAX_FDP', description:'Maximum flight duty period', legType:'both', value:14, unit:'hours', severity:'blocking' },
+    ],
+    flightLines: [
+      { id:'line_042', lineNumber:'042', rank:'PCA', month:new Date().toISOString().slice(0,7), validationStatus:'valid', summary:{ totalLegs:12, totalBlockHours:68.5, estimatedSalaryMax:14800 } },
+    ],
+    trades: [
+      { id:'trade_001', type:'swap', initiatorRank:'PCA', status:'open', offeredLeg:{ flightNumber:'SV101', origin:'JED', destination:'RUH' }, requestedLeg:{ flightNumber:'SV102' }, expiresAt:now() },
+    ],
+    bids: [
+      { id:'bid_001', userId:'u_002', rank:'SNF', month:new Date().toISOString().slice(0,7), lineNumber:'042', priority:1, status:'submitted', submittedAt:now() },
+    ],
+    notifications: [],
+  };
+
+  const matchWhere = (item, filters) => filters.every(([field, op, value]) => op === '==' ? item[field] === value : true);
+  const makeSnapshot = (items) => ({
+    empty: items.length === 0,
+    size: items.length,
+    docs: items.map(item => ({ id:item.id, data:() => ({ ...item }) })),
+    forEach: (cb) => items.forEach(item => cb({ id:item.id, data:() => ({ ...item }) })),
+  });
+  const makeQuery = (name, filters = [], cap = null) => ({
+    where(field, op, value) { return makeQuery(name, [...filters, [field, op, value]], cap); },
+    limit(n) { return makeQuery(name, filters, n); },
+    async get() {
+      let items = (state[name] || []).filter(item => matchWhere(item, filters));
+      if (cap !== null) items = items.slice(0, cap);
+      return makeSnapshot(items);
+    },
+    onSnapshot(cb) {
+      this.get().then(cb);
+      return () => {};
+    },
+  });
+  const makeCollection = (name) => ({
+    ...makeQuery(name),
+    doc(id) {
+      const docId = id || `${name}_${Math.random().toString(36).slice(2, 10)}`;
+      return {
+        id: docId,
+        async update(patch) {
+          const rows = state[name] || [];
+          const idx = rows.findIndex(row => row.id === docId);
+          if (idx >= 0) rows[idx] = { ...rows[idx], ...patch };
+        },
+      };
+    },
+  });
+
+  return {
+    initializeApp() {},
+    auth() {
+      let listener = null;
+      const localUser = {
+        email: SUPER_ADMIN_EMAIL,
+        async getIdTokenResult() { return { claims:{ admin:true, superAdmin:true, accountStatus:'approved' } }; },
+      };
+      setTimeout(() => listener && listener(localUser), 0);
+      return {
+        onAuthStateChanged(cb) { listener = cb; },
+        async signInWithEmailAndPassword() { listener && listener(localUser); },
+        async signOut() { listener && listener(null); },
+      };
+    },
+    firestore() {
+      return {
+        collection: makeCollection,
+        batch() {
+          const writes = [];
+          return {
+            set(ref, data) { writes.push([ref, data]); },
+            async commit() { writes.forEach(([ref, data]) => state.notifications.push({ id:ref.id, ...data })); },
+          };
+        },
+      };
+    },
+    functions() {
+      return {
+        httpsCallable(name) {
+          return async (payload) => {
+            console.info(`[local function] ${name}`, payload);
+            return { data:{ ok:true } };
+          };
+        },
+      };
+    },
+  };
+}
+
+if (window.__NAJM_LOCAL__ || firebaseConfig.apiKey.startsWith('REPLACE_')) {
+  window.firebase = createLocalFirebase();
+}
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+const fns  = firebase.functions();
+firebase.firestore.FieldValue = firebase.firestore.FieldValue || { serverTimestamp: () => ({ seconds: Math.floor(Date.now() / 1000) }) };
+
+let currentAdmin = null;
+let isSuperAdmin = false;
+
+// ── Auth State ────────────────────────────────────────────────────────────────
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('adminApp').style.display = 'none';
+    return;
+  }
+  // Verify admin claim
+  const token = await user.getIdTokenResult();
+  if (!token.claims.admin && !token.claims.superAdmin) {
+    showToast('Access denied. Not an admin account.', 'error');
+    await auth.signOut();
+    return;
+  }
+  currentAdmin = user;
+  isSuperAdmin = !!token.claims.superAdmin;
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('adminApp').style.display = 'block';
+  document.getElementById('adminName').textContent = user.email;
+  document.getElementById('adminRole').textContent = isSuperAdmin ? '⭐ Super Admin' : 'Admin';
+  initApp();
+});
+
+// ── Login ─────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = '';
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    errEl.textContent = 'Login failed: ' + e.message;
+  }
+}
+
+async function doSignOut() {
+  await auth.signOut();
+}
+
+document.getElementById('loginPassword').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function initApp() {
+  if (window.__NAJM_LOCAL__) {
+    document.getElementById('localBanner').style.display = 'block';
+    document.getElementById('mainContent').classList.add('has-local-banner');
+    fetch('/api/health')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('localBanner').textContent =
+          `Local development mode: Python API is ${data.status || 'unknown'} on ${data.upstream || 'localhost:8080'}.`;
+      })
+      .catch(() => {
+        document.getElementById('localBanner').textContent =
+          'Local development mode: Admin UI is running, but Python API health check failed.';
+      });
+  }
+  await loadDashboard();
+  await loadPending();
+  watchPendingCount();
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const activeNav = Array.from(document.querySelectorAll('.nav-item'))
+    .find(item => item.getAttribute('onclick')?.includes(`'${id}'`));
+  if (activeNav) activeNav.classList.add('active');
+  if (id === 'approvals') loadPending();
+  if (id === 'users') loadUsers();
+  if (id === 'admins') loadAdmins();
+  if (id === 'legality') loadRules();
+  if (id === 'analytics') loadAnalytics();
+  if (id === 'lines') loadLines();
+  if (id === 'trades') loadTrades();
+  if (id === 'bids') loadBids();
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const usersSnap = await db.collection('users').get();
+    const users = usersSnap.docs.map(d => d.data());
+    const total     = users.length;
+    const pending   = users.filter(u => u.accountStatus === 'pending').length;
+    const approved  = users.filter(u => u.accountStatus === 'approved').length;
+    const suspended = users.filter(u => u.accountStatus === 'suspended').length;
+
+    document.getElementById('statTotal').textContent    = total;
+    document.getElementById('statPending').textContent  = pending;
+    document.getElementById('statApproved').textContent = approved;
+    document.getElementById('statSuspended').textContent= suspended;
+
+    // Rank breakdown
+    const rankCounts = {};
+    RANKS.forEach(r => rankCounts[r] = 0);
+    users.forEach(u => { if (u.rankCode && rankCounts[u.rankCode] !== undefined) rankCounts[u.rankCode]++; });
+
+    let rankHtml = '';
+    RANKS.forEach(r => {
+      const count = rankCounts[r];
+      const pct = total > 0 ? Math.round((count/total)*100) : 0;
+      rankHtml += `<div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span><span class="rank-badge rank-${r}">${r}</span></span>
+          <span style="font-size:13px;font-weight:700;">${count}</span>
+        </div>
+        <div style="height:6px;background:var(--grey-100);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;background:var(--navy);width:${pct}%;border-radius:3px;"></div>
+        </div>
+      </div>`;
+    });
+    document.getElementById('rankBreakdown').innerHTML = rankHtml || '<div class="empty"><p>No users yet</p></div>';
+
+    // Recent signups
+    const recent = users.sort((a,b) => {
+      const ta = a.createdAt?.seconds || 0;
+      const tb = b.createdAt?.seconds || 0;
+      return tb - ta;
+    }).slice(0, 5);
+
+    let recentHtml = '';
+    recent.forEach(u => {
+      const d = u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString() : '—';
+      recentHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--grey-100);">
+        <div>
+          <div style="font-size:13px;font-weight:600;">${u.name || u.email || '—'}</div>
+          <div style="font-size:11px;color:var(--grey-500);">${u.crewId || ''}</div>
+        </div>
+        <div style="text-align:right;">
+          <span class="rank-badge rank-${u.rankCode}">${u.rankCode || '?'}</span>
+          <div style="font-size:11px;color:var(--grey-500);margin-top:4px;">${d}</div>
+        </div>
+      </div>`;
+    });
+    document.getElementById('recentSignups').innerHTML = recentHtml || '<div class="empty"><p>No users yet</p></div>';
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+// ── Pending Approvals ─────────────────────────────────────────────────────────
+function watchPendingCount() {
+  db.collection('users').where('accountStatus','==','pending')
+    .onSnapshot(snap => {
+      const count = snap.size;
+      document.getElementById('pendingBadge').textContent = count;
+      document.getElementById('pendingBadge').style.display = count > 0 ? '' : 'none';
+    });
+}
+
+async function loadPending() {
+  const rankFilter = document.getElementById('approvalRankFilter')?.value;
+  let query = db.collection('users').where('accountStatus','==','pending');
+  if (rankFilter) query = query.where('rankCode','==',rankFilter);
+  const snap = await query.get();
+  const tbody = document.getElementById('pendingTable');
+  if (snap.empty) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="emoji">✅</div><p>No pending approvals</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = snap.docs.map(doc => {
+    const u = doc.data();
+    const d = u.createdAt ? new Date(u.createdAt.seconds*1000).toLocaleDateString() : '—';
+    return `<tr>
+      <td><strong>${u.name||'—'}</strong></td>
+      <td>${u.crewId||'—'}</td>
+      <td><span class="rank-badge rank-${u.rankCode||''}">${u.rankCode||'?'}</span></td>
+      <td>${u.baseStation||'—'}</td>
+      <td style="color:var(--grey-500);font-size:12px;">${u.email||'—'}</td>
+      <td style="color:var(--grey-500);font-size:12px;">${d}</td>
+      <td>
+        <button class="btn-sm btn-approve" onclick="approveUser('${doc.id}','${u.rankCode}','${u.name||''}')">✅ Approve</button>
+        <button class="btn-sm btn-reject" style="margin-left:6px;" onclick="rejectUser('${doc.id}','${u.name||''}')">❌ Reject</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterPendingTable() {
+  const q = document.getElementById('approvalSearch').value.toLowerCase();
+  document.querySelectorAll('#pendingTable tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+async function approveUser(userId, rank, name) {
+  if (!confirm(`Approve ${name || userId} as ${rank}?`)) return;
+  try {
+    const fn = fns.httpsCallable('approveUser');
+    await fn({ userId, rankCode: rank });
+    showToast(`${name || userId} approved ✅`, 'success');
+    loadPending();
+    loadDashboard();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function rejectUser(userId, name) {
+  const reason = prompt(`Reason for rejecting ${name || userId}:`, 'Crew ID could not be verified');
+  if (reason === null) return;
+  try {
+    const fn = fns.httpsCallable('rejectUser');
+    await fn({ userId, reason });
+    showToast(`${name || userId} rejected`, 'error');
+    loadPending();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── All Users ─────────────────────────────────────────────────────────────────
+async function loadUsers() {
+  const rank   = document.getElementById('userRankFilter')?.value;
+  const status = document.getElementById('userStatusFilter')?.value;
+  const base   = document.getElementById('userBaseFilter')?.value;
+  const search = document.getElementById('userSearch')?.value.toLowerCase();
+  let query = db.collection('users');
+  if (rank)   query = query.where('rankCode','==',rank);
+  if (status) query = query.where('accountStatus','==',status);
+  if (base)   query = query.where('baseStation','==',base);
+  const snap = await query.limit(200).get();
+  let users = snap.docs.map(d => ({id: d.id, ...d.data()}));
+  if (search) users = users.filter(u =>
+    (u.name||'').toLowerCase().includes(search) ||
+    (u.crewId||'').toLowerCase().includes(search));
+
+  const tbody = document.getElementById('usersTable');
+  if (!users.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><p>No users found</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = users.map(u => {
+    const last = u.lastActiveAt ? new Date(u.lastActiveAt.seconds*1000).toLocaleDateString() : '—';
+    return `<tr>
+      <td><strong>${u.name||'—'}</strong><br><span style="font-size:11px;color:var(--grey-500);">${u.email||''}</span></td>
+      <td>${u.crewId||'—'}</td>
+      <td><span class="rank-badge rank-${u.rankCode||''}">${u.rankCode||'?'}</span></td>
+      <td>${u.baseStation||'—'}</td>
+      <td><span class="status status-${u.accountStatus||'pending'}">${u.accountStatus||'pending'}</span></td>
+      <td>${u.subscriptionTier||'free'}</td>
+      <td style="font-size:12px;color:var(--grey-500);">${last}</td>
+      <td>
+        ${u.accountStatus === 'approved' ?
+          `<button class="btn-sm btn-suspend" onclick="suspendUser('${u.id}','${u.name||''}')">Suspend</button>` :
+          u.accountStatus === 'suspended' ?
+          `<button class="btn-sm btn-approve" onclick="approveUser('${u.id}','${u.rankCode}','${u.name||''}')">Reactivate</button>` :
+          u.accountStatus === 'pending' ?
+          `<button class="btn-sm btn-approve" onclick="approveUser('${u.id}','${u.rankCode}','${u.name||''}')">Approve</button>` : ''
+        }
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function suspendUser(userId, name) {
+  const reason = prompt(`Reason for suspending ${name}:`,'Policy violation');
+  if (!reason) return;
+  try {
+    const fn = fns.httpsCallable('suspendUser');
+    await fn({ userId, reason });
+    showToast(`${name} suspended`, 'error');
+    loadUsers();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── Admin Management ──────────────────────────────────────────────────────────
+async function loadAdmins() {
+  const snap = await db.collection('adminUsers').get();
+  const tbody = document.getElementById('adminsTable');
+  if (snap.empty) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><p>No other admins yet</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = snap.docs.map(doc => {
+    const a = doc.data();
+    const isSuper = a.isSuperAdmin;
+    const privs = (a.privileges||[]).join(', ') || 'None';
+    const scope = (a.rankScope||[]).join(', ') || 'All';
+    const d = a.createdAt ? new Date(a.createdAt.seconds*1000).toLocaleDateString() : '—';
+    return `<tr>
+      <td><strong>${a.email}</strong></td>
+      <td>${isSuper ? '<span style="color:var(--gold);font-weight:700;">⭐ Super Admin</span>' : 'Admin'}</td>
+      <td><span style="font-size:12px;">${scope}</span></td>
+      <td><span style="font-size:11px;color:var(--grey-700);">${privs}</span></td>
+      <td style="font-size:12px;color:var(--grey-500);">${d}</td>
+      <td>
+        ${!isSuper ? `
+          <button class="btn-sm" style="background:var(--amber-bg);color:var(--amber);" onclick="editAdminPrivileges('${doc.id}','${a.email}')">Edit</button>
+          <button class="btn-sm btn-reject" style="margin-left:6px;" onclick="revokeAdmin('${doc.id}','${a.email}')">Revoke</button>
+        ` : '<span style="color:var(--grey-500);font-size:12px;">Cannot modify</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openCreateAdminModal() {
+  // Build rank scope checkboxes
+  const rankHtml = RANKS.map(r =>
+    `<label style="display:flex;align-items:center;gap:6px;font-size:13px;">
+      <input type="checkbox" value="${r}" class="rankScopeCheck"> ${r}
+    </label>`
+  ).join('');
+  document.getElementById('rankScopeCheckboxes').innerHTML =
+    `<label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;">
+      <input type="checkbox" id="rankScopeAll" onchange="toggleAllRanks(this)"> All Ranks
+    </label>` + rankHtml;
+
+  // Build privilege toggles
+  document.getElementById('privilegeToggles').innerHTML = ALL_PRIVILEGES.map(p =>
+    `<div class="privilege-item">
+      <label>${p.label}</label>
+      <label class="toggle">
+        <input type="checkbox" value="${p.key}" class="privCheck">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>`
+  ).join('');
+
+  document.getElementById('createAdminModal').classList.add('open');
+}
+
+function toggleAllRanks(cb) {
+  document.querySelectorAll('.rankScopeCheck').forEach(c => c.checked = cb.checked);
+}
+
+async function createAdmin() {
+  const email = document.getElementById('newAdminEmail').value.trim();
+  if (!email) { showToast('Email required', 'error'); return; }
+
+  const rankScope = Array.from(document.querySelectorAll('.rankScopeCheck:checked')).map(c => c.value);
+  const privileges = Array.from(document.querySelectorAll('.privCheck:checked')).map(c => c.value);
+
+  try {
+    const fn = fns.httpsCallable('createLimitedAdmin');
+    await fn({ email, privileges, rankScope: rankScope.length ? rankScope : ['all'] });
+    showToast(`Admin created: ${email}`, 'success');
+    closeModal('createAdminModal');
+    loadAdmins();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function revokeAdmin(userId, email) {
+  if (!confirm(`Remove admin access from ${email}?`)) return;
+  try {
+    const fn = fns.httpsCallable('revokeAdmin');
+    await fn({ userId });
+    showToast(`Admin access revoked: ${email}`, 'success');
+    loadAdmins();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── Legality Rules ────────────────────────────────────────────────────────────
+async function loadRules() {
+  const snap = await db.collection('legalityRules').get();
+  const tbody = document.getElementById('rulesTable');
+  if (snap.empty) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><p>No rules configured</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = snap.docs.map(doc => {
+    const r = doc.data();
+    const sevColor = r.severity === 'blocking' ? 'var(--red)' : 'var(--amber)';
+    return `<tr>
+      <td style="font-family:monospace;font-size:12px;">${r.ruleCode||doc.id}</td>
+      <td>${r.description||'—'}</td>
+      <td>${r.legType||'both'}</td>
+      <td><strong>${r.value}</strong></td>
+      <td>${r.unit||'hours'}</td>
+      <td><span style="color:${sevColor};font-weight:700;">${r.severity||'blocking'}</span></td>
+      <td><button class="btn-sm" style="background:var(--navy);color:white;" onclick="openEditRule('${doc.id}','${r.description}','${r.value}','${r.unit}')">Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function openEditRule(id, desc, value, unit) {
+  document.getElementById('editRuleId').value = id;
+  document.getElementById('editRuleDesc').value = desc;
+  document.getElementById('editRuleValue').value = value;
+  document.getElementById('editRuleUnit').value = unit;
+  document.getElementById('editRuleModal').classList.add('open');
+}
+
+async function saveRule() {
+  const id = document.getElementById('editRuleId').value;
+  const value = parseFloat(document.getElementById('editRuleValue').value);
+  if (isNaN(value)) { showToast('Invalid value', 'error'); return; }
+  try {
+    await db.collection('legalityRules').doc(id).update({
+      value,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: currentAdmin.email,
+    });
+    showToast('Rule updated ✅', 'success');
+    closeModal('editRuleModal');
+    loadRules();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── Notifications ────────────────────────────────────────────────────────────
+document.getElementById('notifTarget').addEventListener('change', function() {
+  document.getElementById('notifRankGroup').style.display = this.value === 'rank' ? '' : 'none';
+  document.getElementById('notifBaseGroup').style.display = this.value === 'base' ? '' : 'none';
+});
+
+async function sendNotification() {
+  const target = document.getElementById('notifTarget').value;
+  const title  = document.getElementById('notifTitle').value.trim();
+  const body   = document.getElementById('notifBody').value.trim();
+  if (!title || !body) { showToast('Title and message required', 'error'); return; }
+
+  let query = db.collection('users').where('accountStatus','==','approved');
+  if (target === 'rank') {
+    const rank = document.getElementById('notifRank').value;
+    query = query.where('rankCode','==',rank);
+  } else if (target === 'base') {
+    const base = document.getElementById('notifBase').value;
+    query = query.where('baseStation','==',base);
+  }
+
+  const snap = await query.get();
+  if (snap.empty) { showToast('No users match this target', 'error'); return; }
+  if (!confirm(`Send to ${snap.size} users?`)) return;
+
+  const batch = db.batch();
+  snap.docs.forEach(doc => {
+    const ref = db.collection('notifications').doc();
+    batch.set(ref, {
+      userId: doc.id,
+      type: 'admin_message',
+      title, titleAr: title,
+      body, bodyAr: body,
+      deepLink: '/home',
+      read: false,
+      sentAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  });
+  await batch.commit();
+  showToast(`Sent to ${snap.size} users ✅`, 'success');
+  document.getElementById('notifTitle').value = '';
+  document.getElementById('notifBody').value = '';
+}
+
+// ── Analytics ────────────────────────────────────────────────────────────────
+async function loadAnalytics() {
+  const month = new Date().toISOString().slice(0,7);
+  const [linesSnap, bidsSnap, tradesSnap] = await Promise.all([
+    db.collection('flightLines').where('month','==',month).get(),
+    db.collection('bids').where('month','==',month).get(),
+    db.collection('trades').where('status','==','open').get(),
+  ]);
+  document.getElementById('statLines').textContent = linesSnap.size;
+  document.getElementById('statBids').textContent  = bidsSnap.size;
+  document.getElementById('statTrades').textContent= tradesSnap.size;
+  document.getElementById('statAI').textContent = '—';
+
+  // Rank chart
+  const usersSnap = await db.collection('users').get();
+  const users = usersSnap.docs.map(d => d.data());
+  let html = '';
+  RANKS.forEach(r => {
+    const count = users.filter(u => u.rankCode === r).length;
+    const pct = users.length > 0 ? Math.round((count/users.length)*100) : 0;
+    html += `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span><span class="rank-badge rank-${r}">${r}</span> ${getRankName(r)}</span>
+        <strong>${count}</strong>
+      </div>
+      <div style="height:8px;background:var(--grey-100);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;background:var(--navy);width:${pct}%;border-radius:4px;"></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('analyticsRankChart').innerHTML = html || '<p style="color:var(--grey-500)">No data</p>';
+}
+
+// ── Lines, Trades, Bids ───────────────────────────────────────────────────────
+async function loadLines() {
+  const rank  = document.getElementById('lineRankFilter')?.value;
+  const month = document.getElementById('lineMonthFilter')?.value || new Date().toISOString().slice(0,7);
+  let q = db.collection('flightLines').where('month','==',month);
+  if (rank) q = q.where('rank','==',rank);
+  const snap = await q.limit(100).get();
+  const tbody = document.getElementById('linesTable');
+  if (snap.empty) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><p>No lines found</p></div></td></tr>`; return; }
+  tbody.innerHTML = snap.docs.map(doc => {
+    const l = doc.data(); const s = l.summary||{};
+    return `<tr>
+      <td><strong>Line ${l.lineNumber}</strong></td>
+      <td><span class="rank-badge rank-${l.rank}">${l.rank||'?'}</span></td>
+      <td>${l.month}</td>
+      <td>${s.totalLegs||0}</td>
+      <td>${(s.totalBlockHours||0).toFixed(1)}h</td>
+      <td>SAR ${(s.estimatedSalaryMax||0).toLocaleString()}</td>
+      <td><span class="status ${l.validationStatus==='valid'?'status-approved':'status-pending'}">${l.validationStatus||'—'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadTrades() {
+  const rank = document.getElementById('tradeRankFilter')?.value;
+  let q = db.collection('trades').where('status','==','open');
+  if (rank) q = q.where('initiatorRank','==',rank);
+  const snap = await q.limit(100).get();
+  const tbody = document.getElementById('tradesTable');
+  if (snap.empty) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><p>No active trades</p></div></td></tr>`; return; }
+  tbody.innerHTML = snap.docs.map(doc => {
+    const t = doc.data();
+    const exp = t.expiresAt ? new Date(t.expiresAt.seconds*1000).toLocaleDateString() : '—';
+    return `<tr>
+      <td>${t.type}</td>
+      <td><span class="rank-badge rank-${t.initiatorRank}">${t.initiatorRank||'?'}</span></td>
+      <td>${t.offeredLeg?.flightNumber||'—'} ${t.offeredLeg?.origin||''}→${t.offeredLeg?.destination||''}</td>
+      <td>${t.requestedLeg?.flightNumber||'Open'}</td>
+      <td><span class="status status-approved">Open</span></td>
+      <td style="font-size:12px;">${exp}</td>
+      <td><button class="btn-sm btn-reject" onclick="removeTrade('${doc.id}')">Remove</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function removeTrade(id) {
+  if (!confirm('Remove this trade post?')) return;
+  await db.collection('trades').doc(id).update({ status: 'cancelled' });
+  showToast('Trade removed', 'success');
+  loadTrades();
+}
+
+async function loadBids() {
+  const rank = document.getElementById('bidRankFilter')?.value;
+  const month = new Date().toISOString().slice(0,7);
+  let q = db.collection('bids').where('month','==',month);
+  if (rank) q = q.where('rank','==',rank);
+  const snap = await q.limit(200).get();
+  const tbody = document.getElementById('bidsTable');
+  if (snap.empty) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><p>No bids found</p></div></td></tr>`; return; }
+  tbody.innerHTML = snap.docs.map(doc => {
+    const b = doc.data();
+    const d = b.submittedAt ? new Date(b.submittedAt.seconds*1000).toLocaleDateString() : '—';
+    return `<tr>
+      <td><span style="font-size:12px;">${b.userId?.slice(0,8)||'—'}…</span></td>
+      <td><span class="rank-badge rank-${b.rank}">${b.rank||'?'}</span></td>
+      <td><strong>Line ${b.lineNumber}</strong></td>
+      <td>#${b.priority}</td>
+      <td><span class="status status-${b.status==='awarded'?'approved':b.status==='rejected'?'rejected':'pending'}">${b.status}</span></td>
+      <td style="font-size:12px;">${d}</td>
+      <td>
+        ${b.status==='submitted'?`
+          <button class="btn-sm btn-approve" onclick="awardBid('${doc.id}','${b.userId}','${b.lineNumber}')">Award</button>
+          <button class="btn-sm btn-reject" style="margin-left:4px;" onclick="rejectBid('${doc.id}','${b.userId}')">Reject</button>
+        `:'—'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function awardBid(bidId, userId, lineNumber) {
+  if (!confirm(`Award Line ${lineNumber} to this user?`)) return;
+  await db.collection('bids').doc(bidId).update({
+    status: 'awarded', awardedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  showToast(`Line ${lineNumber} awarded ✅`, 'success');
+  loadBids();
+}
+
+async function rejectBid(bidId, userId) {
+  await db.collection('bids').doc(bidId).update({ status: 'rejected' });
+  showToast('Bid rejected', 'error');
+  loadBids();
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function getRankName(code) {
+  const names = {GD:'Guest Director',PCA:'Premium Cabin Crew',BUT:'Butler',CHF:'Chef',
+    SNF:'Senior Cabin Attendant',YCA:'Economy Cabin Attendant',CA:'Captain',FO:'First Officer'};
+  return names[code] || code;
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type === 'success' ? 'success' : type === 'error' ? 'error' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+async function editAdminPrivileges(userId, email) {
+  showToast('Edit privilege UI — coming in next update', '');
+}
+</script>
+</body>
+</html>

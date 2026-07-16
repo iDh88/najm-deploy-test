@@ -1,0 +1,26 @@
+# CODEOWNERS — review routing + required-reviewer enforcement.
+#
+# F34: replace the placeholder handles below with real GitHub usernames/teams,
+# then enable "Require review from Code Owners" in branch protection for main.
+# Until the handles are real, GitHub silently ignores unknown owners — this
+# file documents intent but does not yet enforce it (flagged in the release
+# readiness report).
+
+# Default owner for everything
+*                             @OWNER-ENG-LEAD
+
+# Safety-critical: FTL rule values and every legality engine.
+# Changes here must be reviewed by the safety/compliance owner.
+python_services/legality/     @OWNER-SAFETY @OWNER-ENG-LEAD
+python_services/rest_engine/  @OWNER-SAFETY @OWNER-ENG-LEAD
+python_services/intelligence/utils/legality_checker.py @OWNER-SAFETY @OWNER-ENG-LEAD
+OWNER_DECISION_REQUEST.md     @OWNER-SAFETY
+
+# Security-sensitive: auth, claims, rules.
+python_services/utils/        @OWNER-SECURITY @OWNER-ENG-LEAD
+firebase/functions/src/admin_setup.ts @OWNER-SECURITY
+firebase/firestore.rules      @OWNER-SECURITY
+firebase/storage.rules        @OWNER-SECURITY
+
+# CI/CD + deploy credentials surface.
+.github/workflows/            @OWNER-ENG-LEAD
