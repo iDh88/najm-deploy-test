@@ -89,6 +89,9 @@ async def verify_service_or_user(
         await verify_service_token(x_service_token=x_service_token)
         return {"service": True, "uid": None}
     if authorization:
+        expected = os.getenv("INTERNAL_SERVICE_TOKEN")
+        if expected and hmac.compare_digest(authorization, f"Bearer {expected}"):
+            return {"service": True, "uid": None}
         return await verify_firebase_auth(authorization=authorization)
     raise HTTPException(
         status_code=401,

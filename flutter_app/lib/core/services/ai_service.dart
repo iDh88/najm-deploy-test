@@ -19,7 +19,7 @@ final _dioProvider = Provider<Dio>((ref) {
     headers: {
       'Content-Type': 'application/json',
       if (const String.fromEnvironment('AI_SERVICE_TOKEN').isNotEmpty)
-        'X-Service-Token': const String.fromEnvironment('AI_SERVICE_TOKEN'),
+        'Authorization': 'Bearer ${const String.fromEnvironment('AI_SERVICE_TOKEN')}',
     },
   ));
 
