@@ -27,7 +27,7 @@ Pillow==10.2.0
 # ── Trade Recommendation Engine ───────────────────────────────────────────────
 redis==5.0.1
 hiredis==2.3.2
-numpy==1.26.4
+numpy==2.5.1
 python-dateutil==2.8.2
 
 # ── Knowledge Engine ──────────────────────────────────────────────────────────
