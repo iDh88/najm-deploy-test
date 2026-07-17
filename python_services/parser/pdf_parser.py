@@ -217,12 +217,105 @@ class LinesPDFParser:
             i += 1
 
         if not parsed_lines:
+            parsed_lines = self._parse_lines_of_time_v2(text, rank, base, category)
+
+        if not parsed_lines:
             self.warnings.append(
                 "No lines extracted. PDF may use a different format. "
                 "Try uploading a text-based PDF (not scanned image)."
             )
 
         logger.info(f"Parsed {len(parsed_lines)} lines from PDF")
+        return parsed_lines
+
+    def _parse_lines_of_time_v2(self, text: str, rank: str, base: str,
+                                category: str) -> list[ParsedPDFLine]:
+        """Parse Saudi Lines Of Time PDFs that use LINE0001 / CR. / BLK format."""
+        parsed_lines = []
+        rows = text.splitlines()
+
+        starts = []
+        for idx, row in enumerate(rows):
+            match = re.search(r'\bLINE\s*0*(\d{1,4})\b|\bLINE0*(\d{1,4})\b', row)
+            if match and 'CR.' in row:
+                starts.append(idx)
+
+        for pos, start in enumerate(starts):
+            end = starts[pos + 1] if pos + 1 < len(starts) else min(start + 8, len(rows))
+            block_rows = rows[start:end]
+            first = block_rows[0]
+
+            line_match = re.search(r'\bLINE\s*0*(\d{1,4})\b|\bLINE0*(\d{1,4})\b', first)
+            line_no = int((line_match.group(1) or line_match.group(2))) if line_match else 0
+
+            credit_match = re.search(r'CR\.\s*(\d+(?:\.\d+)?)', first)
+            credit = float(credit_match.group(1)) if credit_match else 0.0
+
+            line_type = "LINE"
+            block_hours = 0.0
+            days_off = 0
+            total_legs = 0
+            carry_over = 0.0
+            has_star = False
+            destinations = []
+
+            raw = "\n".join(block_rows)
+
+            for row in block_rows[1:]:
+                type_match = re.search(r'\b(TRNG|LINE|USLN|CHLN|HJLN|BYND|HYLN|HDLN|INDO|KULN|Reserve)\b', row)
+                if type_match:
+                    line_type = type_match.group(1)
+
+                blk_match = re.search(r'\bBLK\s+(\d+(?:\.\d+)?)', row)
+                if blk_match:
+                    block_hours = float(blk_match.group(1))
+
+                off_match = re.search(r'\bOFF\s+(\d+)\b', row)
+                if off_match:
+                    days_off = int(off_match.group(1))
+
+                dp_match = re.search(r"NO\.\s*DP'?S\s+(\d+)", row)
+                if dp_match:
+                    total_legs = int(dp_match.group(1))
+
+                co_match = re.search(r'C/O\s+(\d+(?:\.\d+)?)', row)
+                if co_match:
+                    carry_over = float(co_match.group(1))
+
+                if '*' in row:
+                    has_star = True
+
+            # Destination summary is embedded in the duty rows. Capture airport codes,
+            # excluding calendar/day and operational labels.
+            ignore = {
+                'LINE', 'TRNG', 'BLK', 'OFF', 'TAD', 'TAI', 'TAR', 'NO', 'DPS',
+                'CR', 'WE', 'TH', 'FR', 'SA', 'SU', 'MO', 'TU', 'RT1', 'RT2', 'RT3',
+                'RR1', 'RR2', 'RR3', 'JED'
+            }
+            seen = set()
+            for code in re.findall(r'\b[A-Z]{3}\b', raw):
+                if code not in ignore and code not in seen:
+                    seen.add(code)
+                    destinations.append(LineDestination(iata=code, layoverHours=0.0))
+
+            parsed_lines.append(ParsedPDFLine(
+                lineNumber=line_no,
+                lineType=line_type,
+                carryOver="",
+                creditHours=credit,
+                blockHours=block_hours,
+                carryOverHours=carry_over,
+                daysOff=days_off,
+                totalLegs=total_legs,
+                fourLegCount=0,
+                expense=0.0,
+                allowance=0.0,
+                income=0.0,
+                destinations=destinations,
+                hasStarDays=has_star,
+                rawText=raw,
+            ))
+
         return parsed_lines
 
 

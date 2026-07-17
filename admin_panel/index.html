@@ -508,6 +508,30 @@ window.__NAJM_LOCAL__ = location.protocol === 'file:' || ['localhost', '127.0.0.
     <!-- LINES, TRADES, BIDS (read-only overview) -->
     <div class="page" id="page-lines">
       <div class="page-header"><h1>Flight Lines</h1><p>All lines uploaded per rank</p></div>
+
+        <div class="upload-panel" style="margin-bottom:18px;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">Upload Lines PDF</h3>
+          <div class="filters">
+            <select class="filter-select" id="uploadRank">
+              <option value="PCA">PCA</option><option value="SNF">SNF</option><option value="YCA">YCA</option>
+              <option value="BUT">BUT</option><option value="CHF">CHF</option><option value="GD">GD</option>
+              <option value="CA">CA</option><option value="FO">FO</option>
+            </select>
+            <select class="filter-select" id="uploadBase">
+              <option value="JED">JED</option><option value="RUH">RUH</option><option value="DMM">DMM</option>
+            </select>
+            <select class="filter-select" id="uploadCategory">
+              <option value="bid">Bid Lines</option>
+              <option value="reserve">Reserve</option>
+              <option value="training">Training</option>
+            </select>
+            <input class="filter-input" id="uploadMonth" type="month">
+            <input class="filter-input" id="uploadFile" type="file" accept=".pdf">
+            <button class="btn btn-primary" onclick="uploadLinesPdf()">Upload PDF</button>
+          </div>
+          <div id="uploadLinesResult" style="margin-top:10px;color:#64748b;font-size:14px;"></div>
+        </div>
+
       <div class="card">
         <div class="filters">
           <select class="filter-select" id="lineRankFilter" onchange="loadLines()">
@@ -1236,13 +1260,114 @@ async function loadAnalytics() {
 }
 
 // ── Lines, Trades, Bids ───────────────────────────────────────────────────────
+
+async function uploadLinesPdf() {
+  const result = document.getElementById('uploadLinesResult');
+  const file = document.getElementById('uploadFile').files[0];
+  const rank = document.getElementById('uploadRank').value;
+  const base = document.getElementById('uploadBase').value;
+  const category = document.getElementById('uploadCategory').value;
+  const month = document.getElementById('uploadMonth').value || new Date().toISOString().slice(0, 7);
+
+  if (!file) {
+    result.textContent = 'Please choose a PDF file first.';
+    return;
+  }
+
+  const form = new FormData();
+  form.append('file', file);
+  form.append('rank', rank);
+  form.append('base', base);
+  form.append('category', category);
+  form.append('month', month);
+  form.append('uploaded_by', 'local-admin');
+
+  result.textContent = 'Uploading and parsing...';
+
+  try {
+    const res = await fetch('http://127.0.0.1:8080/v1/upload/upload-lines-pdf', {
+      method: 'POST',
+      headers: { 'X-Service-Token': 'dev-token' },
+      body: form
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || data.error || JSON.stringify(data));
+
+    const parsedCount = data.lines?.length || data.linesData?.length || data.totalLines || 0;
+    const details = [
+      `Uploaded. Parsed ${parsedCount} lines.`,
+      ...(data.warnings || []).map(w => `Warning: ${w}`),
+      ...(data.errors || []).map(e => `Error: ${e}`)
+    ].join(' ');
+    result.textContent = details;
+    if (data.linesData && data.linesData.length) {
+      const cachePayload = {
+        rank,
+        base,
+        category,
+        month: data.month || month,
+        lines: data.linesData
+      };
+      localStorage.setItem('najm_uploaded_lines_cache', JSON.stringify(cachePayload));
+      renderUploadedLines(data.linesData, data.month || month);
+    } else {
+      await loadLines();
+    }
+    await loadDashboard?.();
+  } catch (err) {
+    result.textContent = `Upload failed: ${err.message}`;
+  }
+}
+
+
+
+function getUploadedLinesCache(rank, month) {
+  try {
+    const raw = localStorage.getItem('najm_uploaded_lines_cache');
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (!cached.lines || !cached.lines.length) return null;
+    if (month && cached.month !== month) return null;
+    if (rank && cached.rank !== rank) return null;
+    return cached;
+  } catch (_) {
+    return null;
+  }
+}
+
+function renderUploadedLines(lines, month) {
+  const tbody = document.getElementById('linesTable');
+  tbody.innerHTML = lines.slice(0, 200).map(l => `
+    <tr>
+      <td><strong>Line ${String(l.lineNumber).padStart(4, '0')}</strong></td>
+      <td><span class="rank-badge rank-${l.rank || document.getElementById('uploadRank').value}">${document.getElementById('uploadRank').value}</span></td>
+      <td>${month || document.getElementById('uploadMonth').value}</td>
+      <td>${l.totalLegs || 0}</td>
+      <td>${Number(l.blockHours || 0).toFixed(2)}h</td>
+      <td>—</td>
+      <td><span class="status status-approved">parsed</span></td>
+    </tr>
+  `).join('');
+
+  if (lines.length > 200) {
+    tbody.innerHTML += `<tr><td colspan="7">Showing first 200 of ${lines.length} parsed lines.</td></tr>`;
+  }
+}
+
 async function loadLines() {
   const rank  = document.getElementById('lineRankFilter')?.value;
   const month = document.getElementById('lineMonthFilter')?.value || new Date().toISOString().slice(0,7);
   let q = db.collection('flightLines').where('month','==',month);
   if (rank) q = q.where('rank','==',rank);
-  const snap = await q.limit(100).get();
+  const cached = getUploadedLinesCache(rank, month);
   const tbody = document.getElementById('linesTable');
+  if (cached) {
+    renderUploadedLines(cached.lines, cached.month);
+    return;
+  }
+
+  const snap = await q.limit(100).get();
   if (snap.empty) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><p>No lines found</p></div></td></tr>`; return; }
   tbody.innerHTML = snap.docs.map(doc => {
     const l = doc.data(); const s = l.summary||{};
