@@ -105,6 +105,10 @@ class AuthService {
       
       final status = userDoc.data()?['accountStatus'] as String? ?? 'pending';
       
+      if (status == 'pending') {
+        await _auth.signOut();
+        return AuthResult.failure('account_pending');
+      }
       if (status == 'suspended') {
         await _auth.signOut();
         return AuthResult.failure('account_suspended');

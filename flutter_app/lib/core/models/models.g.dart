@@ -44,6 +44,7 @@ _$CIPUserImpl _$$CIPUserImplFromJson(Map<String, dynamic> json) =>
           : PrivacyConsents.fromJson(
               json['privacyConsents'] as Map<String, dynamic>),
       locale: json['locale'] as String? ?? 'ar',
+      accountStatus: json['accountStatus'] as String? ?? 'pending',
       createdAt: DateTime.parse(json['createdAt'] as String),
       lastActiveAt: DateTime.parse(json['lastActiveAt'] as String),
     );
@@ -68,6 +69,7 @@ Map<String, dynamic> _$$CIPUserImplToJson(_$CIPUserImpl instance) =>
       'totalMonthsActive': instance.totalMonthsActive,
       'privacyConsents': instance.privacyConsents,
       'locale': instance.locale,
+      'accountStatus': instance.accountStatus,
       'createdAt': instance.createdAt.toIso8601String(),
       'lastActiveAt': instance.lastActiveAt.toIso8601String(),
     };

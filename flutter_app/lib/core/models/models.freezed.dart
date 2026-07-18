@@ -41,6 +41,7 @@ mixin _$CIPUser {
   int get totalMonthsActive => throw _privateConstructorUsedError;
   PrivacyConsents get privacyConsents => throw _privateConstructorUsedError;
   String get locale => throw _privateConstructorUsedError;
+  String get accountStatus => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get lastActiveAt => throw _privateConstructorUsedError;
 
@@ -77,6 +78,7 @@ abstract class $CIPUserCopyWith<$Res> {
       int totalMonthsActive,
       PrivacyConsents privacyConsents,
       String locale,
+      String accountStatus,
       DateTime createdAt,
       DateTime lastActiveAt});
 
@@ -117,6 +119,7 @@ class _$CIPUserCopyWithImpl<$Res, $Val extends CIPUser>
     Object? totalMonthsActive = null,
     Object? privacyConsents = null,
     Object? locale = null,
+    Object? accountStatus = null,
     Object? createdAt = null,
     Object? lastActiveAt = null,
   }) {
@@ -193,6 +196,10 @@ class _$CIPUserCopyWithImpl<$Res, $Val extends CIPUser>
           ? _value.locale
           : locale // ignore: cast_nullable_to_non_nullable
               as String,
+      accountStatus: null == accountStatus
+          ? _value.accountStatus
+          : accountStatus // ignore: cast_nullable_to_non_nullable
+              as String,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -251,6 +258,7 @@ abstract class _$$CIPUserImplCopyWith<$Res> implements $CIPUserCopyWith<$Res> {
       int totalMonthsActive,
       PrivacyConsents privacyConsents,
       String locale,
+      String accountStatus,
       DateTime createdAt,
       DateTime lastActiveAt});
 
@@ -291,6 +299,7 @@ class __$$CIPUserImplCopyWithImpl<$Res>
     Object? totalMonthsActive = null,
     Object? privacyConsents = null,
     Object? locale = null,
+    Object? accountStatus = null,
     Object? createdAt = null,
     Object? lastActiveAt = null,
   }) {
@@ -367,6 +376,10 @@ class __$$CIPUserImplCopyWithImpl<$Res>
           ? _value.locale
           : locale // ignore: cast_nullable_to_non_nullable
               as String,
+      accountStatus: null == accountStatus
+          ? _value.accountStatus
+          : accountStatus // ignore: cast_nullable_to_non_nullable
+              as String,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -401,6 +414,7 @@ class _$CIPUserImpl implements _CIPUser {
       this.totalMonthsActive = 0,
       this.privacyConsents = const PrivacyConsents(),
       this.locale = 'ar',
+      this.accountStatus = 'pending',
       required this.createdAt,
       required this.lastActiveAt})
       : _fleetTypes = fleetTypes,
@@ -472,13 +486,16 @@ class _$CIPUserImpl implements _CIPUser {
   @JsonKey()
   final String locale;
   @override
+  @JsonKey()
+  final String accountStatus;
+  @override
   final DateTime createdAt;
   @override
   final DateTime lastActiveAt;
 
   @override
   String toString() {
-    return 'CIPUser(id: $id, crewId: $crewId, name: $name, nameAr: $nameAr, rank: $rank, baseStation: $baseStation, fleetTypes: $fleetTypes, email: $email, phone: $phone, preferences: $preferences, userMode: $userMode, subscriptionTier: $subscriptionTier, subscriptionExpiry: $subscriptionExpiry, preferenceVector: $preferenceVector, coldStartPhase: $coldStartPhase, totalMonthsActive: $totalMonthsActive, privacyConsents: $privacyConsents, locale: $locale, createdAt: $createdAt, lastActiveAt: $lastActiveAt)';
+    return 'CIPUser(id: $id, crewId: $crewId, name: $name, nameAr: $nameAr, rank: $rank, baseStation: $baseStation, fleetTypes: $fleetTypes, email: $email, phone: $phone, preferences: $preferences, userMode: $userMode, subscriptionTier: $subscriptionTier, subscriptionExpiry: $subscriptionExpiry, preferenceVector: $preferenceVector, coldStartPhase: $coldStartPhase, totalMonthsActive: $totalMonthsActive, privacyConsents: $privacyConsents, locale: $locale, accountStatus: $accountStatus, createdAt: $createdAt, lastActiveAt: $lastActiveAt)';
   }
 
   @override
@@ -514,6 +531,8 @@ class _$CIPUserImpl implements _CIPUser {
             (identical(other.privacyConsents, privacyConsents) ||
                 other.privacyConsents == privacyConsents) &&
             (identical(other.locale, locale) || other.locale == locale) &&
+            (identical(other.accountStatus, accountStatus) ||
+                other.accountStatus == accountStatus) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.lastActiveAt, lastActiveAt) ||
@@ -542,6 +561,7 @@ class _$CIPUserImpl implements _CIPUser {
         totalMonthsActive,
         privacyConsents,
         locale,
+        accountStatus,
         createdAt,
         lastActiveAt
       ]);
@@ -582,6 +602,7 @@ abstract class _CIPUser implements CIPUser {
       final int totalMonthsActive,
       final PrivacyConsents privacyConsents,
       final String locale,
+      final String accountStatus,
       required final DateTime createdAt,
       required final DateTime lastActiveAt}) = _$CIPUserImpl;
 
@@ -625,6 +646,8 @@ abstract class _CIPUser implements CIPUser {
   PrivacyConsents get privacyConsents;
   @override
   String get locale;
+  @override
+  String get accountStatus;
   @override
   DateTime get createdAt;
   @override

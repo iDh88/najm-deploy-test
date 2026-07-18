@@ -436,22 +436,35 @@ async def _save_lines_to_firestore(
                 "base": base,
                 "category": category,
                 "month": month,
+                "userId": "global",
+                "uploadedAt": datetime.utcnow(),
+                "validationStatus": "valid",
+                "summary": {
+                    "totalLegs": line.totalLegs,
+                    "totalBlockHours": line.blockHours,
+                    "totalDutyHours": line.creditHours,
+                    "totalDutyDays": max(0, 31 - line.daysOff),
+                    "internationalLegs": 0,
+                    "domesticLegs": 0,
+                    "layoverCount": len(line.destinations),
+                    "estimatedSalaryMin": 0.0,
+                    "estimatedSalaryMax": line.income,
+                    "salaryScore": 0.0,
+                    "restQualityScore": 0.0,
+                    "compositeScore": 0.0,
+                },
                 "creditHours": line.creditHours,
                 "blockHours": line.blockHours,
                 "carryOverHours": line.carryOverHours,
-                "daysOff": line.daysOff,
+                "daysOff": list(range(1, line.daysOff + 1)),
                 "totalLegs": line.totalLegs,
                 "fourLegCount": line.fourLegCount,
                 "expense": line.expense,
                 "allowance": line.allowance,
                 "income": line.income,
-                "destinations": [
-                    {"iata": d.iata, "layoverHours": d.layoverHours}
-                    for d in line.destinations
-                ],
+                "destinations": [d.iata for d in line.destinations],
                 "hasStarDays": line.hasStarDays,
                 "isActive": True,
-                "uploadedAt": datetime.utcnow(),
             })
             count += 1
 

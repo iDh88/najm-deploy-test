@@ -44,6 +44,7 @@ class CIPUser with _$CIPUser {
     @Default(0) int totalMonthsActive,
     @Default(PrivacyConsents()) PrivacyConsents privacyConsents,
     @Default('ar') String locale,
+    @Default('pending') String accountStatus,
     required DateTime createdAt,
     required DateTime lastActiveAt,
   }) = _CIPUser;
@@ -106,7 +107,15 @@ class FlightLine with _$FlightLine {
       _$FlightLineFromJson(json);
 
   factory FlightLine.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
+
+    final uploadedAt = data['uploadedAt'];
+    if (uploadedAt is Timestamp) {
+      data['uploadedAt'] = uploadedAt.toDate().toIso8601String();
+    }
+
+    data['legs'] ??= <dynamic>[];
+
     return FlightLine.fromJson({...data, 'id': doc.id});
   }
 }

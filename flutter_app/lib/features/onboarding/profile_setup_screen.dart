@@ -8,11 +8,11 @@ import '../../core/models/models.dart';
 import '../../shared/constants/constants.dart';
 
 // ─── Pending Approval Screen ──────────────────────────────────────────────────
-class PendingApprovalScreen extends StatelessWidget {
+class PendingApprovalScreen extends ConsumerWidget {
   const PendingApprovalScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: CIPTheme.grey50,
       body: SafeArea(
@@ -74,9 +74,24 @@ class PendingApprovalScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () async {
+                  await ref.read(authServiceProvider).signOut();
+                  if (context.mounted) context.go('/login');
+                },
+                child: const Text('Continue to app'),
+              ),
+              const SizedBox(height: 8),
               TextButton(
-                onPressed: () {},
+                onPressed: () async {
+                  await ref.read(authServiceProvider).signOut();
+                  if (context.mounted) context.go('/login');
+                },
                 child: const Text('Sign out and try a different account'),
+              ),
+              TextButton(
+                onPressed: () => context.go('/login'),
+                child: const Text('Sign in instead'),
               ),
             ],
           ),
@@ -258,10 +273,22 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               if (_loading)
                 const Center(child: CircularProgressIndicator())
               else
-                ElevatedButton(
-                  onPressed: _submit,
-                  child: const Text('Create Account',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _submit,
+                        child: const Text('Create Account',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () => context.go('/login'),
+                      child: const Text('Already have an account? Sign in'),
+                    ),
+                  ],
                 ),
               const SizedBox(height: 20),
             ],
@@ -317,7 +344,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       );
 
       if (result.isSuccess && mounted) {
-        // Go to pending approval — NOT home
+        await ref.read(authServiceProvider).signOut();
         context.go('/pending-approval');
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -328,5 +355,122 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+}
+
+
+// ─── Login Screen ─────────────────────────────────────────────────────────────
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signIn() async {
+    setState(() => _isLoading = true);
+
+    final result = await ref.read(authServiceProvider).signIn(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (result.isSuccess) {
+      context.go('/home');
+    } else if (result.error == 'account_pending') {
+      context.go('/pending-approval');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.error ?? 'Login failed'),
+          backgroundColor: CIPTheme.error,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: CIPTheme.grey50,
+      appBar: AppBar(
+        title: const Text('Sign In'),
+        backgroundColor: CIPTheme.grey50,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            const SizedBox(height: 24),
+            const Text(
+              'Welcome back',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: CIPTheme.grey900,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Email Address',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _passwordController,
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                ),
+              ),
+              onSubmitted: (_) => _isLoading ? null : _signIn(),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _isLoading ? null : _signIn,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: CIPTheme.primary,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(56),
+              ),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text('Sign In'),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () => context.go('/profile-setup'),
+              child: const Text('Create a new account'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

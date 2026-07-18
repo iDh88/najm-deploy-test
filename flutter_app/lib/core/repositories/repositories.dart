@@ -52,9 +52,7 @@ class FlightLinesRepository {
         .asyncMap((snapshot) async {
       final lines = <FlightLine>[];
       for (final doc in snapshot.docs) {
-        final line = FlightLine.fromFirestore(doc);
-        final legs = await fetchLegs(line.id);
-        lines.add(line.copyWith(legs: legs));
+        lines.add(FlightLine.fromFirestore(doc));
       }
       return lines;
     });

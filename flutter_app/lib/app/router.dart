@@ -66,6 +66,7 @@ class Routes {
   static const disclaimer = '/disclaimer';
   static const onboarding = '/onboarding';
   static const profileSetup = '/profile-setup';
+  static const login = '/login';
   static const home = '/home';
   static const lines = '/lines';
   static const lineDetail = '/lines/:lineId';
@@ -135,22 +136,32 @@ class Routes {
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
+  final currentUser = ref.watch(currentUserProvider);
 
   return GoRouter(
     initialLocation: Routes.disclaimer,
     debugLogDiagnostics: false,
     redirect: (context, state) {
       final isAuthenticated = authState.valueOrNull != null;
+      final cipUser = currentUser.valueOrNull;
+      final accountStatus = cipUser?.accountStatus;
+      final isPendingApproval = state.matchedLocation == Routes.pendingApproval;
       final isOnboarding = state.matchedLocation == Routes.disclaimer ||
           state.matchedLocation == Routes.onboarding ||
-          state.matchedLocation == Routes.profileSetup;
+          state.matchedLocation == Routes.profileSetup ||
+          state.matchedLocation == Routes.login;
 
-      if (!isAuthenticated && !isOnboarding && state.matchedLocation != Routes.splash) {
+      if (!isAuthenticated &&
+          !isOnboarding &&
+          !isPendingApproval &&
+          state.matchedLocation != Routes.splash) {
         return Routes.disclaimer;
       }
+
       if (isAuthenticated && isOnboarding) {
-        return Routes.home;
+        return accountStatus == 'pending' ? Routes.pendingApproval : Routes.home;
       }
+
       return null;
     },
     routes: [
@@ -194,6 +205,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.profileSetup,
         builder: (context, state) => const ProfileSetupScreen(),
+      ),
+      GoRoute(
+        path: Routes.login,
+        builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
         path: '/pending-approval',
