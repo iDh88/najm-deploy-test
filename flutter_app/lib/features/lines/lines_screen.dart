@@ -24,18 +24,36 @@ final activeMonthProvider = StateProvider<String>((ref) {
 final nlpFilterProvider = StateProvider<String>((ref) => '');
 
 final lineSearchQueryProvider = StateProvider<String>((ref) => '');
+final lineDestinationFilterProvider = StateProvider<String>((ref) => '');
+final lineMinBlockHoursProvider = StateProvider<double>((ref) => 0);
+final lineMinDaysOffProvider = StateProvider<int>((ref) => 0);
 
 final filteredLinesProvider = Provider<AsyncValue<List<FlightLine>>>((ref) {
   final month = ref.watch(activeMonthProvider);
   final linesAsync = ref.watch(flightLinesProvider(month));
-  final query = ref.watch(lineSearchQueryProvider).toLowerCase();
+  final query = ref.watch(lineSearchQueryProvider).toLowerCase().trim();
+  final destination =
+      ref.watch(lineDestinationFilterProvider).toLowerCase().trim();
+  final minBlock = ref.watch(lineMinBlockHoursProvider);
+  final minDaysOff = ref.watch(lineMinDaysOffProvider);
 
   return linesAsync.whenData((lines) {
-    if (query.isEmpty) return lines;
-    return lines.where((line) =>
-      line.lineNumber.contains(query) ||
-      line.destinations.any((d) => d.toLowerCase().contains(query))
-    ).toList();
+    return lines.where((line) {
+      final matchesSearch = query.isEmpty ||
+          line.lineNumber.toLowerCase().contains(query) ||
+          line.destinations.any((d) => d.toLowerCase().contains(query));
+
+      final matchesDestination = destination.isEmpty ||
+          line.destinations.any((d) => d.toLowerCase().contains(destination));
+
+      final matchesBlock = line.summary.totalBlockHours >= minBlock;
+      final matchesDaysOff = line.daysOff.length >= minDaysOff;
+
+      return matchesSearch &&
+          matchesDestination &&
+          matchesBlock &&
+          matchesDaysOff;
+    }).toList();
   });
 });
 
@@ -135,17 +153,21 @@ class _LinesScreenState extends ConsumerState<LinesScreen> {
     );
   }
 
-  List<FlightLine> _sortLines(List<FlightLine> lines, String sortBy, UserMode? mode) {
+  List<FlightLine> _sortLines(
+      List<FlightLine> lines, String sortBy, UserMode? mode) {
     final sorted = [...lines];
     switch (sortBy) {
       case 'salary':
-        sorted.sort((a, b) => b.summary.estimatedSalaryMax.compareTo(a.summary.estimatedSalaryMax));
+        sorted.sort((a, b) => b.summary.estimatedSalaryMax
+            .compareTo(a.summary.estimatedSalaryMax));
       case 'rest':
-        sorted.sort((a, b) => b.summary.restQualityScore.compareTo(a.summary.restQualityScore));
+        sorted.sort((a, b) =>
+            b.summary.restQualityScore.compareTo(a.summary.restQualityScore));
       case 'daysOff':
         sorted.sort((a, b) => b.daysOff.length.compareTo(a.daysOff.length));
       default: // composite
-        sorted.sort((a, b) => b.summary.compositeScore.compareTo(a.summary.compositeScore));
+        sorted.sort((a, b) =>
+            b.summary.compositeScore.compareTo(a.summary.compositeScore));
     }
     return sorted;
   }
@@ -167,32 +189,38 @@ class _NajmFilterBar extends ConsumerWidget {
             child: TextField(
               controller: controller,
               textAlign: TextAlign.right,
-              onChanged: (v) => ref.read(lineSearchQueryProvider.notifier).state = v,
+              onChanged: (v) =>
+                  ref.read(lineSearchQueryProvider.notifier).state = v,
               decoration: InputDecoration(
-                hintText: 'Search or ask Najm... (e.g. "lines with London layovers")',
-                hintStyle: const TextStyle(fontSize: 13, color: CIPTheme.grey500),
-                prefixIcon: const Icon(Icons.auto_awesome, color: CIPTheme.saudiGold, size: 20),
+                hintText:
+                    'Search or ask Najm... (e.g. "lines with London layovers")',
+                hintStyle:
+                    const TextStyle(fontSize: 13, color: CIPTheme.grey500),
+                prefixIcon: const Icon(Icons.auto_awesome,
+                    color: CIPTheme.saudiGold, size: 20),
                 suffixIcon: controller.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear, size: 18),
-                      onPressed: () {
-                        controller.clear();
-                        ref.read(lineSearchQueryProvider.notifier).state = '';
-                      },
-                    )
-                  : null,
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          controller.clear();
+                          ref.read(lineSearchQueryProvider.notifier).state = '';
+                        },
+                      )
+                    : null,
                 filled: true,
                 fillColor: CIPTheme.grey100,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               onSubmitted: (query) {
                 if (query.isNotEmpty && query.contains(' ')) {
                   // Natural language query — route to AI
-                  context.push(Routes.assistant, extra: {'initialQuery': query});
+                  context
+                      .push(Routes.assistant, extra: {'initialQuery': query});
                 }
               },
             ),
@@ -209,6 +237,135 @@ class _NajmFilterBar extends ConsumerWidget {
   }
 }
 
+class _LineFilterPanel extends ConsumerWidget {
+  const _LineFilterPanel();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      height: 58,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _FilterBox(
+            width: 130,
+            label: 'Destination',
+            hint: 'CAI, LHR...',
+            onChanged: (v) =>
+                ref.read(lineDestinationFilterProvider.notifier).state = v,
+          ),
+          const SizedBox(width: 8),
+          _FilterBox(
+            width: 120,
+            label: 'Min block',
+            hint: '60',
+            keyboardType: TextInputType.number,
+            onChanged: (v) => ref
+                .read(lineMinBlockHoursProvider.notifier)
+                .state = double.tryParse(v) ?? 0,
+          ),
+          const SizedBox(width: 8),
+          _FilterBox(
+            width: 120,
+            label: 'Min days off',
+            hint: '10',
+            keyboardType: TextInputType.number,
+            onChanged: (v) => ref.read(lineMinDaysOffProvider.notifier).state =
+                int.tryParse(v) ?? 0,
+          ),
+          const SizedBox(width: 8),
+          OutlinedButton(
+            onPressed: () {
+              ref.read(lineSearchQueryProvider.notifier).state = '';
+              ref.read(lineDestinationFilterProvider.notifier).state = '';
+              ref.read(lineMinBlockHoursProvider.notifier).state = 0;
+              ref.read(lineMinDaysOffProvider.notifier).state = 0;
+            },
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterBox extends StatelessWidget {
+  final double width;
+  final String label;
+  final String hint;
+  final TextInputType keyboardType;
+  final ValueChanged<String> onChanged;
+
+  const _FilterBox({
+    required this.width,
+    required this.label,
+    required this.hint,
+    required this.onChanged,
+    this.keyboardType = TextInputType.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: TextField(
+        keyboardType: keyboardType,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          isDense: true,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+}
+
+class _LineCountBar extends StatelessWidget {
+  final int showing;
+  final int total;
+  const _LineCountBar({required this.showing, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Showing $showing of $total lines',
+          style: const TextStyle(
+              color: CIPTheme.grey700, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+}
+
+class _LineFactsBar extends StatelessWidget {
+  final LineSummary summary;
+  final int daysOffCount;
+  const _LineFactsBar({required this.summary, required this.daysOffCount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: [
+        _StatPill(
+            icon: Icons.schedule,
+            label: '${summary.totalDutyHours.toStringAsFixed(0)}h duty'),
+        _StatPill(icon: Icons.flight, label: '${summary.totalLegs} legs'),
+        _StatPill(icon: Icons.hotel, label: '${summary.layoverCount} layovers'),
+        _StatPill(icon: Icons.calendar_month, label: '$daysOffCount days off'),
+      ],
+    );
+  }
+}
+
 // ─── Sort Chips ───────────────────────────────────────────────────────────────
 class _SortChips extends StatelessWidget {
   final String selected;
@@ -218,10 +375,11 @@ class _SortChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final options = [
-      ('composite', '⭐ Best Match'),
-      ('salary', '💰 Salary'),
-      ('rest', '😴 Rest'),
-      ('daysOff', '📅 Days Off'),
+      ('lineNumber', 'Line No.'),
+      ('block', 'Block Hours'),
+      ('duty', 'Lower Duty'),
+      ('daysOff', 'Days Off'),
+      ('layovers', 'Layovers'),
     ];
 
     return Container(
@@ -271,8 +429,11 @@ class LineCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final summary = line.summary;
-    final salaryFormatted = NumberFormat.currency(symbol: 'SAR ', decimalDigits: 0)
-        .format(summary.estimatedSalaryMin);
+    final hasSalary = summary.estimatedSalaryMax > 0;
+    final salaryFormatted = hasSalary
+        ? NumberFormat.currency(symbol: 'SAR ', decimalDigits: 0)
+            .format(summary.estimatedSalaryMax)
+        : '${summary.totalBlockHours.toStringAsFixed(1)}h block';
 
     return GestureDetector(
       onTap: onTap,
@@ -298,9 +459,12 @@ class LineCard extends StatelessWidget {
               children: [
                 // Rank badge
                 Container(
-                  width: 32, height: 32,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
-                    color: rank <= 3 ? CIPTheme.saudiGold.withOpacity(0.15) : CIPTheme.grey100,
+                    color: rank <= 3
+                        ? CIPTheme.saudiGold.withOpacity(0.15)
+                        : CIPTheme.grey100,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
@@ -309,7 +473,8 @@ class LineCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: rank <= 3 ? CIPTheme.saudiGold : CIPTheme.grey500,
+                        color:
+                            rank <= 3 ? CIPTheme.saudiGold : CIPTheme.grey500,
                       ),
                     ),
                   ),
@@ -322,12 +487,14 @@ class LineCard extends StatelessWidget {
                       Text(
                         'Line ${line.lineNumber}',
                         style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold, color: CIPTheme.saudiNavy
-                        ),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: CIPTheme.saudiNavy),
                       ),
                       Text(
                         line.destinations.take(4).join(' · '),
-                        style: const TextStyle(fontSize: 12, color: CIPTheme.grey500),
+                        style: const TextStyle(
+                            fontSize: 12, color: CIPTheme.grey500),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -339,25 +506,27 @@ class LineCard extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // Score bar
-            _ScoreBar(score: summary.compositeScore, mode: userMode),
-
-            const SizedBox(height: 12),
-
             // Stats row
             Row(
               children: [
-                _StatPill(icon: Icons.access_time, label: '${summary.totalDutyHours.toStringAsFixed(0)}h duty'),
+                _StatPill(
+                    icon: Icons.access_time,
+                    label:
+                        '${summary.totalDutyHours.toStringAsFixed(0)}h duty'),
                 const SizedBox(width: 8),
-                _StatPill(icon: Icons.flight, label: '${summary.totalLegs} legs'),
+                _StatPill(
+                    icon: Icons.flight, label: '${summary.totalLegs} legs'),
                 const SizedBox(width: 8),
-                _StatPill(icon: Icons.hotel, label: '${summary.layoverCount} layovers'),
+                _StatPill(
+                    icon: Icons.hotel,
+                    label: '${summary.layoverCount} layovers'),
                 const Spacer(),
                 Text(
                   salaryFormatted,
                   style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.bold, color: CIPTheme.moneyGreen
-                  ),
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: CIPTheme.moneyGreen),
                 ),
               ],
             ),
@@ -368,38 +537,28 @@ class LineCard extends StatelessWidget {
   }
 }
 
-class _ScoreBar extends StatelessWidget {
-  final double score;
-  final UserMode mode;
-  const _ScoreBar({required this.score, required this.mode});
+class _StatPill extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _StatPill({
+    required this.icon,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final color = switch (mode) {
-      UserMode.money => CIPTheme.moneyGreen,
-      UserMode.rest => CIPTheme.restBlue,
-      UserMode.balanced => CIPTheme.saudiNavy,
-    };
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Match Score', style: TextStyle(fontSize: 11, color: CIPTheme.grey500)),
-            Text('${score.toStringAsFixed(0)}/100',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
-          ],
-        ),
-        const SizedBox(height: 4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: score / 100,
-            backgroundColor: CIPTheme.grey100,
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            minHeight: 6,
+        Icon(icon, size: 14, color: CIPTheme.grey500),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            color: CIPTheme.grey700,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -407,50 +566,31 @@ class _ScoreBar extends StatelessWidget {
   }
 }
 
-class _StatPill extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _StatPill({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 13, color: CIPTheme.grey500),
-        const SizedBox(width: 3),
-        Text(label, style: const TextStyle(fontSize: 12, color: CIPTheme.grey700)),
-      ],
-    );
-  }
-}
-
-// ─── Upload Roster Card ───────────────────────────────────────────────────────
 class _UploadRosterCard extends StatelessWidget {
   const _UploadRosterCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: CIPTheme.saudiNavy.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: CIPTheme.saudiNavy.withOpacity(0.2), style: BorderStyle.solid),
+        color: CIPTheme.warningAmberBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: CIPTheme.warningAmber.withOpacity(0.35)),
       ),
-      child: Column(
+      child: const Row(
         children: [
-          const Icon(Icons.cloud_upload_outlined, size: 40, color: CIPTheme.saudiNavy),
-          const SizedBox(height: 8),
-          const Text('Upload Monthly Roster', style: TextStyle(
-            fontWeight: FontWeight.w600, fontSize: 15, fontFamily: 'Inter'
-          )),
-          const Text('Upload Monthly Roster (.xlsx)', style: TextStyle(color: CIPTheme.grey500, fontSize: 13)),
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
-            onPressed: () {/* Launch file picker */},
-            icon: const Icon(Icons.attach_file, size: 18),
-            label: const Text('Select Excel File'),
+          Icon(Icons.info_outline, color: CIPTheme.warningAmber),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Upload is handled from the admin panel for now.',
+              style: TextStyle(
+                color: CIPTheme.grey700,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
@@ -473,9 +613,11 @@ class _EmptyLinesState extends StatelessWidget {
           children: [
             const Text('✈️', style: TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
-            const Text('No Lines Available', style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'
-            )),
+            const Text('No Lines Available',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
             const SizedBox(height: 8),
             const Text(
               'Upload your monthly roster Excel file to see available flight lines',

@@ -24,8 +24,7 @@ class IntelligenceService {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         try {
-          final token =
-              await FirebaseAuth.instance.currentUser?.getIdToken();
+          final token = await FirebaseAuth.instance.currentUser?.getIdToken();
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -63,22 +62,85 @@ class IntelligenceService {
   // ── Lines ───────────────────────────────────────────────────────────────────
 
   Stream<List<MonthlyLine>> userLinesStream(String userId) {
-    return _db
-        .collection('monthly_lines')
-        .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((s) => s.docs
-            .map((d) => MonthlyLine.fromFirestore(d.id,
-                Map<String, dynamic>.from(d.data())))
-            .toList());
+    return _db.collection('flightLines').snapshots().map((s) {
+      final lines = s.docs
+          .map((d) => _monthlyLineFromFlightLine(
+                d.id,
+                Map<String, dynamic>.from(d.data()),
+              ))
+          .toList();
+
+      lines.sort((a, b) {
+        final an = int.tryParse(a.lineNumber) ?? 0;
+        final bn = int.tryParse(b.lineNumber) ?? 0;
+        return an.compareTo(bn);
+      });
+
+      return lines;
+    });
   }
 
   Future<MonthlyLine?> getLine(String lineId) async {
-    final doc = await _db.collection('monthly_lines').doc(lineId).get();
+    final doc = await _db.collection('flightLines').doc(lineId).get();
     if (!doc.exists) return null;
-    return MonthlyLine.fromFirestore(
-        doc.id, Map<String, dynamic>.from(doc.data()!));
+    return _monthlyLineFromFlightLine(
+      doc.id,
+      Map<String, dynamic>.from(doc.data()!),
+    );
+  }
+
+  MonthlyLine _monthlyLineFromFlightLine(String docId, Map<String, dynamic> m) {
+    final rawSummary = Map<String, dynamic>.from(m['summary'] ?? {});
+    final destinations = List<String>.from(m['destinations'] ?? []);
+    final daysOff = List.from(m['daysOff'] ?? []);
+    final uploadedAt = m['uploadedAt'];
+    final createdAt =
+        uploadedAt is Timestamp ? uploadedAt.toDate() : DateTime.now();
+
+    final blockHours = (rawSummary['totalBlockHours'] as num?)?.toDouble() ??
+        (m['blockHours'] as num?)?.toDouble() ??
+        0.0;
+    final dutyHours = (rawSummary['totalDutyHours'] as num?)?.toDouble() ??
+        (m['creditHours'] as num?)?.toDouble() ??
+        0.0;
+    final totalLegs = (rawSummary['totalLegs'] as num?)?.toInt() ??
+        (m['totalLegs'] as num?)?.toInt() ??
+        0;
+
+    return MonthlyLine.fromFirestore(docId, {
+      'lineNumber': m['lineNumber']?.toString() ?? docId,
+      'period': m['month'] ?? '',
+      'userId': m['userId'] ?? 'global',
+      'createdAt': Timestamp.fromDate(createdAt),
+      'summary': {
+        'blockHours': blockHours,
+        'dutyHours': dutyHours,
+        'deadheadHours': 0.0,
+        'totalPairings': totalLegs,
+        'operatingLegs': totalLegs,
+        'deadheadLegs': 0,
+        'offDays': daysOff.length,
+        'openDays': 31 - daysOff.length,
+        'estimatedCredit': dutyHours,
+        'estimatedPerDiem': 0.0,
+        'uniqueDestinations': destinations,
+        'internationalCount':
+            rawSummary['internationalLegs'] ?? destinations.length,
+        'domesticCount': rawSummary['domesticLegs'] ?? 0,
+      },
+      'classification': {
+        'isInternational': destinations.isNotEmpty,
+        'hasDeadhead': false,
+        'routeType': 'mixed',
+        'tags': destinations,
+      },
+      'fatigueProfile': {
+        'overallLevel': 'low',
+        'score': 0,
+        'riskFactors': [],
+      },
+      'insights': [],
+    });
   }
 
   Future<List<Pairing>> getPairings(String lineId) async {
@@ -87,8 +149,8 @@ class IntelligenceService {
         .where('lineId', isEqualTo: lineId)
         .get();
     return snap.docs
-        .map((d) => Pairing.fromFirestore(
-            d.id, Map<String, dynamic>.from(d.data())))
+        .map((d) =>
+            Pairing.fromFirestore(d.id, Map<String, dynamic>.from(d.data())))
         .toList();
   }
 
@@ -100,8 +162,7 @@ class IntelligenceService {
         .orderBy('day')
         .get();
     return snap.docs
-        .map((d) => FatiguePoint.fromMap(
-            Map<String, dynamic>.from(d.data())))
+        .map((d) => FatiguePoint.fromMap(Map<String, dynamic>.from(d.data())))
         .toList();
   }
 
@@ -118,13 +179,13 @@ class IntelligenceService {
     int limit = 20,
   }) async {
     final res = await _dio.get('/v1/intelligence/search', queryParameters: {
-      'user_id':          userId,
-      if (fatigueLevel    != null) 'fatigue_level':    fatigueLevel,
-      if (hasDeadhead     != null) 'has_deadhead':     hasDeadhead,
+      'user_id': userId,
+      if (fatigueLevel != null) 'fatigue_level': fatigueLevel,
+      if (hasDeadhead != null) 'has_deadhead': hasDeadhead,
       if (isInternational != null) 'is_international': isInternational,
-      if (minCredit       != null) 'min_credit':       minCredit,
-      if (maxDutyHours    != null) 'max_duty_hours':   maxDutyHours,
-      if (period          != null) 'period':           period,
+      if (minCredit != null) 'min_credit': minCredit,
+      if (maxDutyHours != null) 'max_duty_hours': maxDutyHours,
+      if (period != null) 'period': period,
       'limit': limit,
     });
     return (res.data as List)
