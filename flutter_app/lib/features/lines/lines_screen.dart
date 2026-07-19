@@ -350,50 +350,98 @@ class _LineFilterPanel extends ConsumerWidget {
         (ref.watch(lineStarDaysOnlyProvider) ? 1 : 0) +
         (ref.watch(lineFourLegOnlyProvider) ? 1 : 0);
 
+    void openFilters() => showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => _LinesFilterSheet(
+            destinations: destinations,
+            lineTypes: types,
+            totalLines: allLines.length,
+            visibleLines: lines.length,
+          ),
+        );
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       color: Colors.white,
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            spacing: 10,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              OutlinedButton.icon(
-                icon: const Icon(Icons.tune),
-                label: Text(activeCount == 0
-                    ? 'Filter Lines'
-                    : 'Filters ($activeCount)'),
-                onPressed: () => showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  useSafeArea: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (_) => _LinesFilterSheet(
-                    destinations: destinations,
-                    lineTypes: types,
-                    totalLines: allLines.length,
-                    visibleLines: lines.length,
+              ElevatedButton.icon(
+                icon: const Icon(Icons.tune, size: 20),
+                label: Text(
+                  activeCount == 0 ? 'Filters' : 'Filters ($activeCount)',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                onPressed: openFilters,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: CIPTheme.saudiNavy,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                '${lines.length}/${allLines.length} lines',
-                style: const TextStyle(
-                  color: CIPTheme.grey700,
-                  fontWeight: FontWeight.w700,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: CIPTheme.grey100,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: CIPTheme.grey200),
+                ),
+                child: Text(
+                  '${lines.length}/${allLines.length} lines',
+                  style: const TextStyle(
+                    color: CIPTheme.grey900,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
-              const Spacer(),
+              if (destinations.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: CIPTheme.grey100,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: CIPTheme.grey200),
+                  ),
+                  child: Text(
+                    '${destinations.length} destinations',
+                    style: const TextStyle(
+                      color: CIPTheme.grey700,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               if (activeCount > 0)
-                TextButton(
+                TextButton.icon(
                   onPressed: () => _clearLineFilters(ref),
-                  child: const Text('Clear'),
+                  icon: const Icon(Icons.clear),
+                  label: const Text('Clear filters'),
                 ),
             ],
           ),
           if (activeCount > 0) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             SizedBox(
               height: 34,
               child: ListView(
