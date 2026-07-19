@@ -10,13 +10,30 @@ part 'models.g.dart';
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
 enum CrewRank { GD, PCA, BUT, CHF, SNF, YCA, CA, FO }
+
 enum UserMode { money, rest, balanced }
+
 enum SubscriptionTier { free, pro, elite, enterprise }
+
 enum LegType { domestic, international, positioning }
+
 enum LegalityStatus { legal, warning, violation }
+
 enum BidStatus { draft, submitted, awarded, rejected, withdrawn }
+
 enum TradeType { direct, openDrop, pickUp, swap }
-enum TradeStatus { draft, open, matched, pendingConfirm, confirmed, rejected, expired, cancelled }
+
+enum TradeStatus {
+  draft,
+  open,
+  matched,
+  pendingConfirm,
+  confirmed,
+  rejected,
+  expired,
+  cancelled
+}
+
 enum LegalitySeverity { blocking, warning }
 
 // ─── User Model ──────────────────────────────────────────────────────────────
@@ -49,7 +66,8 @@ class CIPUser with _$CIPUser {
     required DateTime lastActiveAt,
   }) = _CIPUser;
 
-  factory CIPUser.fromJson(Map<String, dynamic> json) => _$CIPUserFromJson(json);
+  factory CIPUser.fromJson(Map<String, dynamic> json) =>
+      _$CIPUserFromJson(json);
 
   factory CIPUser.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
@@ -62,7 +80,7 @@ class UserPreferences with _$UserPreferences {
   const factory UserPreferences({
     @Default([]) List<String> preferredDest,
     @Default([]) List<String> avoidedDest,
-    @Default([]) List<int> preferredOff,  // 0=Sun, 1=Mon...
+    @Default([]) List<int> preferredOff, // 0=Sun, 1=Mon...
     @Default(120) double maxDutyHours,
     @Default(10) double minRestHours,
     @Default(true) bool homebaseReturn,
@@ -94,10 +112,24 @@ class FlightLine with _$FlightLine {
     required String month,
     required String userId,
     @Default('') String rank,
+    @Default('') String lineType,
+    @Default('') String carryOver,
+    @Default('') String base,
+    @Default('') String category,
+    @Default(0) double creditHours,
+    @Default(0) double blockHours,
+    @Default(0) double carryOverHours,
+    @Default(0) int totalLegs,
+    @Default(0) int fourLegCount,
+    @Default(0) double expense,
+    @Default(0) double allowance,
+    @Default(0) double income,
+    @Default(false) bool hasStarDays,
     required DateTime uploadedAt,
     @Default('pending') String validationStatus,
     @Default(LineSummary()) LineSummary summary,
     @Default([]) List<String> destinations,
+    @Default([]) List<Map<String, dynamic>> destinationDetails,
     @Default([]) List<int> daysOff,
     @Default(true) bool isActive,
     @Default([]) List<FlightLeg> legs,
@@ -197,6 +229,19 @@ class Bid with _$Bid {
     @Default(BidStatus.draft) BidStatus status,
     @Default(UserMode.balanced) UserMode userMode,
     @Default('') String rank,
+    @Default('') String lineType,
+    @Default('') String carryOver,
+    @Default('') String base,
+    @Default('') String category,
+    @Default(0) double creditHours,
+    @Default(0) double blockHours,
+    @Default(0) double carryOverHours,
+    @Default(0) int totalLegs,
+    @Default(0) int fourLegCount,
+    @Default(0) double expense,
+    @Default(0) double allowance,
+    @Default(0) double income,
+    @Default(false) bool hasStarDays,
     @Default(false) bool isAutoBid,
     @Default([]) List<String> autoReasons,
     @Default(BidScoreSnapshot()) BidScoreSnapshot scoreAtBid,
@@ -342,7 +387,7 @@ class RankedLine with _$RankedLine {
 class AIMessage with _$AIMessage {
   const factory AIMessage({
     required String id,
-    required String role,  // 'user' | 'assistant'
+    required String role, // 'user' | 'assistant'
     required String content,
     @Default('') String intentType,
     required DateTime timestamp,

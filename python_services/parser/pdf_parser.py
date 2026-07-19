@@ -463,6 +463,10 @@ async def _save_lines_to_firestore(
                 "allowance": line.allowance,
                 "income": line.income,
                 "destinations": [d.iata for d in line.destinations],
+                "destinationDetails": [
+                    {"iata": d.iata, "layoverHours": d.layoverHours}
+                    for d in line.destinations
+                ],
                 "hasStarDays": line.hasStarDays,
                 "isActive": True,
             })

@@ -1168,10 +1168,25 @@ mixin _$FlightLine {
   String get month => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
   String get rank => throw _privateConstructorUsedError;
+  String get lineType => throw _privateConstructorUsedError;
+  String get carryOver => throw _privateConstructorUsedError;
+  String get base => throw _privateConstructorUsedError;
+  String get category => throw _privateConstructorUsedError;
+  double get creditHours => throw _privateConstructorUsedError;
+  double get blockHours => throw _privateConstructorUsedError;
+  double get carryOverHours => throw _privateConstructorUsedError;
+  int get totalLegs => throw _privateConstructorUsedError;
+  int get fourLegCount => throw _privateConstructorUsedError;
+  double get expense => throw _privateConstructorUsedError;
+  double get allowance => throw _privateConstructorUsedError;
+  double get income => throw _privateConstructorUsedError;
+  bool get hasStarDays => throw _privateConstructorUsedError;
   DateTime get uploadedAt => throw _privateConstructorUsedError;
   String get validationStatus => throw _privateConstructorUsedError;
   LineSummary get summary => throw _privateConstructorUsedError;
   List<String> get destinations => throw _privateConstructorUsedError;
+  List<Map<String, dynamic>> get destinationDetails =>
+      throw _privateConstructorUsedError;
   List<int> get daysOff => throw _privateConstructorUsedError;
   bool get isActive => throw _privateConstructorUsedError;
   List<FlightLeg> get legs => throw _privateConstructorUsedError;
@@ -1198,10 +1213,24 @@ abstract class $FlightLineCopyWith<$Res> {
       String month,
       String userId,
       String rank,
+      String lineType,
+      String carryOver,
+      String base,
+      String category,
+      double creditHours,
+      double blockHours,
+      double carryOverHours,
+      int totalLegs,
+      int fourLegCount,
+      double expense,
+      double allowance,
+      double income,
+      bool hasStarDays,
       DateTime uploadedAt,
       String validationStatus,
       LineSummary summary,
       List<String> destinations,
+      List<Map<String, dynamic>> destinationDetails,
       List<int> daysOff,
       bool isActive,
       List<FlightLeg> legs});
@@ -1229,10 +1258,24 @@ class _$FlightLineCopyWithImpl<$Res, $Val extends FlightLine>
     Object? month = null,
     Object? userId = null,
     Object? rank = null,
+    Object? lineType = null,
+    Object? carryOver = null,
+    Object? base = null,
+    Object? category = null,
+    Object? creditHours = null,
+    Object? blockHours = null,
+    Object? carryOverHours = null,
+    Object? totalLegs = null,
+    Object? fourLegCount = null,
+    Object? expense = null,
+    Object? allowance = null,
+    Object? income = null,
+    Object? hasStarDays = null,
     Object? uploadedAt = null,
     Object? validationStatus = null,
     Object? summary = null,
     Object? destinations = null,
+    Object? destinationDetails = null,
     Object? daysOff = null,
     Object? isActive = null,
     Object? legs = null,
@@ -1258,6 +1301,58 @@ class _$FlightLineCopyWithImpl<$Res, $Val extends FlightLine>
           ? _value.rank
           : rank // ignore: cast_nullable_to_non_nullable
               as String,
+      lineType: null == lineType
+          ? _value.lineType
+          : lineType // ignore: cast_nullable_to_non_nullable
+              as String,
+      carryOver: null == carryOver
+          ? _value.carryOver
+          : carryOver // ignore: cast_nullable_to_non_nullable
+              as String,
+      base: null == base
+          ? _value.base
+          : base // ignore: cast_nullable_to_non_nullable
+              as String,
+      category: null == category
+          ? _value.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as String,
+      creditHours: null == creditHours
+          ? _value.creditHours
+          : creditHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      blockHours: null == blockHours
+          ? _value.blockHours
+          : blockHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      carryOverHours: null == carryOverHours
+          ? _value.carryOverHours
+          : carryOverHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      totalLegs: null == totalLegs
+          ? _value.totalLegs
+          : totalLegs // ignore: cast_nullable_to_non_nullable
+              as int,
+      fourLegCount: null == fourLegCount
+          ? _value.fourLegCount
+          : fourLegCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      expense: null == expense
+          ? _value.expense
+          : expense // ignore: cast_nullable_to_non_nullable
+              as double,
+      allowance: null == allowance
+          ? _value.allowance
+          : allowance // ignore: cast_nullable_to_non_nullable
+              as double,
+      income: null == income
+          ? _value.income
+          : income // ignore: cast_nullable_to_non_nullable
+              as double,
+      hasStarDays: null == hasStarDays
+          ? _value.hasStarDays
+          : hasStarDays // ignore: cast_nullable_to_non_nullable
+              as bool,
       uploadedAt: null == uploadedAt
           ? _value.uploadedAt
           : uploadedAt // ignore: cast_nullable_to_non_nullable
@@ -1274,6 +1369,10 @@ class _$FlightLineCopyWithImpl<$Res, $Val extends FlightLine>
           ? _value.destinations
           : destinations // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      destinationDetails: null == destinationDetails
+          ? _value.destinationDetails
+          : destinationDetails // ignore: cast_nullable_to_non_nullable
+              as List<Map<String, dynamic>>,
       daysOff: null == daysOff
           ? _value.daysOff
           : daysOff // ignore: cast_nullable_to_non_nullable
@@ -1314,10 +1413,24 @@ abstract class _$$FlightLineImplCopyWith<$Res>
       String month,
       String userId,
       String rank,
+      String lineType,
+      String carryOver,
+      String base,
+      String category,
+      double creditHours,
+      double blockHours,
+      double carryOverHours,
+      int totalLegs,
+      int fourLegCount,
+      double expense,
+      double allowance,
+      double income,
+      bool hasStarDays,
       DateTime uploadedAt,
       String validationStatus,
       LineSummary summary,
       List<String> destinations,
+      List<Map<String, dynamic>> destinationDetails,
       List<int> daysOff,
       bool isActive,
       List<FlightLeg> legs});
@@ -1344,10 +1457,24 @@ class __$$FlightLineImplCopyWithImpl<$Res>
     Object? month = null,
     Object? userId = null,
     Object? rank = null,
+    Object? lineType = null,
+    Object? carryOver = null,
+    Object? base = null,
+    Object? category = null,
+    Object? creditHours = null,
+    Object? blockHours = null,
+    Object? carryOverHours = null,
+    Object? totalLegs = null,
+    Object? fourLegCount = null,
+    Object? expense = null,
+    Object? allowance = null,
+    Object? income = null,
+    Object? hasStarDays = null,
     Object? uploadedAt = null,
     Object? validationStatus = null,
     Object? summary = null,
     Object? destinations = null,
+    Object? destinationDetails = null,
     Object? daysOff = null,
     Object? isActive = null,
     Object? legs = null,
@@ -1373,6 +1500,58 @@ class __$$FlightLineImplCopyWithImpl<$Res>
           ? _value.rank
           : rank // ignore: cast_nullable_to_non_nullable
               as String,
+      lineType: null == lineType
+          ? _value.lineType
+          : lineType // ignore: cast_nullable_to_non_nullable
+              as String,
+      carryOver: null == carryOver
+          ? _value.carryOver
+          : carryOver // ignore: cast_nullable_to_non_nullable
+              as String,
+      base: null == base
+          ? _value.base
+          : base // ignore: cast_nullable_to_non_nullable
+              as String,
+      category: null == category
+          ? _value.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as String,
+      creditHours: null == creditHours
+          ? _value.creditHours
+          : creditHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      blockHours: null == blockHours
+          ? _value.blockHours
+          : blockHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      carryOverHours: null == carryOverHours
+          ? _value.carryOverHours
+          : carryOverHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      totalLegs: null == totalLegs
+          ? _value.totalLegs
+          : totalLegs // ignore: cast_nullable_to_non_nullable
+              as int,
+      fourLegCount: null == fourLegCount
+          ? _value.fourLegCount
+          : fourLegCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      expense: null == expense
+          ? _value.expense
+          : expense // ignore: cast_nullable_to_non_nullable
+              as double,
+      allowance: null == allowance
+          ? _value.allowance
+          : allowance // ignore: cast_nullable_to_non_nullable
+              as double,
+      income: null == income
+          ? _value.income
+          : income // ignore: cast_nullable_to_non_nullable
+              as double,
+      hasStarDays: null == hasStarDays
+          ? _value.hasStarDays
+          : hasStarDays // ignore: cast_nullable_to_non_nullable
+              as bool,
       uploadedAt: null == uploadedAt
           ? _value.uploadedAt
           : uploadedAt // ignore: cast_nullable_to_non_nullable
@@ -1389,6 +1568,10 @@ class __$$FlightLineImplCopyWithImpl<$Res>
           ? _value._destinations
           : destinations // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      destinationDetails: null == destinationDetails
+          ? _value._destinationDetails
+          : destinationDetails // ignore: cast_nullable_to_non_nullable
+              as List<Map<String, dynamic>>,
       daysOff: null == daysOff
           ? _value._daysOff
           : daysOff // ignore: cast_nullable_to_non_nullable
@@ -1414,14 +1597,29 @@ class _$FlightLineImpl implements _FlightLine {
       required this.month,
       required this.userId,
       this.rank = '',
+      this.lineType = '',
+      this.carryOver = '',
+      this.base = '',
+      this.category = '',
+      this.creditHours = 0,
+      this.blockHours = 0,
+      this.carryOverHours = 0,
+      this.totalLegs = 0,
+      this.fourLegCount = 0,
+      this.expense = 0,
+      this.allowance = 0,
+      this.income = 0,
+      this.hasStarDays = false,
       required this.uploadedAt,
       this.validationStatus = 'pending',
       this.summary = const LineSummary(),
       final List<String> destinations = const [],
+      final List<Map<String, dynamic>> destinationDetails = const [],
       final List<int> daysOff = const [],
       this.isActive = true,
       final List<FlightLeg> legs = const []})
       : _destinations = destinations,
+        _destinationDetails = destinationDetails,
         _daysOff = daysOff,
         _legs = legs;
 
@@ -1440,6 +1638,45 @@ class _$FlightLineImpl implements _FlightLine {
   @JsonKey()
   final String rank;
   @override
+  @JsonKey()
+  final String lineType;
+  @override
+  @JsonKey()
+  final String carryOver;
+  @override
+  @JsonKey()
+  final String base;
+  @override
+  @JsonKey()
+  final String category;
+  @override
+  @JsonKey()
+  final double creditHours;
+  @override
+  @JsonKey()
+  final double blockHours;
+  @override
+  @JsonKey()
+  final double carryOverHours;
+  @override
+  @JsonKey()
+  final int totalLegs;
+  @override
+  @JsonKey()
+  final int fourLegCount;
+  @override
+  @JsonKey()
+  final double expense;
+  @override
+  @JsonKey()
+  final double allowance;
+  @override
+  @JsonKey()
+  final double income;
+  @override
+  @JsonKey()
+  final bool hasStarDays;
+  @override
   final DateTime uploadedAt;
   @override
   @JsonKey()
@@ -1454,6 +1691,16 @@ class _$FlightLineImpl implements _FlightLine {
     if (_destinations is EqualUnmodifiableListView) return _destinations;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_destinations);
+  }
+
+  final List<Map<String, dynamic>> _destinationDetails;
+  @override
+  @JsonKey()
+  List<Map<String, dynamic>> get destinationDetails {
+    if (_destinationDetails is EqualUnmodifiableListView)
+      return _destinationDetails;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_destinationDetails);
   }
 
   final List<int> _daysOff;
@@ -1479,7 +1726,7 @@ class _$FlightLineImpl implements _FlightLine {
 
   @override
   String toString() {
-    return 'FlightLine(id: $id, lineNumber: $lineNumber, month: $month, userId: $userId, rank: $rank, uploadedAt: $uploadedAt, validationStatus: $validationStatus, summary: $summary, destinations: $destinations, daysOff: $daysOff, isActive: $isActive, legs: $legs)';
+    return 'FlightLine(id: $id, lineNumber: $lineNumber, month: $month, userId: $userId, rank: $rank, lineType: $lineType, carryOver: $carryOver, base: $base, category: $category, creditHours: $creditHours, blockHours: $blockHours, carryOverHours: $carryOverHours, totalLegs: $totalLegs, fourLegCount: $fourLegCount, expense: $expense, allowance: $allowance, income: $income, hasStarDays: $hasStarDays, uploadedAt: $uploadedAt, validationStatus: $validationStatus, summary: $summary, destinations: $destinations, destinationDetails: $destinationDetails, daysOff: $daysOff, isActive: $isActive, legs: $legs)';
   }
 
   @override
@@ -1493,6 +1740,29 @@ class _$FlightLineImpl implements _FlightLine {
             (identical(other.month, month) || other.month == month) &&
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.rank, rank) || other.rank == rank) &&
+            (identical(other.lineType, lineType) ||
+                other.lineType == lineType) &&
+            (identical(other.carryOver, carryOver) ||
+                other.carryOver == carryOver) &&
+            (identical(other.base, base) || other.base == base) &&
+            (identical(other.category, category) ||
+                other.category == category) &&
+            (identical(other.creditHours, creditHours) ||
+                other.creditHours == creditHours) &&
+            (identical(other.blockHours, blockHours) ||
+                other.blockHours == blockHours) &&
+            (identical(other.carryOverHours, carryOverHours) ||
+                other.carryOverHours == carryOverHours) &&
+            (identical(other.totalLegs, totalLegs) ||
+                other.totalLegs == totalLegs) &&
+            (identical(other.fourLegCount, fourLegCount) ||
+                other.fourLegCount == fourLegCount) &&
+            (identical(other.expense, expense) || other.expense == expense) &&
+            (identical(other.allowance, allowance) ||
+                other.allowance == allowance) &&
+            (identical(other.income, income) || other.income == income) &&
+            (identical(other.hasStarDays, hasStarDays) ||
+                other.hasStarDays == hasStarDays) &&
             (identical(other.uploadedAt, uploadedAt) ||
                 other.uploadedAt == uploadedAt) &&
             (identical(other.validationStatus, validationStatus) ||
@@ -1500,6 +1770,8 @@ class _$FlightLineImpl implements _FlightLine {
             (identical(other.summary, summary) || other.summary == summary) &&
             const DeepCollectionEquality()
                 .equals(other._destinations, _destinations) &&
+            const DeepCollectionEquality()
+                .equals(other._destinationDetails, _destinationDetails) &&
             const DeepCollectionEquality().equals(other._daysOff, _daysOff) &&
             (identical(other.isActive, isActive) ||
                 other.isActive == isActive) &&
@@ -1508,20 +1780,35 @@ class _$FlightLineImpl implements _FlightLine {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      lineNumber,
-      month,
-      userId,
-      rank,
-      uploadedAt,
-      validationStatus,
-      summary,
-      const DeepCollectionEquality().hash(_destinations),
-      const DeepCollectionEquality().hash(_daysOff),
-      isActive,
-      const DeepCollectionEquality().hash(_legs));
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        lineNumber,
+        month,
+        userId,
+        rank,
+        lineType,
+        carryOver,
+        base,
+        category,
+        creditHours,
+        blockHours,
+        carryOverHours,
+        totalLegs,
+        fourLegCount,
+        expense,
+        allowance,
+        income,
+        hasStarDays,
+        uploadedAt,
+        validationStatus,
+        summary,
+        const DeepCollectionEquality().hash(_destinations),
+        const DeepCollectionEquality().hash(_destinationDetails),
+        const DeepCollectionEquality().hash(_daysOff),
+        isActive,
+        const DeepCollectionEquality().hash(_legs)
+      ]);
 
   /// Create a copy of FlightLine
   /// with the given fields replaced by the non-null parameter values.
@@ -1546,10 +1833,24 @@ abstract class _FlightLine implements FlightLine {
       required final String month,
       required final String userId,
       final String rank,
+      final String lineType,
+      final String carryOver,
+      final String base,
+      final String category,
+      final double creditHours,
+      final double blockHours,
+      final double carryOverHours,
+      final int totalLegs,
+      final int fourLegCount,
+      final double expense,
+      final double allowance,
+      final double income,
+      final bool hasStarDays,
       required final DateTime uploadedAt,
       final String validationStatus,
       final LineSummary summary,
       final List<String> destinations,
+      final List<Map<String, dynamic>> destinationDetails,
       final List<int> daysOff,
       final bool isActive,
       final List<FlightLeg> legs}) = _$FlightLineImpl;
@@ -1568,6 +1869,32 @@ abstract class _FlightLine implements FlightLine {
   @override
   String get rank;
   @override
+  String get lineType;
+  @override
+  String get carryOver;
+  @override
+  String get base;
+  @override
+  String get category;
+  @override
+  double get creditHours;
+  @override
+  double get blockHours;
+  @override
+  double get carryOverHours;
+  @override
+  int get totalLegs;
+  @override
+  int get fourLegCount;
+  @override
+  double get expense;
+  @override
+  double get allowance;
+  @override
+  double get income;
+  @override
+  bool get hasStarDays;
+  @override
   DateTime get uploadedAt;
   @override
   String get validationStatus;
@@ -1575,6 +1902,8 @@ abstract class _FlightLine implements FlightLine {
   LineSummary get summary;
   @override
   List<String> get destinations;
+  @override
+  List<Map<String, dynamic>> get destinationDetails;
   @override
   List<int> get daysOff;
   @override
@@ -2734,6 +3063,19 @@ mixin _$Bid {
   BidStatus get status => throw _privateConstructorUsedError;
   UserMode get userMode => throw _privateConstructorUsedError;
   String get rank => throw _privateConstructorUsedError;
+  String get lineType => throw _privateConstructorUsedError;
+  String get carryOver => throw _privateConstructorUsedError;
+  String get base => throw _privateConstructorUsedError;
+  String get category => throw _privateConstructorUsedError;
+  double get creditHours => throw _privateConstructorUsedError;
+  double get blockHours => throw _privateConstructorUsedError;
+  double get carryOverHours => throw _privateConstructorUsedError;
+  int get totalLegs => throw _privateConstructorUsedError;
+  int get fourLegCount => throw _privateConstructorUsedError;
+  double get expense => throw _privateConstructorUsedError;
+  double get allowance => throw _privateConstructorUsedError;
+  double get income => throw _privateConstructorUsedError;
+  bool get hasStarDays => throw _privateConstructorUsedError;
   bool get isAutoBid => throw _privateConstructorUsedError;
   List<String> get autoReasons => throw _privateConstructorUsedError;
   BidScoreSnapshot get scoreAtBid => throw _privateConstructorUsedError;
@@ -2767,6 +3109,19 @@ abstract class $BidCopyWith<$Res> {
       BidStatus status,
       UserMode userMode,
       String rank,
+      String lineType,
+      String carryOver,
+      String base,
+      String category,
+      double creditHours,
+      double blockHours,
+      double carryOverHours,
+      int totalLegs,
+      int fourLegCount,
+      double expense,
+      double allowance,
+      double income,
+      bool hasStarDays,
       bool isAutoBid,
       List<String> autoReasons,
       BidScoreSnapshot scoreAtBid,
@@ -2802,6 +3157,19 @@ class _$BidCopyWithImpl<$Res, $Val extends Bid> implements $BidCopyWith<$Res> {
     Object? status = null,
     Object? userMode = null,
     Object? rank = null,
+    Object? lineType = null,
+    Object? carryOver = null,
+    Object? base = null,
+    Object? category = null,
+    Object? creditHours = null,
+    Object? blockHours = null,
+    Object? carryOverHours = null,
+    Object? totalLegs = null,
+    Object? fourLegCount = null,
+    Object? expense = null,
+    Object? allowance = null,
+    Object? income = null,
+    Object? hasStarDays = null,
     Object? isAutoBid = null,
     Object? autoReasons = null,
     Object? scoreAtBid = null,
@@ -2848,6 +3216,58 @@ class _$BidCopyWithImpl<$Res, $Val extends Bid> implements $BidCopyWith<$Res> {
           ? _value.rank
           : rank // ignore: cast_nullable_to_non_nullable
               as String,
+      lineType: null == lineType
+          ? _value.lineType
+          : lineType // ignore: cast_nullable_to_non_nullable
+              as String,
+      carryOver: null == carryOver
+          ? _value.carryOver
+          : carryOver // ignore: cast_nullable_to_non_nullable
+              as String,
+      base: null == base
+          ? _value.base
+          : base // ignore: cast_nullable_to_non_nullable
+              as String,
+      category: null == category
+          ? _value.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as String,
+      creditHours: null == creditHours
+          ? _value.creditHours
+          : creditHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      blockHours: null == blockHours
+          ? _value.blockHours
+          : blockHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      carryOverHours: null == carryOverHours
+          ? _value.carryOverHours
+          : carryOverHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      totalLegs: null == totalLegs
+          ? _value.totalLegs
+          : totalLegs // ignore: cast_nullable_to_non_nullable
+              as int,
+      fourLegCount: null == fourLegCount
+          ? _value.fourLegCount
+          : fourLegCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      expense: null == expense
+          ? _value.expense
+          : expense // ignore: cast_nullable_to_non_nullable
+              as double,
+      allowance: null == allowance
+          ? _value.allowance
+          : allowance // ignore: cast_nullable_to_non_nullable
+              as double,
+      income: null == income
+          ? _value.income
+          : income // ignore: cast_nullable_to_non_nullable
+              as double,
+      hasStarDays: null == hasStarDays
+          ? _value.hasStarDays
+          : hasStarDays // ignore: cast_nullable_to_non_nullable
+              as bool,
       isAutoBid: null == isAutoBid
           ? _value.isAutoBid
           : isAutoBid // ignore: cast_nullable_to_non_nullable
@@ -2910,6 +3330,19 @@ abstract class _$$BidImplCopyWith<$Res> implements $BidCopyWith<$Res> {
       BidStatus status,
       UserMode userMode,
       String rank,
+      String lineType,
+      String carryOver,
+      String base,
+      String category,
+      double creditHours,
+      double blockHours,
+      double carryOverHours,
+      int totalLegs,
+      int fourLegCount,
+      double expense,
+      double allowance,
+      double income,
+      bool hasStarDays,
       bool isAutoBid,
       List<String> autoReasons,
       BidScoreSnapshot scoreAtBid,
@@ -2943,6 +3376,19 @@ class __$$BidImplCopyWithImpl<$Res> extends _$BidCopyWithImpl<$Res, _$BidImpl>
     Object? status = null,
     Object? userMode = null,
     Object? rank = null,
+    Object? lineType = null,
+    Object? carryOver = null,
+    Object? base = null,
+    Object? category = null,
+    Object? creditHours = null,
+    Object? blockHours = null,
+    Object? carryOverHours = null,
+    Object? totalLegs = null,
+    Object? fourLegCount = null,
+    Object? expense = null,
+    Object? allowance = null,
+    Object? income = null,
+    Object? hasStarDays = null,
     Object? isAutoBid = null,
     Object? autoReasons = null,
     Object? scoreAtBid = null,
@@ -2989,6 +3435,58 @@ class __$$BidImplCopyWithImpl<$Res> extends _$BidCopyWithImpl<$Res, _$BidImpl>
           ? _value.rank
           : rank // ignore: cast_nullable_to_non_nullable
               as String,
+      lineType: null == lineType
+          ? _value.lineType
+          : lineType // ignore: cast_nullable_to_non_nullable
+              as String,
+      carryOver: null == carryOver
+          ? _value.carryOver
+          : carryOver // ignore: cast_nullable_to_non_nullable
+              as String,
+      base: null == base
+          ? _value.base
+          : base // ignore: cast_nullable_to_non_nullable
+              as String,
+      category: null == category
+          ? _value.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as String,
+      creditHours: null == creditHours
+          ? _value.creditHours
+          : creditHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      blockHours: null == blockHours
+          ? _value.blockHours
+          : blockHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      carryOverHours: null == carryOverHours
+          ? _value.carryOverHours
+          : carryOverHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      totalLegs: null == totalLegs
+          ? _value.totalLegs
+          : totalLegs // ignore: cast_nullable_to_non_nullable
+              as int,
+      fourLegCount: null == fourLegCount
+          ? _value.fourLegCount
+          : fourLegCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      expense: null == expense
+          ? _value.expense
+          : expense // ignore: cast_nullable_to_non_nullable
+              as double,
+      allowance: null == allowance
+          ? _value.allowance
+          : allowance // ignore: cast_nullable_to_non_nullable
+              as double,
+      income: null == income
+          ? _value.income
+          : income // ignore: cast_nullable_to_non_nullable
+              as double,
+      hasStarDays: null == hasStarDays
+          ? _value.hasStarDays
+          : hasStarDays // ignore: cast_nullable_to_non_nullable
+              as bool,
       isAutoBid: null == isAutoBid
           ? _value.isAutoBid
           : isAutoBid // ignore: cast_nullable_to_non_nullable
@@ -3038,6 +3536,19 @@ class _$BidImpl implements _Bid {
       this.status = BidStatus.draft,
       this.userMode = UserMode.balanced,
       this.rank = '',
+      this.lineType = '',
+      this.carryOver = '',
+      this.base = '',
+      this.category = '',
+      this.creditHours = 0,
+      this.blockHours = 0,
+      this.carryOverHours = 0,
+      this.totalLegs = 0,
+      this.fourLegCount = 0,
+      this.expense = 0,
+      this.allowance = 0,
+      this.income = 0,
+      this.hasStarDays = false,
       this.isAutoBid = false,
       final List<String> autoReasons = const [],
       this.scoreAtBid = const BidScoreSnapshot(),
@@ -3075,6 +3586,45 @@ class _$BidImpl implements _Bid {
   final String rank;
   @override
   @JsonKey()
+  final String lineType;
+  @override
+  @JsonKey()
+  final String carryOver;
+  @override
+  @JsonKey()
+  final String base;
+  @override
+  @JsonKey()
+  final String category;
+  @override
+  @JsonKey()
+  final double creditHours;
+  @override
+  @JsonKey()
+  final double blockHours;
+  @override
+  @JsonKey()
+  final double carryOverHours;
+  @override
+  @JsonKey()
+  final int totalLegs;
+  @override
+  @JsonKey()
+  final int fourLegCount;
+  @override
+  @JsonKey()
+  final double expense;
+  @override
+  @JsonKey()
+  final double allowance;
+  @override
+  @JsonKey()
+  final double income;
+  @override
+  @JsonKey()
+  final bool hasStarDays;
+  @override
+  @JsonKey()
   final bool isAutoBid;
   final List<String> _autoReasons;
   @override
@@ -3102,7 +3652,7 @@ class _$BidImpl implements _Bid {
 
   @override
   String toString() {
-    return 'Bid(id: $id, userId: $userId, lineId: $lineId, lineNumber: $lineNumber, month: $month, priority: $priority, status: $status, userMode: $userMode, rank: $rank, isAutoBid: $isAutoBid, autoReasons: $autoReasons, scoreAtBid: $scoreAtBid, estimatedSalary: $estimatedSalary, submittedAt: $submittedAt, windowClosedAt: $windowClosedAt, awardedAt: $awardedAt, withdrawnAt: $withdrawnAt)';
+    return 'Bid(id: $id, userId: $userId, lineId: $lineId, lineNumber: $lineNumber, month: $month, priority: $priority, status: $status, userMode: $userMode, rank: $rank, lineType: $lineType, carryOver: $carryOver, base: $base, category: $category, creditHours: $creditHours, blockHours: $blockHours, carryOverHours: $carryOverHours, totalLegs: $totalLegs, fourLegCount: $fourLegCount, expense: $expense, allowance: $allowance, income: $income, hasStarDays: $hasStarDays, isAutoBid: $isAutoBid, autoReasons: $autoReasons, scoreAtBid: $scoreAtBid, estimatedSalary: $estimatedSalary, submittedAt: $submittedAt, windowClosedAt: $windowClosedAt, awardedAt: $awardedAt, withdrawnAt: $withdrawnAt)';
   }
 
   @override
@@ -3122,6 +3672,29 @@ class _$BidImpl implements _Bid {
             (identical(other.userMode, userMode) ||
                 other.userMode == userMode) &&
             (identical(other.rank, rank) || other.rank == rank) &&
+            (identical(other.lineType, lineType) ||
+                other.lineType == lineType) &&
+            (identical(other.carryOver, carryOver) ||
+                other.carryOver == carryOver) &&
+            (identical(other.base, base) || other.base == base) &&
+            (identical(other.category, category) ||
+                other.category == category) &&
+            (identical(other.creditHours, creditHours) ||
+                other.creditHours == creditHours) &&
+            (identical(other.blockHours, blockHours) ||
+                other.blockHours == blockHours) &&
+            (identical(other.carryOverHours, carryOverHours) ||
+                other.carryOverHours == carryOverHours) &&
+            (identical(other.totalLegs, totalLegs) ||
+                other.totalLegs == totalLegs) &&
+            (identical(other.fourLegCount, fourLegCount) ||
+                other.fourLegCount == fourLegCount) &&
+            (identical(other.expense, expense) || other.expense == expense) &&
+            (identical(other.allowance, allowance) ||
+                other.allowance == allowance) &&
+            (identical(other.income, income) || other.income == income) &&
+            (identical(other.hasStarDays, hasStarDays) ||
+                other.hasStarDays == hasStarDays) &&
             (identical(other.isAutoBid, isAutoBid) ||
                 other.isAutoBid == isAutoBid) &&
             const DeepCollectionEquality()
@@ -3142,25 +3715,39 @@ class _$BidImpl implements _Bid {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      userId,
-      lineId,
-      lineNumber,
-      month,
-      priority,
-      status,
-      userMode,
-      rank,
-      isAutoBid,
-      const DeepCollectionEquality().hash(_autoReasons),
-      scoreAtBid,
-      estimatedSalary,
-      submittedAt,
-      windowClosedAt,
-      awardedAt,
-      withdrawnAt);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        userId,
+        lineId,
+        lineNumber,
+        month,
+        priority,
+        status,
+        userMode,
+        rank,
+        lineType,
+        carryOver,
+        base,
+        category,
+        creditHours,
+        blockHours,
+        carryOverHours,
+        totalLegs,
+        fourLegCount,
+        expense,
+        allowance,
+        income,
+        hasStarDays,
+        isAutoBid,
+        const DeepCollectionEquality().hash(_autoReasons),
+        scoreAtBid,
+        estimatedSalary,
+        submittedAt,
+        windowClosedAt,
+        awardedAt,
+        withdrawnAt
+      ]);
 
   /// Create a copy of Bid
   /// with the given fields replaced by the non-null parameter values.
@@ -3189,6 +3776,19 @@ abstract class _Bid implements Bid {
       final BidStatus status,
       final UserMode userMode,
       final String rank,
+      final String lineType,
+      final String carryOver,
+      final String base,
+      final String category,
+      final double creditHours,
+      final double blockHours,
+      final double carryOverHours,
+      final int totalLegs,
+      final int fourLegCount,
+      final double expense,
+      final double allowance,
+      final double income,
+      final bool hasStarDays,
       final bool isAutoBid,
       final List<String> autoReasons,
       final BidScoreSnapshot scoreAtBid,
@@ -3218,6 +3818,32 @@ abstract class _Bid implements Bid {
   UserMode get userMode;
   @override
   String get rank;
+  @override
+  String get lineType;
+  @override
+  String get carryOver;
+  @override
+  String get base;
+  @override
+  String get category;
+  @override
+  double get creditHours;
+  @override
+  double get blockHours;
+  @override
+  double get carryOverHours;
+  @override
+  int get totalLegs;
+  @override
+  int get fourLegCount;
+  @override
+  double get expense;
+  @override
+  double get allowance;
+  @override
+  double get income;
+  @override
+  bool get hasStarDays;
   @override
   bool get isAutoBid;
   @override
