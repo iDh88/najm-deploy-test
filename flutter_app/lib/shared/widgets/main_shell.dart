@@ -16,7 +16,7 @@ class MainShell extends StatelessWidget {
     final isDesktop = width >= _desktopBreakpoint;
     final isWideDesktop = width >= 1180;
 
-    final body = Column(
+    final pageBody = Column(
       children: [
         const OfflineBanner(),
         Expanded(child: child),
@@ -29,31 +29,29 @@ class MainShell extends StatelessWidget {
           children: [
             NavigationRail(
               selectedIndex: selectedIndex,
-              onDestinationSelected: (index) => _onTap(context, index),
               extended: isWideDesktop,
-              minWidth: 72,
-              minExtendedWidth: 176,
-              groupAlignment: -0.86,
-              labelType:
-                  isWideDesktop ? null : NavigationRailLabelType.selected,
+              minWidth: 68,
+              minExtendedWidth: 168,
+              groupAlignment: -0.9,
+              onDestinationSelected: (index) => _onTap(context, index),
               destinations: _railDestinations,
             ),
             const VerticalDivider(width: 1),
-            Expanded(child: body),
+            Expanded(child: pageBody),
           ],
         ),
       );
     }
 
     return Scaffold(
-      body: body,
+      body: pageBody,
       bottomNavigationBar: NavigationBarTheme(
         data: const NavigationBarThemeData(
           height: 62,
           labelTextStyle: MaterialStatePropertyAll(
-            TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+            TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600),
           ),
-          iconTheme: MaterialStatePropertyAll(IconThemeData(size: 22)),
+          iconTheme: MaterialStatePropertyAll(IconThemeData(size: 21)),
         ),
         child: NavigationBar(
           selectedIndex: selectedIndex,
@@ -66,64 +64,78 @@ class MainShell extends StatelessWidget {
 
   static const List<NavigationRailDestination> _railDestinations = [
     NavigationRailDestination(
-        icon: Icon(Icons.home_outlined, size: 22),
-        selectedIcon: Icon(Icons.home, size: 22),
-        label: Text('Home')),
+      icon: Icon(Icons.home_outlined, size: 21),
+      selectedIcon: Icon(Icons.home, size: 21),
+      label: Text('Home'),
+    ),
     NavigationRailDestination(
-        icon: Icon(Icons.flight_outlined, size: 22),
-        selectedIcon: Icon(Icons.flight, size: 22),
-        label: Text('Lines')),
+      icon: Icon(Icons.flight_outlined, size: 21),
+      selectedIcon: Icon(Icons.flight, size: 21),
+      label: Text('Lines'),
+    ),
     NavigationRailDestination(
-        icon: Icon(Icons.how_to_vote_outlined, size: 22),
-        selectedIcon: Icon(Icons.how_to_vote, size: 22),
-        label: Text('Bids')),
+      icon: Icon(Icons.how_to_vote_outlined, size: 21),
+      selectedIcon: Icon(Icons.how_to_vote, size: 21),
+      label: Text('Bids'),
+    ),
     NavigationRailDestination(
-        icon: Icon(Icons.swap_horiz_outlined, size: 22),
-        selectedIcon: Icon(Icons.swap_horiz, size: 22),
-        label: Text('Trades')),
+      icon: Icon(Icons.swap_horiz_outlined, size: 21),
+      selectedIcon: Icon(Icons.swap_horiz, size: 21),
+      label: Text('Trades'),
+    ),
     NavigationRailDestination(
-        icon: Icon(Icons.auto_awesome_outlined, size: 22),
-        selectedIcon: Icon(Icons.auto_awesome, size: 22),
-        label: Text('Najm AI')),
+      icon: Icon(Icons.auto_awesome_outlined, size: 21),
+      selectedIcon: Icon(Icons.auto_awesome, size: 21),
+      label: Text('Najm AI'),
+    ),
     NavigationRailDestination(
-        icon: Icon(Icons.analytics_outlined, size: 22),
-        selectedIcon: Icon(Icons.analytics, size: 22),
-        label: Text('Intel')),
+      icon: Icon(Icons.analytics_outlined, size: 21),
+      selectedIcon: Icon(Icons.analytics, size: 21),
+      label: Text('Intel'),
+    ),
     NavigationRailDestination(
-        icon: Icon(Icons.hotel_outlined, size: 22),
-        selectedIcon: Icon(Icons.hotel, size: 22),
-        label: Text('Layover')),
+      icon: Icon(Icons.hotel_outlined, size: 21),
+      selectedIcon: Icon(Icons.hotel, size: 21),
+      label: Text('Layover'),
+    ),
   ];
 
   static const List<NavigationDestination> _barDestinations = [
     NavigationDestination(
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home),
-        label: 'Home'),
+      icon: Icon(Icons.home_outlined),
+      selectedIcon: Icon(Icons.home),
+      label: 'Home',
+    ),
     NavigationDestination(
-        icon: Icon(Icons.flight_outlined),
-        selectedIcon: Icon(Icons.flight),
-        label: 'Lines'),
+      icon: Icon(Icons.flight_outlined),
+      selectedIcon: Icon(Icons.flight),
+      label: 'Lines',
+    ),
     NavigationDestination(
-        icon: Icon(Icons.how_to_vote_outlined),
-        selectedIcon: Icon(Icons.how_to_vote),
-        label: 'Bids'),
+      icon: Icon(Icons.how_to_vote_outlined),
+      selectedIcon: Icon(Icons.how_to_vote),
+      label: 'Bids',
+    ),
     NavigationDestination(
-        icon: Icon(Icons.swap_horiz_outlined),
-        selectedIcon: Icon(Icons.swap_horiz),
-        label: 'Trades'),
+      icon: Icon(Icons.swap_horiz_outlined),
+      selectedIcon: Icon(Icons.swap_horiz),
+      label: 'Trades',
+    ),
     NavigationDestination(
-        icon: Icon(Icons.auto_awesome_outlined),
-        selectedIcon: Icon(Icons.auto_awesome),
-        label: 'Najm AI'),
+      icon: Icon(Icons.auto_awesome_outlined),
+      selectedIcon: Icon(Icons.auto_awesome),
+      label: 'AI',
+    ),
     NavigationDestination(
-        icon: Icon(Icons.analytics_outlined),
-        selectedIcon: Icon(Icons.analytics),
-        label: 'Intel'),
+      icon: Icon(Icons.analytics_outlined),
+      selectedIcon: Icon(Icons.analytics),
+      label: 'Intel',
+    ),
     NavigationDestination(
-        icon: Icon(Icons.hotel_outlined),
-        selectedIcon: Icon(Icons.hotel),
-        label: 'Layover'),
+      icon: Icon(Icons.hotel_outlined),
+      selectedIcon: Icon(Icons.hotel),
+      label: 'Stay',
+    ),
   ];
 
   int _locationToIndex(String location) {
