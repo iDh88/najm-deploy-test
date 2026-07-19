@@ -310,22 +310,23 @@ class _LineFilterPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lines =
+    final visibleLines =
         ref.watch(filteredLinesProvider).valueOrNull ?? const <FlightLine>[];
     final allLines = ref
             .watch(flightLinesProvider(ref.watch(activeMonthProvider)))
             .valueOrNull ??
-        lines;
+        visibleLines;
 
     final destinations = allLines
         .expand((l) => l.destinations)
-        .map((d) => d.toUpperCase())
+        .map((d) => d.toUpperCase().trim())
+        .where((d) => d.isNotEmpty)
         .toSet()
         .toList()
       ..sort();
 
     final types = allLines
-        .map((l) => l.lineType.toUpperCase())
+        .map((l) => l.lineType.toUpperCase().trim())
         .where((t) => t.isNotEmpty)
         .toSet()
         .toList()
@@ -359,107 +360,57 @@ class _LineFilterPanel extends ConsumerWidget {
             destinations: destinations,
             lineTypes: types,
             totalLines: allLines.length,
-            visibleLines: lines.length,
+            visibleLines: visibleLines.length,
           ),
         );
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       color: Colors.white,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Row(
         children: [
-          Wrap(
-            spacing: 10,
-            runSpacing: 8,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                icon: const Icon(Icons.tune, size: 20),
-                label: Text(
-                  activeCount == 0 ? 'Filters' : 'Filters ($activeCount)',
-                  style: const TextStyle(fontWeight: FontWeight.w800),
-                ),
-                onPressed: openFilters,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: CIPTheme.saudiNavy,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+          Expanded(
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.tune, size: 18),
+              label: Text(
+                activeCount == 0 ? 'All Filters' : 'All Filters ($activeCount)',
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+              onPressed: openFilters,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: CIPTheme.saudiNavy,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: CIPTheme.grey100,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: CIPTheme.grey200),
-                ),
-                child: Text(
-                  '${lines.length}/${allLines.length} lines',
-                  style: const TextStyle(
-                    color: CIPTheme.grey900,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+            decoration: BoxDecoration(
+              color: CIPTheme.grey100,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: CIPTheme.grey200),
+            ),
+            child: Text(
+              '${visibleLines.length}/${allLines.length}',
+              style: const TextStyle(
+                color: CIPTheme.grey900,
+                fontWeight: FontWeight.w800,
+                fontSize: 12,
               ),
-              if (destinations.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: CIPTheme.grey100,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: CIPTheme.grey200),
-                  ),
-                  child: Text(
-                    '${destinations.length} destinations',
-                    style: const TextStyle(
-                      color: CIPTheme.grey700,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              if (activeCount > 0)
-                TextButton.icon(
-                  onPressed: () => _clearLineFilters(ref),
-                  icon: const Icon(Icons.clear),
-                  label: const Text('Clear filters'),
-                ),
-            ],
+            ),
           ),
           if (activeCount > 0) ...[
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 34,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  ...include.map((d) => _ActiveFilterChip(label: 'Include $d')),
-                  ...exclude.map((d) => _ActiveFilterChip(label: 'Exclude $d')),
-                  ...lineTypes.map((t) => _ActiveFilterChip(label: t)),
-                  if (ref.watch(lineNoCarryOverProvider))
-                    const _ActiveFilterChip(label: 'No carry over'),
-                  if (ref.watch(lineCarryOverOnlyProvider))
-                    const _ActiveFilterChip(label: 'Carry over'),
-                  if (ref.watch(lineStarDaysOnlyProvider))
-                    const _ActiveFilterChip(label: 'Star days'),
-                  if (ref.watch(lineFourLegOnlyProvider))
-                    const _ActiveFilterChip(label: '4LG'),
-                ],
-              ),
+            const SizedBox(width: 6),
+            IconButton(
+              tooltip: 'Clear filters',
+              onPressed: () => _clearLineFilters(ref),
+              icon: const Icon(Icons.clear, size: 20),
             ),
           ],
         ],
