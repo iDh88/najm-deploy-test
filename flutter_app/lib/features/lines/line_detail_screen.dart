@@ -43,18 +43,22 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen>
     final user = ref.watch(currentUserProvider).valueOrNull;
 
     return lineAsync.when(
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
       data: (line) {
-        if (line == null) return const Scaffold(body: Center(child: Text('Line not found')));
+        if (line == null)
+          return const Scaffold(body: Center(child: Text('Line not found')));
         return _buildScaffold(line, user);
       },
     );
   }
 
   Widget _buildScaffold(FlightLine line, CIPUser? user) {
-    final hasViolations = line.legs.any((l) => l.legalityStatus == LegalityStatus.violation);
-    final hasWarnings = line.legs.any((l) => l.legalityStatus == LegalityStatus.warning);
+    final hasViolations =
+        line.legs.any((l) => l.legalityStatus == LegalityStatus.violation);
+    final hasWarnings =
+        line.legs.any((l) => l.legalityStatus == LegalityStatus.warning);
 
     return Scaffold(
       backgroundColor: CIPTheme.grey50,
@@ -75,7 +79,10 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen>
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              background: _LineDetailHeader(line: line, hasViolations: hasViolations, hasWarnings: hasWarnings),
+              background: _LineDetailHeader(
+                  line: line,
+                  hasViolations: hasViolations,
+                  hasWarnings: hasWarnings),
             ),
             bottom: TabBar(
               controller: _tabController,
@@ -192,7 +199,10 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen>
 class _LineDetailHeader extends StatelessWidget {
   final FlightLine line;
   final bool hasViolations, hasWarnings;
-  const _LineDetailHeader({required this.line, required this.hasViolations, required this.hasWarnings});
+  const _LineDetailHeader(
+      {required this.line,
+      required this.hasViolations,
+      required this.hasWarnings});
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +210,8 @@ class _LineDetailHeader extends StatelessWidget {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [CIPTheme.saudiNavy, Color(0xFF0D3266)],
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
       padding: const EdgeInsets.fromLTRB(20, 80, 20, 12),
@@ -210,21 +221,28 @@ class _LineDetailHeader extends StatelessWidget {
           Row(
             children: [
               Text('Line ${line.lineNumber}',
-                style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold)),
               const SizedBox(width: 12),
-              LegalityBadge(hasViolations: hasViolations, hasWarnings: hasWarnings),
+              LegalityBadge(
+                  hasViolations: hasViolations, hasWarnings: hasWarnings),
             ],
           ),
           const SizedBox(height: 6),
           Text(line.destinations.take(5).join(' · '),
-            style: const TextStyle(color: Colors.white70, fontSize: 13)),
+              style: const TextStyle(color: Colors.white70, fontSize: 13)),
           const SizedBox(height: 8),
           Row(
             children: [
               _HeaderStat('${line.summary.totalLegs}', 'Legs'),
-              _HeaderStat('${line.summary.totalBlockHours.toStringAsFixed(0)}h', 'Block'),
+              _HeaderStat('${line.summary.totalBlockHours.toStringAsFixed(0)}h',
+                  'Block'),
               _HeaderStat('${line.summary.layoverCount}', 'Layovers'),
-              _HeaderStat('SAR ${line.summary.estimatedSalaryMin.toStringAsFixed(0)}', 'Est. Pay'),
+              _HeaderStat(
+                  'SAR ${line.summary.estimatedSalaryMin.toStringAsFixed(0)}',
+                  'Est. Pay'),
             ],
           ),
         ],
@@ -244,8 +262,13 @@ class _HeaderStat extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+          Text(value,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold)),
+          Text(label,
+              style: const TextStyle(color: Colors.white54, fontSize: 11)),
         ],
       ),
     );
@@ -266,59 +289,72 @@ class _TimelineTab extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         // Horizontal scrollable Gantt strip
-        const Text('Duty Timeline', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        const Text('Duty Timeline',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
         const SizedBox(height: 8),
         SizedBox(
           height: 80,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: line.legs.map((leg) => _TimelineBlock(leg: leg, cipColors: cipColors)).toList(),
+              children: line.legs
+                  .map((leg) => _TimelineBlock(leg: leg, cipColors: cipColors))
+                  .toList(),
             ),
           ),
         ),
         const SizedBox(height: 20),
         // Legality summary
-        LegalityPanel(result: LegalityResult(
-          passed: !line.legs.any((l) => l.legalityStatus == LegalityStatus.violation),
+        LegalityPanel(
+            result: LegalityResult(
+          passed: !line.legs
+              .any((l) => l.legalityStatus == LegalityStatus.violation),
           violations: line.legs
               .where((l) => l.legalityStatus == LegalityStatus.violation)
               .expand((l) => l.legalityFlags.map((f) => LegalityViolation(
-                ruleId: f,
-                ruleDescription: _ruleDescription(f),
-                ruleDescriptionAr: _ruleDescriptionAr(f),
-                actualValue: l.restBeforeHours,
-                requiredValue: l.legType == LegType.international ? 15.0 : 14.0,
-                unit: 'hours',
-                affectedLegIds: [l.id],
-              ))).toList(),
+                    ruleId: f,
+                    ruleDescription: _ruleDescription(f),
+                    ruleDescriptionAr: _ruleDescriptionAr(f),
+                    actualValue: l.restBeforeHours,
+                    requiredValue:
+                        l.legType == LegType.international ? 15.0 : 14.0,
+                    unit: 'hours',
+                    affectedLegIds: [l.id],
+                  )))
+              .toList(),
           warnings: line.legs
               .where((l) => l.legalityStatus == LegalityStatus.warning)
               .expand((l) => l.legalityFlags.map((f) => LegalityViolation(
-                ruleId: f,
-                ruleDescription: _ruleDescription(f),
-                ruleDescriptionAr: _ruleDescriptionAr(f),
-                actualValue: l.restBeforeHours,
-                requiredValue: l.legType == LegType.international ? 15.0 : 14.0,
-                unit: 'hours',
-                severity: LegalitySeverity.warning,
-                affectedLegIds: [l.id],
-              ))).toList(),
+                    ruleId: f,
+                    ruleDescription: _ruleDescription(f),
+                    ruleDescriptionAr: _ruleDescriptionAr(f),
+                    actualValue: l.restBeforeHours,
+                    requiredValue:
+                        l.legType == LegType.international ? 15.0 : 14.0,
+                    unit: 'hours',
+                    severity: LegalitySeverity.warning,
+                    affectedLegIds: [l.id],
+                  )))
+              .toList(),
         )),
       ],
     );
   }
 
   String _ruleDescription(String ruleId) {
-    if (ruleId.contains('DOM')) return 'Minimum 14h rest required after domestic duty (from release time)';
-    if (ruleId.contains('INT')) return 'Minimum 15h rest required after international duty (from release time)';
+    if (ruleId.contains('DOM'))
+      return 'Minimum 14h rest required after domestic duty (from release time)';
+    if (ruleId.contains('INT'))
+      return 'Minimum 15h rest required after international duty (from release time)';
     if (ruleId.contains('FDP')) return 'Maximum Flight Duty Period exceeded';
     return 'Legality rule violation: $ruleId';
   }
 
   String _ruleDescriptionAr(String ruleId) {
-    if (ruleId.contains('DOM')) return 'Minimum 14h rest required after domestic duty (from release time)';
-    if (ruleId.contains('INT')) return 'Minimum 15h rest required after international duty (from release time)';
+    if (ruleId.contains('DOM'))
+      return 'Minimum 14h rest required after domestic duty (from release time)';
+    if (ruleId.contains('INT'))
+      return 'Minimum 15h rest required after international duty (from release time)';
     if (ruleId.contains('FDP')) return 'Maximum Flight Duty Period exceeded';
     return 'Legal violation: $ruleId';
   }
@@ -348,7 +384,7 @@ class _TimelineBlock extends StatelessWidget {
             height: 40,
             alignment: Alignment.center,
             child: Text('${leg.restBeforeHours.toStringAsFixed(0)}h',
-              style: const TextStyle(fontSize: 9, color: CIPTheme.grey500)),
+                style: const TextStyle(fontSize: 9, color: CIPTheme.grey500)),
           ),
         // Leg block
         Container(
@@ -368,11 +404,14 @@ class _TimelineBlock extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(leg.flightNumber,
-                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold)),
               Text('${leg.origin}→${leg.destination}',
-                style: const TextStyle(color: Colors.white70, fontSize: 9)),
+                  style: const TextStyle(color: Colors.white70, fontSize: 9)),
               Text('${leg.blockHours.toStringAsFixed(1)}h',
-                style: const TextStyle(color: Colors.white60, fontSize: 9)),
+                  style: const TextStyle(color: Colors.white60, fontSize: 9)),
             ],
           ),
         ),
@@ -427,10 +466,17 @@ class _LegRow extends StatelessWidget {
         children: [
           // Leg number
           Container(
-            width: 28, height: 28,
-            decoration: BoxDecoration(color: badgeColor.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-            child: Center(child: Text('${index + 1}',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: badgeColor))),
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+                color: badgeColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6)),
+            child: Center(
+                child: Text('${index + 1}',
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: badgeColor))),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -440,25 +486,33 @@ class _LegRow extends StatelessWidget {
                 Row(
                   children: [
                     Text(leg.flightNumber,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14)),
                     const SizedBox(width: 8),
                     Text('${leg.origin} → ${leg.destination}',
-                      style: const TextStyle(color: CIPTheme.grey700, fontSize: 13)),
+                        style: const TextStyle(
+                            color: CIPTheme.grey700, fontSize: 13)),
                     const Spacer(),
-                    Text(depDate, style: const TextStyle(color: CIPTheme.grey500, fontSize: 12)),
+                    Text(depDate,
+                        style: const TextStyle(
+                            color: CIPTheme.grey500, fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     Text('$depTime → $arrTime',
-                      style: const TextStyle(color: CIPTheme.grey700, fontSize: 12)),
+                        style: const TextStyle(
+                            color: CIPTheme.grey700, fontSize: 12)),
                     const SizedBox(width: 8),
                     Text('${leg.blockHours.toStringAsFixed(1)}h',
-                      style: const TextStyle(color: CIPTheme.grey500, fontSize: 12)),
+                        style: const TextStyle(
+                            color: CIPTheme.grey500, fontSize: 12)),
                     if (leg.layover) ...[
                       const SizedBox(width: 8),
-                      const Text('🏨 Layover', style: TextStyle(fontSize: 11, color: CIPTheme.warningAmber)),
+                      const Text('🏨 Layover',
+                          style: TextStyle(
+                              fontSize: 11, color: CIPTheme.warningAmber)),
                     ],
                   ],
                 ),
@@ -470,7 +524,9 @@ class _LegRow extends StatelessWidget {
                       ' ${leg.restAfterHours < (leg.legType == LegType.international ? 15 : 14) ? "⚠️" : "✓"}',
                       style: TextStyle(
                         fontSize: 11,
-                        color: leg.restAfterHours < 14 ? CIPTheme.violationRed : CIPTheme.legalGreen,
+                        color: leg.restAfterHours < 14
+                            ? CIPTheme.violationRed
+                            : CIPTheme.legalGreen,
                       ),
                     ),
                   ),
@@ -493,9 +549,9 @@ class _SalaryTab extends StatelessWidget {
     final fmt = NumberFormat.currency(symbol: 'SAR ', decimalDigits: 0);
     final summary = line.summary;
     final totalBlock = summary.totalBlockHours;
-    final avgRate = totalBlock > 0 ? (summary.estimatedSalaryMin / totalBlock) : 0.0;
-    final totalPerDiem = line.legs
-        .fold<double>(0, (sum, l) => sum + l.perDiem);
+    final avgRate =
+        totalBlock > 0 ? (summary.estimatedSalaryMin / totalBlock) : 0.0;
+    final totalPerDiem = line.legs.fold<double>(0, (sum, l) => sum + l.perDiem);
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -503,19 +559,23 @@ class _SalaryTab extends StatelessWidget {
         _SalaryCard(
           title: 'Estimated Gross Pay',
           titleAr: 'Estimated Gross Pay',
-          value: '${fmt.format(summary.estimatedSalaryMin)} – ${fmt.format(summary.estimatedSalaryMax)}',
+          value:
+              '${fmt.format(summary.estimatedSalaryMin)} – ${fmt.format(summary.estimatedSalaryMax)}',
           color: CIPTheme.moneyGreen,
           icon: Icons.account_balance_wallet_outlined,
         ),
         const SizedBox(height: 10),
-        _SalaryBreakdownRow('Block Hours', '${totalBlock.toStringAsFixed(1)}h × SAR ${avgRate.toStringAsFixed(0)}/h',
+        _SalaryBreakdownRow(
+            'Block Hours',
+            '${totalBlock.toStringAsFixed(1)}h × SAR ${avgRate.toStringAsFixed(0)}/h',
             fmt.format(summary.estimatedSalaryMin - totalPerDiem)),
         _SalaryBreakdownRow('Per Diem Allowances', '${line.legs.length} duties',
             fmt.format(totalPerDiem)),
         _SalaryBreakdownRow('International Premium',
             '${summary.internationalLegs} int\'l legs', 'Included'),
         const Divider(height: 24),
-        _SalaryBreakdownRow('Total Estimated', '', fmt.format(summary.estimatedSalaryMax),
+        _SalaryBreakdownRow(
+            'Total Estimated', '', fmt.format(summary.estimatedSalaryMax),
             isBold: true),
         const SizedBox(height: 16),
         Container(
@@ -539,8 +599,12 @@ class _SalaryCard extends StatelessWidget {
   final String title, titleAr, value;
   final Color color;
   final IconData icon;
-  const _SalaryCard({required this.title, required this.titleAr,
-    required this.value, required this.color, required this.icon});
+  const _SalaryCard(
+      {required this.title,
+      required this.titleAr,
+      required this.value,
+      required this.color,
+      required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -558,10 +622,16 @@ class _SalaryCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(titleAr, style: TextStyle(fontSize: 12, color: color, fontFamily: 'Inter')),
-              Text(title, style: const TextStyle(fontSize: 11, color: CIPTheme.grey500)),
+              Text(titleAr,
+                  style: TextStyle(
+                      fontSize: 12, color: color, fontFamily: 'Inter')),
+              Text(title,
+                  style:
+                      const TextStyle(fontSize: 11, color: CIPTheme.grey500)),
               const SizedBox(height: 4),
-              Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+              Text(value,
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold, color: color)),
             ],
           ),
         ],
@@ -573,7 +643,8 @@ class _SalaryCard extends StatelessWidget {
 class _SalaryBreakdownRow extends StatelessWidget {
   final String label, sublabel, amount;
   final bool isBold;
-  const _SalaryBreakdownRow(this.label, this.sublabel, this.amount, {this.isBold = false});
+  const _SalaryBreakdownRow(this.label, this.sublabel, this.amount,
+      {this.isBold = false});
 
   @override
   Widget build(BuildContext context) {
@@ -585,18 +656,24 @@ class _SalaryBreakdownRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(
-                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal, fontSize: 14)),
+                Text(label,
+                    style: TextStyle(
+                        fontWeight:
+                            isBold ? FontWeight.bold : FontWeight.normal,
+                        fontSize: 14)),
                 if (sublabel.isNotEmpty)
-                  Text(sublabel, style: const TextStyle(color: CIPTheme.grey500, fontSize: 12)),
+                  Text(sublabel,
+                      style: const TextStyle(
+                          color: CIPTheme.grey500, fontSize: 12)),
               ],
             ),
           ),
-          Text(amount, style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-            fontSize: isBold ? 16 : 14,
-            color: isBold ? CIPTheme.moneyGreen : CIPTheme.grey900,
-          )),
+          Text(amount,
+              style: TextStyle(
+                fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+                fontSize: isBold ? 16 : 14,
+                color: isBold ? CIPTheme.moneyGreen : CIPTheme.grey900,
+              )),
         ],
       ),
     );
@@ -611,8 +688,12 @@ class _BidBottomBar extends StatelessWidget {
   final VoidCallback onBid, onGhostBid;
 
   const _BidBottomBar({
-    required this.line, required this.user, required this.hasViolations,
-    required this.isSubmitting, required this.onBid, required this.onGhostBid,
+    required this.line,
+    required this.user,
+    required this.hasViolations,
+    required this.isSubmitting,
+    required this.onBid,
+    required this.onGhostBid,
   });
 
   @override
@@ -639,12 +720,17 @@ class _BidBottomBar extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: hasViolations || isSubmitting ? null : onBid,
               icon: isSubmitting
-                  ? const SizedBox(width: 18, height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.how_to_vote_outlined, size: 18),
               label: Text(hasViolations
                   ? 'Cannot Bid — Violations'
-                  : isSubmitting ? 'Submitting...' : 'Bid on Line ${line.lineNumber}'),
+                  : isSubmitting
+                      ? 'Submitting...'
+                      : 'Bid on Line ${line.lineNumber}'),
             ),
           ),
         ],
@@ -670,20 +756,40 @@ class _GhostBidSheet extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.only(top: 12),
-            width: 40, height: 4,
-            decoration: BoxDecoration(color: CIPTheme.grey300, borderRadius: BorderRadius.circular(2)),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+                color: CIPTheme.grey300,
+                borderRadius: BorderRadius.circular(2)),
           ),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Ghost Bid Preview', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text('How your month would look if you win Line ${line.lineNumber}',
-                  style: const TextStyle(color: CIPTheme.grey500, fontSize: 13)),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Ghost Bid Preview',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      tooltip: 'Close',
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                Text(
+                    'How your month would look if you win Line ${line.lineNumber}',
+                    style:
+                        const TextStyle(color: CIPTheme.grey500, fontSize: 13)),
                 const SizedBox(height: 20),
                 const Text('📅 Schedule simulation coming in Phase 2',
-                  style: TextStyle(color: CIPTheme.grey700)),
+                    style: TextStyle(color: CIPTheme.grey700)),
               ],
             ),
           ),

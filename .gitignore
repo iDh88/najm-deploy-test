@@ -24,3 +24,5 @@ flutter_app/.flutter-plugins-dependencies
 .DS_Store
 .vscode/
 .idea/
+.vercel
+.env*
