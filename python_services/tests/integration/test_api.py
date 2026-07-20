@@ -16,6 +16,17 @@ from main import app
 
 client = TestClient(app)
 
+# Service-to-service auth (hardened, fail-closed): endpoints mounted with
+# verify_service_token / verify_service_or_user accept this header when
+# INTERNAL_SERVICE_TOKEN matches (set by the autouse fixture below).
+SERVICE_HEADERS = {"X-Service-Token": "test-service-token"}
+
+
+@pytest.fixture(autouse=True)
+def _service_token_env(monkeypatch):
+    monkeypatch.setenv("INTERNAL_SERVICE_TOKEN", "test-service-token")
+
+
 # ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 @pytest.fixture
@@ -74,6 +85,26 @@ def sample_legs():
     ]
 
 
+def _duty(leg_id: str, duty_start, duty_end, release_time, leg_type: str):
+    """Build a DutyPeriod on the current engine schema. The temporal fields
+    drive the rest-rule tests; flight/block/fdp values are chosen well inside
+    the FDP/block caps so only the rest rules under test can fire."""
+    from legality.engine import DutyPeriod
+    duty_hours = (duty_end - duty_start).total_seconds() / 3600
+    return DutyPeriod(
+        id=leg_id,
+        flight_number="SV100",
+        origin="RUH",
+        destination="JED" if leg_type == "domestic" else "LHR",
+        leg_type=leg_type,
+        duty_start=duty_start,
+        duty_end=duty_end,
+        release_time=release_time,
+        block_hours=max(duty_hours - 1.5, 0.5),
+        fdp_hours=duty_hours,
+    )
+
+
 # ─── Health Check ─────────────────────────────────────────────────────────────
 
 class TestHealth:
@@ -122,14 +153,12 @@ class TestParserEndpoint:
         mock_download.return_value = buf.getvalue()
         mock_save.return_value = None
 
-        with patch("utils.auth.verify_firebase_token", return_value={
-            "uid": "test_user_pro", "tier": "pro"
-        }):
-            response = client.post(
-                "/v1/parser/parse",
-                json=sample_parse_request,
-                headers={"Authorization": "Bearer test_token"},
-            )
+        # /v1/parser is service-only (verify_service_token at mount time).
+        response = client.post(
+            "/v1/parser/parse",
+            json=sample_parse_request,
+            headers=SERVICE_HEADERS,
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -141,14 +170,11 @@ class TestParserEndpoint:
         """Empty Excel file should return 422 with error details."""
         mock_download.side_effect = Exception("File not found")
 
-        with patch("utils.auth.verify_firebase_token", return_value={
-            "uid": "test_user_pro", "tier": "pro"
-        }):
-            response = client.post(
-                "/v1/parser/parse",
-                json=sample_parse_request,
-                headers={"Authorization": "Bearer test_token"},
-            )
+        response = client.post(
+            "/v1/parser/parse",
+            json=sample_parse_request,
+            headers=SERVICE_HEADERS,
+        )
 
         assert response.status_code == 422
 
@@ -173,32 +199,35 @@ class TestLegalityEndpoint:
         # 200 or 404 (line not found in test) — endpoint must exist
         assert response.status_code in [200, 404, 500]
 
-    def test_check_trade_returns_both_results(self, sample_legs):
+    def test_check_trade_returns_both_results(self):
         """Trade check must return results for BOTH initiator and receiver."""
+        base = datetime(2026, 6, 1, 8, 0)
+        offered = _duty("leg_1", base, base + timedelta(hours=8),
+                        base + timedelta(hours=8, minutes=30), "international")
+        requested = _duty("leg_2", base + timedelta(days=3),
+                          base + timedelta(days=3, hours=8),
+                          base + timedelta(days=3, hours=8, minutes=30),
+                          "international")
+
         with patch("utils.auth.verify_firebase_token", return_value={
-            "uid": "test_user", "tier": "pro"
-        }), patch("legality.engine.LegalityEngine.check_trade_legality") as mock_check:
-            mock_check.return_value = {
-                "passed": True,
-                "initiatorResult": {"passed": True, "violations": [], "warnings": []},
-                "receiverResult": {"passed": True, "violations": [], "warnings": []},
-            }
+            "uid": "test_user", "tier": "pro", "accountStatus": "approved"
+        }):
             response = client.post(
                 "/v1/legality/check-trade",
                 json={
-                    "initiatorId": "user_a",
-                    "receiverId": "user_b",
-                    "offeredLegId": "leg_1",
-                    "requestedLegId": "leg_2",
+                    "initiator_schedule": [offered.model_dump(mode="json")],
+                    "receiver_schedule": [requested.model_dump(mode="json")],
+                    "offered_duty": offered.model_dump(mode="json"),
+                    "requested_duty": requested.model_dump(mode="json"),
                 },
                 headers={"Authorization": "Bearer test"},
             )
 
-        if response.status_code == 200:
-            data = response.json()
-            assert "initiatorResult" in data
-            assert "receiverResult" in data
-            assert "passed" in data
+        assert response.status_code == 200
+        data = response.json()
+        assert "initiator_result" in data
+        assert "receiver_result" in data
+        assert "overall_passed" in data
 
     def test_domestic_rest_violation_detected(self):
         """14h domestic rest rule should be detected as a violation at 10h."""
@@ -208,20 +237,12 @@ class TestLegalityEndpoint:
         base = datetime(2026, 6, 1, 8, 0)
 
         duties = [
-            DutyPeriod(
-                leg_id="leg_1",
-                duty_start=base,
-                duty_end=base + timedelta(hours=4),
-                release_time=base + timedelta(hours=4, minutes=30),
-                leg_type="domestic",
-            ),
-            DutyPeriod(
-                leg_id="leg_2",
-                duty_start=base + timedelta(hours=14),  # only 9.5h after release
-                duty_end=base + timedelta(hours=18),
-                release_time=base + timedelta(hours=18, minutes=30),
-                leg_type="domestic",
-            ),
+            _duty("leg_1", base, base + timedelta(hours=4),
+                  base + timedelta(hours=4, minutes=30), "domestic"),
+            # only 9.5h after release
+            _duty("leg_2", base + timedelta(hours=14),
+                  base + timedelta(hours=18),
+                  base + timedelta(hours=18, minutes=30), "domestic"),
         ]
 
         result = engine.check_schedule(duties)
@@ -236,20 +257,12 @@ class TestLegalityEndpoint:
         base = datetime(2026, 6, 1, 8, 0)
 
         duties = [
-            DutyPeriod(
-                leg_id="leg_1",
-                duty_start=base,
-                duty_end=base + timedelta(hours=8),
-                release_time=base + timedelta(hours=8, minutes=30),
-                leg_type="international",
-            ),
-            DutyPeriod(
-                leg_id="leg_2",
-                duty_start=base + timedelta(hours=20),  # 11.5h after release — violation
-                duty_end=base + timedelta(hours=28),
-                release_time=base + timedelta(hours=28, minutes=30),
-                leg_type="international",
-            ),
+            _duty("leg_1", base, base + timedelta(hours=8),
+                  base + timedelta(hours=8, minutes=30), "international"),
+            # 11.5h after release — violation
+            _duty("leg_2", base + timedelta(hours=20),
+                  base + timedelta(hours=28),
+                  base + timedelta(hours=28, minutes=30), "international"),
         ]
 
         result = engine.check_schedule(duties)
@@ -264,20 +277,12 @@ class TestLegalityEndpoint:
         base = datetime(2026, 6, 1, 8, 0)
 
         duties = [
-            DutyPeriod(
-                leg_id="leg_1",
-                duty_start=base,
-                duty_end=base + timedelta(hours=8),
-                release_time=base + timedelta(hours=8, minutes=30),
-                leg_type="international",
-            ),
-            DutyPeriod(
-                leg_id="leg_2",
-                duty_start=base + timedelta(hours=24),  # 15.5h after release — legal
-                duty_end=base + timedelta(hours=32),
-                release_time=base + timedelta(hours=32, minutes=30),
-                leg_type="international",
-            ),
+            _duty("leg_1", base, base + timedelta(hours=8),
+                  base + timedelta(hours=8, minutes=30), "international"),
+            # 15.5h after release — legal
+            _duty("leg_2", base + timedelta(hours=24),
+                  base + timedelta(hours=32),
+                  base + timedelta(hours=32, minutes=30), "international"),
         ]
 
         result = engine.check_schedule(duties)
@@ -292,20 +297,12 @@ class TestLegalityEndpoint:
         base = datetime(2026, 6, 1, 8, 0)
 
         duties = [
-            DutyPeriod(
-                leg_id="leg_1",
-                duty_start=base,
-                duty_end=base + timedelta(hours=4),
-                release_time=base + timedelta(hours=4, minutes=30),
-                leg_type="domestic",
-            ),
-            DutyPeriod(
-                leg_id="leg_2",
-                duty_start=base + timedelta(hours=18, minutes=30),  # exactly 14h after release
-                duty_end=base + timedelta(hours=22),
-                release_time=base + timedelta(hours=22, minutes=30),
-                leg_type="domestic",
-            ),
+            _duty("leg_1", base, base + timedelta(hours=4),
+                  base + timedelta(hours=4, minutes=30), "domestic"),
+            # exactly 14h after release
+            _duty("leg_2", base + timedelta(hours=18, minutes=30),
+                  base + timedelta(hours=22),
+                  base + timedelta(hours=22, minutes=30), "domestic"),
         ]
 
         result = engine.check_schedule(duties)
@@ -319,21 +316,12 @@ class TestLegalityEndpoint:
         base = datetime(2026, 6, 1, 8, 0)
 
         duties = [
-            DutyPeriod(
-                leg_id="leg_1",
-                duty_start=base,
-                duty_end=base + timedelta(hours=4),
-                release_time=base + timedelta(hours=4, minutes=30),
-                leg_type="domestic",
-            ),
-            DutyPeriod(
-                leg_id="leg_2",
-                # 14h after release = 18:30. One minute early = 18:29
-                duty_start=base + timedelta(hours=18, minutes=29),
-                duty_end=base + timedelta(hours=22),
-                release_time=base + timedelta(hours=22, minutes=30),
-                leg_type="domestic",
-            ),
+            _duty("leg_1", base, base + timedelta(hours=4),
+                  base + timedelta(hours=4, minutes=30), "domestic"),
+            # 14h after release = 18:30. One minute early = 18:29
+            _duty("leg_2", base + timedelta(hours=18, minutes=29),
+                  base + timedelta(hours=22),
+                  base + timedelta(hours=22, minutes=30), "domestic"),
         ]
 
         result = engine.check_schedule(duties)
@@ -369,18 +357,22 @@ class TestAIEndpoint:
             assert "text" in data
             assert "intentType" in data
 
-    @patch("utils.rate_limiter.rate_limiter.check_and_increment")
-    def test_free_tier_rate_limit_429(self, mock_limiter):
-        """Free tier should return 429 when daily limit exceeded."""
-        mock_limiter.return_value = (False, 5, 5)
+    def test_free_tier_rate_limit_429(self):
+        """User calls get 429 once the daily AI cap is reached (T3)."""
+        snap = MagicMock()
+        snap.exists = True
+        snap.to_dict.return_value = {"count": 5}
+        db = MagicMock()
+        db.collection.return_value.document.return_value.get.return_value = snap
 
         with patch("utils.auth.verify_firebase_token", return_value={
-            "uid": "test_user_free", "tier": "free"
-        }):
+            "uid": "test_user_free", "tier": "free", "accountStatus": "approved"
+        }), patch("ai.nlp_router.get_firestore", return_value=db), \
+             patch("ai.nlp_router._ai_daily_free_limit", return_value=5):
             response = client.post(
                 "/v1/ai/chat",
                 json={
-                    "userId": "test_user_free",
+                    "user_id": "test_user_free",
                     "message": "What is the best line?",
                     "history": [],
                 },
@@ -399,14 +391,15 @@ class TestAIEndpoint:
         assert response.status_code in [401, 403, 422]
 
     def test_message_too_long_rejected(self):
-        long_message = "a" * 600  # exceeds 500 char limit
+        long_message = "a" * 1100  # exceeds 1000 char limit
 
         with patch("utils.auth.verify_firebase_token", return_value={
-            "uid": "test_user_pro", "tier": "pro"
-        }):
+            "uid": "test_user_pro", "tier": "pro", "accountStatus": "approved"
+        }), patch("ai.nlp_router._enforce_ai_daily_limit"):
             response = client.post(
                 "/v1/ai/chat",
-                json={"userId": "test_user_pro", "message": long_message, "history": []},
+                json={"user_id": "test_user_pro", "message": long_message,
+                      "history": []},
                 headers={"Authorization": "Bearer test"},
             )
 
@@ -447,36 +440,46 @@ class TestRankingEndpoint:
 
 class TestAutoBidEndpoint:
     def test_suggestion_response_structure(self):
+        from auto_bid.engine import PreferenceVector
         with patch("utils.auth.verify_firebase_token", return_value={
-            "uid": "test_user_pro", "tier": "pro"
-        }), patch("auto_bid.engine.AutoBidEngine.fetch_line_data",
-                  new_callable=AsyncMock, return_value=[]):
+            "uid": "test_user_pro", "tier": "pro", "accountStatus": "approved"
+        }), patch("auto_bid.engine.AutoBidEngine.load_preference_vector",
+                  new_callable=AsyncMock,
+                  return_value=PreferenceVector(userId="test_user_pro")), \
+             patch("auto_bid.engine.AutoBidEngine.load_lines",
+                   new_callable=AsyncMock, return_value=[]):
             response = client.post(
                 "/v1/auto-bid/suggest",
-                json={"userId": "test_user_pro", "month": "2026-06", "userMode": "money"},
+                json={"userId": "test_user_pro", "month": "2026-06",
+                      "userMode": "money", "availableLineIds": []},
                 headers={"Authorization": "Bearer test"},
             )
 
-        if response.status_code == 200:
-            data = response.json()
-            assert "suggestions" in data
-            assert "coldStartPhase" in data
-            assert "generatedAt" in data
-            assert data["coldStartPhase"] in [1, 2, 3]
+        assert response.status_code == 200
+        data = response.json()
+        assert "suggestions" in data
+        assert "explanation" in data
+        assert data["autoSubmitted"] is False
 
     def test_preference_update_returns_202(self):
         with patch("utils.auth.verify_firebase_token", return_value={
-            "uid": "test_user_pro", "tier": "pro"
-        }):
+            "uid": "test_user_pro", "tier": "pro", "accountStatus": "approved"
+        }), patch("auto_bid.engine.AutoBidEngine.update_vector_from_events",
+                  new_callable=AsyncMock):
             response = client.post(
-                "/v1/auto-bid/update-preference",
+                "/v1/auto-bid/update-vector",
                 json={
                     "userId": "test_user_pro",
-                    "eventType": "bid_submitted",
-                    "metadata": {"lineId": "line_411", "destinations": ["LHR"]},
-                    "userMode": "money",
+                    "events": [{
+                        "eventType": "bid_submitted",
+                        "metadata": {"lineId": "line_411",
+                                     "destinations": ["LHR"]},
+                        "timestamp": "2026-06-01T08:00:00",
+                        "userMode": "money",
+                    }],
                 },
                 headers={"Authorization": "Bearer test"},
             )
 
         assert response.status_code in [200, 202]
+        assert response.json()["status"] == "queued"

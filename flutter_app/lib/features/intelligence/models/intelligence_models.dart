@@ -30,10 +30,10 @@ class FatigueScore {
   factory FatigueScore.fromMap(Map<String, dynamic> m) => FatigueScore(
     raw:          (m['raw'] as num?)?.toDouble() ?? 0,
     level:        _fatigueLevel(m['level']),
-    percentage:   m['percentage'] ?? (((m['raw'] ?? 0) as num) * 100).toInt(),
-    woclMinutes:  m['woclMinutes'] ?? 0,
-    earlySignin:  m['earlySignin'] ?? false,
-    nightOps:     m['nightOps'] ?? false,
+    percentage:   m['percentage'] as int? ?? (((m['raw'] ?? 0) as num) * 100).toInt(),
+    woclMinutes:  m['woclMinutes'] as int? ?? 0,
+    earlySignin:  m['earlySignin'] as bool? ?? false,
+    nightOps:     m['nightOps'] as bool? ?? false,
     factors:      [],
   );
 
@@ -71,11 +71,11 @@ class FatiguePoint {
   });
 
   factory FatiguePoint.fromMap(Map<String, dynamic> m) => FatiguePoint(
-    day:        DateTime.tryParse(m['day'] ?? '') ?? DateTime.now(),
+    day:        DateTime.tryParse(m['day'] as String? ?? '') ?? DateTime.now(),
     score:      (m['score'] as num?)?.toDouble() ?? 0,
     cumulative: (m['cumulative'] as num?)?.toDouble() ?? 0,
     level:      FatigueScore._fatigueLevel(m['level']),
-    label:      m['label'] ?? '',
+    label:      m['label'] as String? ?? '',
     delta:      (m['delta'] as num?)?.toDouble() ?? 0,
   );
 }
@@ -99,10 +99,10 @@ class LineFatigueProfile {
   factory LineFatigueProfile.fromMap(Map<String, dynamic> m) => LineFatigueProfile(
     averageFatigue:   (m['averageFatigue'] as num?)?.toDouble() ?? 0,
     peakFatigue:      (m['peakFatigue']    as num?)?.toDouble() ?? 0,
-    highFatigueDays:  m['highFatigueDays'] ?? 0,
+    highFatigueDays:  m['highFatigueDays'] as int? ?? 0,
     overallLevel:     FatigueScore._fatigueLevel(m['level']),
-    woclTotalMinutes: m['woclMinutes']     ?? 0,
-    earlySigninCount: m['earlySigninCount']?? 0,
+    woclTotalMinutes: m['woclMinutes'] as int?     ?? 0,
+    earlySigninCount: m['earlySigninCount'] as int? ?? 0,
     timeline:         [],
   );
 
@@ -124,11 +124,11 @@ class LineClassification {
   });
 
   factory LineClassification.fromMap(Map<String, dynamic> m) => LineClassification(
-    primary: m['primary'] ?? 'STANDARD',
-    allTags: List<String>.from(m['allTags'] ?? []),
-    label:   m['label']   ?? 'Standard',
-    color:   m['color']   ?? '#64748B',
-    icon:    m['icon']    ?? '📋',
+    primary: m['primary'] as String? ?? 'STANDARD',
+    allTags: List<String>.from(m['allTags'] as List? ?? []),
+    label:   m['label'] as String?   ?? 'Standard',
+    color:   m['color'] as String?   ?? '#64748B',
+    icon:    m['icon'] as String?    ?? '📋',
   );
 }
 
@@ -153,13 +153,13 @@ class LineInsight {
 
   factory LineInsight.fromMap(Map<String, dynamic> m) => LineInsight(
     type:        _insightType(m['type']),
-    icon:        m['icon']       ?? 'ℹ️',
-    titleEn:     m['titleEn']    ?? '',
-    bodyEn:      m['bodyEn']     ?? '',
-    titleAr:     m['titleAr']    ?? '',
-    bodyAr:      m['bodyAr']     ?? '',
-    priority:    m['priority']   ?? 5,
-    metricValue: m['metricValue'],
+    icon:        m['icon'] as String?       ?? 'ℹ️',
+    titleEn:     m['titleEn'] as String?    ?? '',
+    bodyEn:      m['bodyEn'] as String?     ?? '',
+    titleAr:     m['titleAr'] as String?    ?? '',
+    bodyAr:      m['bodyAr'] as String?     ?? '',
+    priority:    m['priority'] as int?   ?? 5,
+    metricValue: m['metricValue'] as String?,
   );
 
   static InsightType _insightType(dynamic v) {
@@ -203,16 +203,16 @@ class LineSummary {
     blockHours:        (m['blockHours']        as num?)?.toDouble() ?? 0,
     dutyHours:         (m['dutyHours']         as num?)?.toDouble() ?? 0,
     deadheadHours:     (m['deadheadHours']     as num?)?.toDouble() ?? 0,
-    totalPairings:     m['totalPairings']      ?? 0,
-    operatingLegs:     m['operatingLegs']      ?? 0,
-    deadheadLegs:      m['deadheadLegs']       ?? 0,
-    offDays:           m['offDays']            ?? 0,
-    openDays:          m['openDays']           ?? 0,
+    totalPairings:     m['totalPairings'] as int?      ?? 0,
+    operatingLegs:     m['operatingLegs'] as int?      ?? 0,
+    deadheadLegs:      m['deadheadLegs'] as int?       ?? 0,
+    offDays:           m['offDays'] as int?            ?? 0,
+    openDays:          m['openDays'] as int?           ?? 0,
     estimatedCredit:   (m['estimatedCredit']   as num?)?.toDouble() ?? 0,
     estimatedPerDiem:  (m['estimatedPerDiem']  as num?)?.toDouble() ?? 0,
-    uniqueDestinations:List<String>.from(m['uniqueDestinations'] ?? []),
-    internationalCount:m['internationalCount'] ?? 0,
-    domesticCount:     m['domesticCount']      ?? 0,
+    uniqueDestinations:List<String>.from(m['uniqueDestinations'] as List? ?? []),
+    internationalCount:m['internationalCount'] as int? ?? 0,
+    domesticCount:     m['domesticCount'] as int?      ?? 0,
   );
 
   double get deadheadRatio =>
@@ -244,19 +244,20 @@ class MonthlyLine {
   factory MonthlyLine.fromFirestore(String docId, Map<String, dynamic> m) =>
       MonthlyLine(
         id:             docId,
-        lineNumber:     m['lineNumber']  ?? docId,
-        period:         m['period']      ?? '',
-        userId:         m['userId']      ?? '',
+        lineNumber:     m['lineNumber'] as String?  ?? docId,
+        period:         m['period'] as String?      ?? '',
+        userId:         m['userId'] as String?      ?? '',
         classification: LineClassification.fromMap(
-            Map<String, dynamic>.from(m['classification'] ?? {})),
+            Map<String, dynamic>.from(m['classification'] as Map? ?? {})),
         summary:        LineSummary.fromMap(
-            Map<String, dynamic>.from(m['summary'] ?? {})),
+            Map<String, dynamic>.from(m['summary'] as Map? ?? {})),
         fatigueProfile: LineFatigueProfile.fromMap(
-            Map<String, dynamic>.from(m['fatigueProfile'] ?? {})),
+            Map<String, dynamic>.from(m['fatigueProfile'] as Map? ?? {})),
         insights:       (m['insights'] as List? ?? [])
-            .map((i) => LineInsight.fromMap(Map<String, dynamic>.from(i)))
+            .map((i) => LineInsight.fromMap(Map<String, dynamic>.from(i as Map)))
             .toList(),
-        createdAt:      (m['createdAt'] as dynamic)?.toDate() ?? DateTime.now(),
+        createdAt:      ((m['createdAt'] as dynamic)?.toDate() as DateTime?) ??
+            DateTime.now(),
       );
 }
 
@@ -282,14 +283,14 @@ class PairingSegment {
   });
 
   factory PairingSegment.fromMap(Map<String, dynamic> m) => PairingSegment(
-    flightNumber:  m['flightNumber'] ?? '',
-    origin:        m['origin']       ?? '',
-    destination:   m['destination']  ?? '',
-    departureUtc:  m['departureUtc'] ?? '',
-    arrivalUtc:    m['arrivalUtc']   ?? '',
-    blockMinutes:  m['blockMinutes'] ?? 0,
-    isDeadhead:    m['isDeadhead']   ?? false,
-    aircraftType:  m['aircraftType'],
+    flightNumber:  m['flightNumber'] as String? ?? '',
+    origin:        m['origin'] as String?       ?? '',
+    destination:   m['destination'] as String?  ?? '',
+    departureUtc:  m['departureUtc'] as String? ?? '',
+    arrivalUtc:    m['arrivalUtc'] as String?   ?? '',
+    blockMinutes:  m['blockMinutes'] as int? ?? 0,
+    isDeadhead:    m['isDeadhead'] as bool?   ?? false,
+    aircraftType:  m['aircraftType'] as String?,
     timezoneDelta: (m['timezoneDelta'] as num?)?.toDouble() ?? 0,
   );
 
@@ -325,21 +326,21 @@ class Pairing {
 
   factory Pairing.fromFirestore(String docId, Map<String, dynamic> m) => Pairing(
     id:              docId,
-    lineId:          m['lineId']          ?? '',
-    pairingNumber:   m['pairingNumber']   ?? '',
-    dates:           List<String>.from(m['dates'] ?? []),
-    dutyMinutes:     m['dutyMinutes']     ?? 0,
-    blockMinutes:    m['blockMinutes']    ?? 0,
-    fdpMinutes:      m['fdpMinutes']      ?? 0,
-    classification:  m['classification'] ?? 'STANDARD',
-    patternFlags:    List<String>.from(m['patternFlags'] ?? []),
-    isLegal:         m['isLegal']         ?? true,
-    isInternational: m['isInternational'] ?? false,
+    lineId:          m['lineId'] as String?          ?? '',
+    pairingNumber:   m['pairingNumber'] as String?   ?? '',
+    dates:           List<String>.from(m['dates'] as List? ?? []),
+    dutyMinutes:     m['dutyMinutes'] as int?     ?? 0,
+    blockMinutes:    m['blockMinutes'] as int?    ?? 0,
+    fdpMinutes:      m['fdpMinutes'] as int?      ?? 0,
+    classification:  m['classification'] as String? ?? 'STANDARD',
+    patternFlags:    List<String>.from(m['patternFlags'] as List? ?? []),
+    isLegal:         m['isLegal'] as bool?         ?? true,
+    isInternational: m['isInternational'] as bool? ?? false,
     deadheadRatio:   (m['deadheadRatio']  as num?)?.toDouble() ?? 0,
     segments: (m['segments'] as List? ?? [])
-        .map((s) => PairingSegment.fromMap(Map<String, dynamic>.from(s)))
+        .map((s) => PairingSegment.fromMap(Map<String, dynamic>.from(s as Map)))
         .toList(),
-    legalityMargins: Map<String, dynamic>.from(m['legalityMargins'] ?? {}),
+    legalityMargins: Map<String, dynamic>.from(m['legalityMargins'] as Map? ?? {}),
   );
 
   double get dutyHours  => dutyMinutes  / 60;
@@ -380,17 +381,17 @@ class LineComparison {
   });
 
   factory LineComparison.fromMap(Map<String, dynamic> m) => LineComparison(
-    lineAId:          m['lineAId']           ?? '',
-    lineBId:          m['lineBId']           ?? '',
-    lineALabel:       m['lineALabel']        ?? 'Line A',
-    lineBLabel:       m['lineBLabel']        ?? 'Line B',
+    lineAId:          m['lineAId'] as String?           ?? '',
+    lineBId:          m['lineBId'] as String?           ?? '',
+    lineALabel:       m['lineALabel'] as String?        ?? 'Line A',
+    lineBLabel:       m['lineBLabel'] as String?        ?? 'Line B',
     blockHoursDelta:  (m['blockHoursDelta']  as num?)?.toDouble() ?? 0,
     fatigueDelta:     (m['fatigueDelta']     as num?)?.toDouble() ?? 0,
     incomeDelta:      (m['incomeDelta']      as num?)?.toDouble() ?? 0,
-    deadheadDelta:    m['deadheadDelta']     ?? 0,
-    winner:           m['winner']            ?? 'EQUAL',
-    recommendation:   m['recommendation']   ?? '',
-    recommendationEn: m['recommendationEn'] ?? '',
+    deadheadDelta:    m['deadheadDelta'] as int?     ?? 0,
+    winner:           m['winner'] as String?            ?? 'EQUAL',
+    recommendation:   m['recommendation'] as String?   ?? '',
+    recommendationEn: m['recommendationEn'] as String? ?? '',
     lineARadar: Map<String, double>.from(
         (m['lineARadar'] as Map? ?? {}).map(
             (k, v) => MapEntry(k.toString(), (v as num).toDouble()))),

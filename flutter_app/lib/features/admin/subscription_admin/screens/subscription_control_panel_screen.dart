@@ -111,7 +111,7 @@ class _SubscriptionControlPanelScreenState
                   padding: const EdgeInsets.all(20),
                   children: [
                     _MasterSwitchCard(
-                      enabled: _config!['subscriptionsEnabled'] ?? false,
+                      enabled: _config!['subscriptionsEnabled'] as bool? ?? false,
                       onChanged: _toggleMasterSwitch,
                     ),
                     const SizedBox(height: 24),
@@ -122,7 +122,7 @@ class _SubscriptionControlPanelScreenState
                     FeatureAccessToggleGrid(
                       featureAccess: Map<String, Map<String, dynamic>>.from(
                           (_config!['featureAccess'] as Map).map(
-                              (k, v) => MapEntry(k.toString(), Map<String, dynamic>.from(v)))),
+                              (k, v) => MapEntry(k.toString(), Map<String, dynamic>.from(v as Map)))),
                       onChanged: _updateFeatureAccess,
                     ),
                     const SizedBox(height: 24),
@@ -133,7 +133,7 @@ class _SubscriptionControlPanelScreenState
                     _UsageLimitsSection(
                       usageLimits: Map<String, Map<String, dynamic>>.from(
                           (_config!['usageLimits'] as Map).map(
-                              (k, v) => MapEntry(k.toString(), Map<String, dynamic>.from(v)))),
+                              (k, v) => MapEntry(k.toString(), Map<String, dynamic>.from(v as Map)))),
                       onChanged: (key, limit) async {
                         setState(() => _saving = true);
                         await _svc.adminSetUsageLimit(key, limit);
@@ -175,7 +175,7 @@ class _SubscriptionControlPanelScreenState
                     _SectionHeader('Free Trial', subtitle: 'Configure trial length and eligibility'),
                     const SizedBox(height: 12),
                     _TrialConfigSection(
-                      trial: Map<String, dynamic>.from(_config!['trial'] ?? {}),
+                      trial: Map<String, dynamic>.from(_config!['trial'] as Map? ?? {}),
                       onChanged: (enabled, days, requireNoPrior) async {
                         setState(() => _saving = true);
                         await _svc.adminUpdateTrialConfig(
@@ -308,7 +308,7 @@ class _UsageLimitsSection extends StatelessWidget {
     return Column(
       children: entries.map((e) => _LimitRow(
         featureKey: e.key,
-        limit: e.value['monthlyLimit'] ?? 0,
+        limit: e.value['monthlyLimit'] as int? ?? 0,
         onChanged: (v) => onChanged(e.key, v),
       )).toList(),
     );
@@ -396,9 +396,9 @@ class _TrialConfigSectionState extends State<_TrialConfigSection> {
   @override
   void initState() {
     super.initState();
-    _enabled = widget.trial['enabled'] ?? true;
-    _days = widget.trial['durationDays'] ?? 14;
-    _requireNoPrior = widget.trial['requiresNoPriorTrial'] ?? true;
+    _enabled = widget.trial['enabled'] as bool? ?? true;
+    _days = widget.trial['durationDays'] as int? ?? 14;
+    _requireNoPrior = widget.trial['requiresNoPriorTrial'] as bool? ?? true;
   }
 
   @override

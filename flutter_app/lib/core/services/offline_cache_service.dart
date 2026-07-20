@@ -118,7 +118,7 @@ class OfflineCacheService {
     if (data == null) return [];
     try {
       return (data as List)
-          .map((e) => FlightLine.fromJson(jsonDecode(e as String)))
+          .map((e) => FlightLine.fromJson(jsonDecode(e as String) as Map<String, dynamic>))
           .toList();
     } catch (_) {
       return [];
@@ -147,7 +147,7 @@ class OfflineCacheService {
     if (data == null) return [];
     try {
       return (data as List)
-          .map((e) => Bid.fromJson(jsonDecode(e as String)))
+          .map((e) => Bid.fromJson(jsonDecode(e as String) as Map<String, dynamic>))
           .toList();
     } catch (_) {
       return [];
@@ -168,7 +168,7 @@ class OfflineCacheService {
     if (data == null) return [];
     try {
       return (data as List)
-          .map((e) => Trade.fromJson(jsonDecode(e as String)))
+          .map((e) => Trade.fromJson(jsonDecode(e as String) as Map<String, dynamic>))
           .toList();
     } catch (_) {
       return [];
@@ -187,7 +187,7 @@ class OfflineCacheService {
     final data = _profileBox!.get('user');
     if (data == null) return null;
     try {
-      return CIPUser.fromJson(jsonDecode(data as String));
+      return CIPUser.fromJson(jsonDecode(data as String) as Map<String, dynamic>);
     } catch (_) {
       return null;
     }
@@ -210,7 +210,7 @@ class OfflineCacheService {
     if (data == null) return [];
     try {
       return (data as List)
-          .map((e) => QueuedAction.fromJson(jsonDecode(e as String)))
+          .map((e) => QueuedAction.fromJson(jsonDecode(e as String) as Map<String, dynamic>))
           .toList();
     } catch (_) {
       return [];

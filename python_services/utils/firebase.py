@@ -12,22 +12,48 @@ logger = logging.getLogger("cip.firebase")
 _initialized = False
 
 
+class _AnonymousCredentials(credentials.Base):
+    """Firebase Admin credential for LOCAL emulator use only.
+
+    firebase-admin resolves the app credential eagerly when it builds the
+    Firestore/Storage client, which bypasses the emulator's own anonymous-auth
+    detection and raises DefaultCredentialsError when no real credentials exist.
+    Supplying anonymous credentials lets the SDK reach the emulators without any
+    service-account key. Used ONLY when a *_EMULATOR_HOST is set (local dev).
+    """
+
+    def get_credential(self):
+        import google.auth.credentials
+        return google.auth.credentials.AnonymousCredentials()
+
+
 def initialize_firebase():
     global _initialized
     if _initialized:
         return
     try:
         cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        emulator = (os.getenv("FIRESTORE_EMULATOR_HOST")
+                    or os.getenv("FIREBASE_AUTH_EMULATOR_HOST")
+                    or os.getenv("FIREBASE_STORAGE_EMULATOR_HOST"))
+        bucket = os.getenv("FIREBASE_STORAGE_BUCKET", "cip-najm.appspot.com")
         if cred_path:
+            # Explicit service-account key (local dev against a real project, or
+            # against emulators using a real key).
             cred = credentials.Certificate(cred_path)
-            firebase_admin.initialize_app(cred, {
-                "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", "cip-najm.appspot.com")
+            firebase_admin.initialize_app(cred, {"storageBucket": bucket})
+        elif emulator:
+            # Local emulators — no real credentials required.
+            project_id = (os.getenv("GOOGLE_CLOUD_PROJECT")
+                          or os.getenv("GCLOUD_PROJECT") or "demo-najm")
+            firebase_admin.initialize_app(_AnonymousCredentials(), {
+                "projectId": project_id,
+                "storageBucket": bucket,
             })
+            logger.info("Firebase Admin initialized for LOCAL EMULATORS (project=%s)", project_id)
         else:
-            # Use Application Default Credentials (Cloud Run)
-            firebase_admin.initialize_app(options={
-                "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", "cip-najm.appspot.com")
-            })
+            # Application Default Credentials (Cloud Run runtime service account).
+            firebase_admin.initialize_app(options={"storageBucket": bucket})
         _initialized = True
         logger.info("Firebase Admin SDK initialized")
     except Exception as e:

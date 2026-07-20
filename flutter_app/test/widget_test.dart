@@ -1,30 +1,24 @@
-// This is a basic Flutter widget test.
+// App smoke test.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+// The full CIPApp cannot be pumped here: its router watches
+// FirebaseAuth.instance, which needs a live/mocked Firebase app (covered by
+// the e2e suite instead). This test keeps a fast, dependency-free smoke
+// check that both shipped themes construct and render a frame.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:crew_intelligence_platform/main.dart';
+import 'package:crew_intelligence_platform/app/theme.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('light and dark CIP themes build and render', (tester) async {
+    for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+      await tester.pumpWidget(MaterialApp(
+        theme: CIPTheme.lightTheme,
+        darkTheme: CIPTheme.darkTheme,
+        themeMode: mode,
+        home: const Scaffold(body: Center(child: Text('NAJM'))),
+      ));
+      expect(find.text('NAJM'), findsOneWidget);
+    }
   });
 }

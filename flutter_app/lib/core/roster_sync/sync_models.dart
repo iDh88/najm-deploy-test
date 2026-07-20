@@ -25,13 +25,13 @@ class ProviderInfo {
   bool get isAvailable => availability == 'available';
 
   factory ProviderInfo.fromJson(Map<String, dynamic> j) => ProviderInfo(
-        providerId: j['provider_id'] ?? '',
-        displayName: j['display_name'] ?? '',
+        providerId: j['provider_id'] as String? ?? '',
+        displayName: j['display_name'] as String? ?? '',
         recommended: j['recommended'] == true,
-        authKind: j['auth_kind'] ?? 'none',
-        orchestration: j['orchestration'] ?? 'client_orchestrated',
-        availability: j['availability'] ?? 'pending_official_integration',
-        availabilityNote: j['availability_note'] ?? '',
+        authKind: j['auth_kind'] as String? ?? 'none',
+        orchestration: j['orchestration'] as String? ?? 'client_orchestrated',
+        availability: j['availability'] as String? ?? 'pending_official_integration',
+        availabilityNote: j['availability_note'] as String? ?? '',
       );
 }
 
@@ -66,13 +66,13 @@ class RosterConnection {
 
   factory RosterConnection.fromJson(Map<String, dynamic> j) =>
       RosterConnection(
-        providerId: j['provider_id'] ?? '',
-        status: j['status'] ?? 'disconnected',
+        providerId: j['provider_id'] as String? ?? '',
+        status: j['status'] as String? ?? 'disconnected',
         connectedAt: _dt(j['connected_at']),
         lastSyncAt: _dt(j['last_sync_at']),
         lastSuccessAt: _dt(j['last_success_at']),
-        nextSync: j['next_sync'] ?? 'automatic',
-        lastError: j['last_error'],
+        nextSync: j['next_sync'] as String? ?? 'automatic',
+        lastError: j['last_error'] as String?,
         importedFlightsLast: (j['imported_flights_last'] ?? 0) as int,
         autoSync: j['auto_sync'] != false,
       );
@@ -99,7 +99,7 @@ class VersionEntry {
 
   factory VersionEntry.fromJson(Map<String, dynamic> j) => VersionEntry(
         version: (j['version'] ?? 0) as int,
-        checksum: j['checksum'] ?? '',
+        checksum: j['checksum'] as String? ?? '',
         importedFlights: (j['imported_flights'] ?? 0) as int,
         at: j['at'] == null ? null : DateTime.tryParse(j['at'].toString()),
         added: (j['added'] ?? 0) as int,
@@ -136,7 +136,7 @@ class SyncStatus {
         providers: (j['providers'] as List<dynamic>? ?? const [])
             .map((e) => ProviderInfo.fromJson(e as Map<String, dynamic>))
             .toList(),
-        preferredSource: j['preferred_source'] ?? 'manual_pdf',
+        preferredSource: j['preferred_source'] as String? ?? 'manual_pdf',
         versionsLatest:
             (j['versions_latest'] as Map<String, dynamic>? ?? const {}).map(
                 (k, v) => MapEntry(
@@ -207,11 +207,11 @@ class ImportResult {
   bool get isImported => result == 'imported';
 
   factory ImportResult.fromJson(Map<String, dynamic> j) => ImportResult(
-        result: j['result'] ?? 'failed',
-        lineId: j['line_id'],
+        result: j['result'] as String? ?? 'failed',
+        lineId: j['line_id'] as String?,
         version: j['version'] as int?,
         importedFlights: (j['imported_flights'] ?? 0) as int,
-        diff: Map<String, dynamic>.from(j['diff'] ?? const {}),
+        diff: Map<String, dynamic>.from(j['diff'] as Map? ?? const {}),
         engines: (j['engines'] as List<dynamic>? ?? const [])
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList(),

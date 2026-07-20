@@ -1,0 +1,11 @@
+# Known false positive: a fake test fixture value (originally
+# "ledger-idempotency-1", now "test-fixture-idempotency-key") in
+# python_services/tests/unit/test_ai_platform_ledger.py, flagged by the
+# generic-api-key heuristic only because the dict key is named
+# "idempotency_key". The fixture was corrected on top of this branch, but
+# the original addition still exists verbatim in one earlier commit's diff,
+# and per project policy this branch's history is not rewritten — so the
+# finding is ignored by its exact fingerprint (commit + file + rule + line)
+# instead. This matches nothing else: any other secret, in any other
+# commit, file, or line, still fails the scan.
+32e30c0e1e8b0e9545fae5662681767ff1c92880:python_services/tests/unit/test_ai_platform_ledger.py:generic-api-key:49

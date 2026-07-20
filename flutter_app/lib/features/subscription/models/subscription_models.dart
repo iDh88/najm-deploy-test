@@ -105,16 +105,16 @@ class Entitlement {
   });
 
   factory Entitlement.fromMap(Map<String, dynamic> m) => Entitlement(
-    subscriptionsEnabled: m['subscriptionsEnabled'] ?? false,
-    tier: _planTierFromApi(m['tier']),
-    status: _statusFromApi(m['status']),
-    isProActive: m['isProActive'] ?? false,
-    trialActive: m['trialActive'] ?? false,
-    trialDaysRemaining: m['trialDaysRemaining'],
+    subscriptionsEnabled: m['subscriptionsEnabled'] as bool? ?? false,
+    tier: _planTierFromApi(m['tier'] as String?),
+    status: _statusFromApi(m['status'] as String?),
+    isProActive: m['isProActive'] as bool? ?? false,
+    trialActive: m['trialActive'] as bool? ?? false,
+    trialDaysRemaining: m['trialDaysRemaining'] as int?,
     expirationDate: m['expirationDate'] != null
-        ? DateTime.tryParse(m['expirationDate']) : null,
+        ? DateTime.tryParse(m['expirationDate'] as String) : null,
     trialStartedAt: m['trialStartedAt'] != null
-        ? DateTime.tryParse(m['trialStartedAt']) : null,
+        ? DateTime.tryParse(m['trialStartedAt'] as String) : null,
     featureAccess: (m['featureAccess'] as Map? ?? {}).map(
         (k, v) => MapEntry(k.toString(), _accessFromApi(v.toString()))),
   );
@@ -160,12 +160,12 @@ class UsageStatus {
   });
 
   factory UsageStatus.fromMap(Map<String, dynamic> m) => UsageStatus(
-    featureKey: m['featureKey'] ?? '',
-    used: m['used'] ?? 0,
-    limit: m['limit'] ?? 0,
-    remaining: m['remaining'] ?? -1,
-    isUnlimited: m['isUnlimited'] ?? true,
-    resetsAt: DateTime.tryParse(m['resetsAt'] ?? '') ?? DateTime.now(),
+    featureKey: m['featureKey'] as String? ?? '',
+    used: m['used'] as int? ?? 0,
+    limit: m['limit'] as int? ?? 0,
+    remaining: m['remaining'] as int? ?? -1,
+    isUnlimited: m['isUnlimited'] as bool? ?? true,
+    resetsAt: DateTime.tryParse(m['resetsAt'] as String? ?? '') ?? DateTime.now(),
   );
 
   double get usedFraction =>
@@ -190,11 +190,11 @@ class FeatureCheckResult {
   });
 
   factory FeatureCheckResult.fromMap(Map<String, dynamic> m) => FeatureCheckResult(
-    allowed: m['allowed'] ?? true,
-    reason: m['reason'] ?? 'free_launch',
-    requiresUpgrade: m['requiresUpgrade'] ?? false,
-    usageUsed: m['usageUsed'],
-    usageLimit: m['usageLimit'],
+    allowed: m['allowed'] as bool? ?? true,
+    reason: m['reason'] as String? ?? 'free_launch',
+    requiresUpgrade: m['requiresUpgrade'] as bool? ?? false,
+    usageUsed: m['usageUsed'] as int?,
+    usageLimit: m['usageLimit'] as int?,
   );
 }
 
@@ -218,12 +218,12 @@ class SubscriptionPlan {
   });
 
   factory SubscriptionPlan.fromMap(Map<String, dynamic> m) => SubscriptionPlan(
-    tier: _planTierFromApi(m['tier']),
-    displayName: m['displayName'] ?? '',
-    description: m['description'] ?? '',
-    benefits: List<String>.from(m['benefits'] ?? []),
-    priceLabel: m['priceLabel'],
-    isActive: m['isActive'] ?? true,
+    tier: _planTierFromApi(m['tier'] as String?),
+    displayName: m['displayName'] as String? ?? '',
+    description: m['description'] as String? ?? '',
+    benefits: List<String>.from(m['benefits'] as List? ?? []),
+    priceLabel: m['priceLabel'] as String?,
+    isActive: m['isActive'] as bool? ?? true,
   );
 }
 
@@ -245,11 +245,11 @@ class AccountHistoryEvent {
   });
 
   factory AccountHistoryEvent.fromMap(Map<String, dynamic> m) => AccountHistoryEvent(
-    id: m['id'] ?? '',
-    eventType: _eventTypeFromApi(m['eventType'] ?? 'ADMIN_GRANTED_DAYS'),
-    description: m['description'] ?? '',
-    metadata: Map<String, dynamic>.from(m['metadata'] ?? {}),
-    createdAt: DateTime.tryParse(m['createdAt'] ?? '') ?? DateTime.now(),
+    id: m['id'] as String? ?? '',
+    eventType: _eventTypeFromApi(m['eventType'] as String? ?? 'ADMIN_GRANTED_DAYS'),
+    description: m['description'] as String? ?? '',
+    metadata: Map<String, dynamic>.from(m['metadata'] as Map? ?? {}),
+    createdAt: DateTime.tryParse(m['createdAt'] as String? ?? '') ?? DateTime.now(),
   );
 }
 
@@ -267,9 +267,9 @@ class ReferralTierInfo {
   });
 
   factory ReferralTierInfo.fromMap(Map<String, dynamic> m) => ReferralTierInfo(
-    invitesRequired: m['invitesRequired'] ?? 1,
-    rewardDays: m['rewardDays'] ?? 7,
-    label: m['label'] ?? '',
+    invitesRequired: m['invitesRequired'] as int? ?? 1,
+    rewardDays: m['rewardDays'] as int? ?? 7,
+    label: m['label'] as String? ?? '',
   );
 }
 
@@ -291,12 +291,12 @@ class ReferralStatus {
   factory ReferralStatus.fromMap(Map<String, dynamic> m) {
     final campaign = m['campaign'] as Map<String, dynamic>?;
     return ReferralStatus(
-      referralCode: m['referralCode'] ?? '',
-      successfulInvites: m['successfulInvites'] ?? 0,
-      rewardsClaimed: List<int>.from(m['rewardsClaimed'] ?? []),
-      campaignActive: campaign?['isActive'] ?? false,
+      referralCode: m['referralCode'] as String? ?? '',
+      successfulInvites: m['successfulInvites'] as int? ?? 0,
+      rewardsClaimed: List<int>.from(m['rewardsClaimed'] as List? ?? []),
+      campaignActive: campaign?['isActive'] as bool? ?? false,
       tiers: ((campaign?['tiers'] as List?) ?? [])
-          .map((t) => ReferralTierInfo.fromMap(Map<String, dynamic>.from(t)))
+          .map((t) => ReferralTierInfo.fromMap(Map<String, dynamic>.from(t as Map)))
           .toList(),
     );
   }

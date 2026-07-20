@@ -24,14 +24,14 @@ class CrewUser {
     final d = doc.data() as Map<String, dynamic>;
     return CrewUser(
       uid: doc.id,
-      email: d['email'] ?? '',
-      name: d['name'] ?? d['displayName'] ?? '',
+      email: d['email'] as String? ?? '',
+      name: d['name'] as String? ?? d['displayName'] as String? ?? '',
       // F28: registration (core/auth) writes `rankCode`; some legacy docs
       // carry `rank`. Accept either so the profile rank is never silently
       // empty for one writer family.
-      rank: d['rank'] ?? d['rankCode'] ?? '',
-      employeeId: d['employeeId'] ?? '',
-      isAdmin: d['isAdmin'] ?? false,
+      rank: d['rank'] as String? ?? d['rankCode'] as String? ?? '',
+      employeeId: d['employeeId'] as String? ?? '',
+      isAdmin: d['isAdmin'] as bool? ?? false,
       joinedAt: (d['joinedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }

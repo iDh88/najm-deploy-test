@@ -33,14 +33,14 @@ class FilterCatalogEntry {
 
   factory FilterCatalogEntry.fromJson(Map<String, dynamic> j) =>
       FilterCatalogEntry(
-        id: j['id'] ?? '',
-        category: j['category'] ?? '',
-        label: j['label'] ?? '',
-        kind: j['kind'] ?? '',
-        status: j['status'] ?? 'active',
-        unit: j['unit'] ?? '',
-        enumValues: List<String>.from(j['enum_values'] ?? const []),
-        note: j['note'] ?? '',
+        id: j['id'] as String? ?? '',
+        category: j['category'] as String? ?? '',
+        label: j['label'] as String? ?? '',
+        kind: j['kind'] as String? ?? '',
+        status: j['status'] as String? ?? 'active',
+        unit: j['unit'] as String? ?? '',
+        enumValues: List<String>.from(j['enum_values'] as List? ?? const []),
+        note: j['note'] as String? ?? '',
       );
 }
 
@@ -62,9 +62,9 @@ class FilterClause {
       {'filter_id': filterId, 'value': value, 'source': source};
 
   factory FilterClause.fromJson(Map<String, dynamic> j) => FilterClause(
-        filterId: j['filter_id'] ?? '',
+        filterId: j['filter_id'] as String? ?? '',
         value: j['value'],
-        source: j['source'] ?? 'manual',
+        source: j['source'] as String? ?? 'manual',
       );
 }
 
@@ -100,9 +100,9 @@ class MatchedFilter {
       {required this.filterId, required this.label, required this.source});
 
   factory MatchedFilter.fromJson(Map<String, dynamic> j) => MatchedFilter(
-        filterId: j['filter_id'] ?? '',
-        label: j['label'] ?? '',
-        source: j['source'] ?? 'manual',
+        filterId: j['filter_id'] as String? ?? '',
+        label: j['label'] as String? ?? '',
+        source: j['source'] as String? ?? 'manual',
       );
 }
 
@@ -129,10 +129,10 @@ class RankedResult {
   });
 
   factory RankedResult.fromJson(Map<String, dynamic> j) => RankedResult(
-        lineId: j['line_id'] ?? '',
-        lineNumber: j['line_number'] ?? '',
+        lineId: j['line_id'] as String? ?? '',
+        lineNumber: j['line_number'] as String? ?? '',
         rank: (j['rank'] ?? 0) as int,
-        totalScore: (j['total_score'] ?? 0).toDouble(),
+        totalScore: ((j['total_score'] ?? 0) as num).toDouble(),
         componentScores: (j['component_scores'] as Map<String, dynamic>? ??
                 const {})
             .map((k, v) => MapEntry(k, (v as num).toDouble())),
@@ -140,7 +140,7 @@ class RankedResult {
             .map((e) => MatchedFilter.fromJson(e as Map<String, dynamic>))
             .toList(),
         explanation:
-            List<String>.from(j['explanation'] ?? const <String>[]),
+            List<String>.from(j['explanation'] as List? ?? const <String>[]),
       );
 }
 
@@ -193,7 +193,7 @@ class SearchResponse {
         totalScanned: (j['total_scanned'] ?? 0) as int,
         applied: AppliedFilters.fromJson(
             j['applied'] as Map<String, dynamic>? ?? const {}),
-        rankMode: j['rank_mode'] ?? 'balanced',
-        aiSummary: j['ai_summary'],
+        rankMode: j['rank_mode'] as String? ?? 'balanced',
+        aiSummary: j['ai_summary'] as String?,
       );
 }

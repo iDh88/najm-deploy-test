@@ -157,6 +157,10 @@ class VersionEntry(BaseModel):
 
 class ConnectRequest(BaseModel):
     provider_id: str
+    # Service-lane identity: Cloud Functions act on behalf of a user and pass
+    # the user id here (resolve_user_id trusts it only for service callers;
+    # user calls are always pinned to their verified token uid).
+    user_id: str = ""
     # Non-secret client hints only (e.g. base station). NEVER credentials —
     # the router runs assert_no_credentials over the raw body.
     client_meta: dict = Field(default_factory=dict)
@@ -164,6 +168,8 @@ class ConnectRequest(BaseModel):
 
 class ImportRequest(BaseModel):
     provider_id: str
+    # Service-lane identity — same semantics as ConnectRequest.user_id.
+    user_id: str = ""
     period: str
     year: int
     payload_kind: str                      # "ics" | "normalized"

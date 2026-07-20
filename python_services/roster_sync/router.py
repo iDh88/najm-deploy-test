@@ -90,7 +90,7 @@ async def connect(
     claims: dict = Depends(verify_service_or_user),
 ) -> dict:
     assert_no_credentials(request.model_dump())
-    user_id = resolve_user_id(claims, body_user_id="")
+    user_id = resolve_user_id(claims, body_user_id=request.user_id)
     provider = get_provider(request.provider_id)
     if provider is None:
         raise HTTPException(status_code=404,
@@ -194,7 +194,7 @@ async def import_roster(
     except Exception as exc:  # noqa: BLE001 — shape error → 422
         raise HTTPException(status_code=422, detail=f"invalid import: {exc}")
 
-    user_id = resolve_user_id(claims, body_user_id="")
+    user_id = resolve_user_id(claims, body_user_id=request.user_id)
     provider = get_provider(request.provider_id)
     if provider is None:
         raise HTTPException(status_code=404, detail="unknown provider")
@@ -316,9 +316,12 @@ def _mark_error(db, user_id: str, provider_id: str, error: str) -> None:
 # ── Status (the Sync Status screen in one call) ──────────────────────────────
 
 @router.get("/status", response_model=StatusResponse)
-async def status(claims: dict = Depends(verify_service_or_user)
+async def status(claims: dict = Depends(verify_service_or_user),
+                 user_id: str = "",
                  ) -> StatusResponse:
-    user_id = resolve_user_id(claims, body_user_id="")
+    # `user_id` query param is the service-lane identity (resolve_user_id
+    # trusts it only for service callers; users are pinned to their token uid).
+    user_id = resolve_user_id(claims, body_user_id=user_id)
     db = _db()
     conns: list[RosterConnection] = []
     versions_latest: dict = {}

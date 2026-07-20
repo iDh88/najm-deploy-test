@@ -8,6 +8,17 @@ from main import app
 
 BASE = "/v1/trade"
 
+# /v1/trade is mounted with verify_service_or_user (see main.py) — service-lane
+# calls authenticate via X-Service-Token. Mirrors the fixture in
+# tests/integration/test_api.py.
+SERVICE_HEADERS = {"X-Service-Token": "test-service-token"}
+
+
+@pytest.fixture(autouse=True)
+def _service_token_env(monkeypatch):
+    monkeypatch.setenv("INTERNAL_SERVICE_TOKEN", "test-service-token")
+
+
 SAMPLE_SEARCH = {
     "requesting_user_id": "test_user_001",
     "requesting_rank":    "CA",
@@ -29,14 +40,18 @@ SAMPLE_SEARCH = {
 @pytest.mark.asyncio
 async def test_search_returns_200():
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        r = await ac.post(f"{BASE}/search", json=SAMPLE_SEARCH)
+        r = await ac.post(
+            f"{BASE}/search", json=SAMPLE_SEARCH, headers=SERVICE_HEADERS,
+        )
     assert r.status_code == 200
 
 
 @pytest.mark.asyncio
 async def test_search_response_shape():
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        r = await ac.post(f"{BASE}/search", json=SAMPLE_SEARCH)
+        r = await ac.post(
+            f"{BASE}/search", json=SAMPLE_SEARCH, headers=SERVICE_HEADERS,
+        )
     data = r.json()
     assert "route"          in data
     assert "matches"        in data
@@ -48,7 +63,9 @@ async def test_search_response_shape():
 @pytest.mark.asyncio
 async def test_match_shape():
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        r = await ac.post(f"{BASE}/search", json=SAMPLE_SEARCH)
+        r = await ac.post(
+            f"{BASE}/search", json=SAMPLE_SEARCH, headers=SERVICE_HEADERS,
+        )
     data = r.json()
     if data["matches"]:
         m = data["matches"][0]
@@ -65,7 +82,9 @@ async def test_match_shape():
 async def test_no_demographic_fields_in_response():
     """Critical: API response must never contain demographic labels."""
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        r = await ac.post(f"{BASE}/search", json=SAMPLE_SEARCH)
+        r = await ac.post(
+            f"{BASE}/search", json=SAMPLE_SEARCH, headers=SERVICE_HEADERS,
+        )
     response_text = r.text.lower()
     blocked = [
         "nationality", "ethnicity", "region_affinity",
@@ -93,7 +112,7 @@ async def test_record_event_accepted():
             "has_deadhead":     False,
             "signin_hour":      9,
             "layover_hours":    18.0,
-        })
+        }, headers=SERVICE_HEADERS)
     assert r.status_code == 200
     assert r.json()["recorded"] is True
 
@@ -110,7 +129,7 @@ async def test_record_event_invalid_outcome():
             "block_hours": 0, "duty_hours": 0,
             "fatigue_score": 0, "is_international": False,
             "has_deadhead": False, "signin_hour": 8, "layover_hours": 0,
-        })
+        }, headers=SERVICE_HEADERS)
     assert r.status_code == 400
 
 
@@ -122,7 +141,7 @@ async def test_prn_status_update():
             "trade_id": "trade_test_001",
             "prn":      "12345678",
             "status":   "sent",
-        })
+        }, headers=SERVICE_HEADERS)
     # Firestore may not be available in test env — both 200 and 500 are valid
     assert r.status_code in (200, 500)
 
@@ -130,7 +149,7 @@ async def test_prn_status_update():
 @pytest.mark.asyncio
 async def test_profile_endpoint_returns_operational_data_only():
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        r = await ac.get(f"{BASE}/profile/test_user_001")
+        r = await ac.get(f"{BASE}/profile/test_user_001", headers=SERVICE_HEADERS)
     if r.status_code == 200:
         data = r.json()
         # Should have operational fields

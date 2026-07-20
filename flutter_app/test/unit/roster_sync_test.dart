@@ -40,7 +40,9 @@ ProviderInfo _info({
     );
 
 const _validIcs = 'BEGIN:VCALENDAR\n'
-    'BEGIN:VEVENT\nSUMMARY:SV123 JED-LHR\nEND:VEVENT\nEND:VCALENDAR\n';
+    'BEGIN:VEVENT\nSUMMARY:SV123 JED-LHR\n'
+    'DTSTART:20260703T063000Z\nDTEND:20260703T113000Z\n'
+    'END:VEVENT\nEND:VCALENDAR\n';
 
 void main() {
   group('CredentialManager', () {
@@ -133,8 +135,16 @@ void main() {
       expect(store.data.values, contains('https://portal/cal.ics'));
 
       final payload = await c.fetchRoster(_info(), 'JUL-2026', 2026);
-      expect(payload.kind, 'ics');
-      expect(payload.payload, _validIcs);
+      // Zero-Knowledge: the device normalizes on-device and uploads the
+      // normalized roster, never the raw calendar.
+      expect(payload.kind, 'normalized');
+      final roster = payload.payload as Map<String, dynamic>;
+      expect(
+        (roster['legs'] as List)
+            .map((l) => (l as Map)['flightNumber'])
+            .toList(),
+        ['SV123'],
+      );
       expect(payload.period, 'JUL-2026');
       expect(calls, 2);
     });

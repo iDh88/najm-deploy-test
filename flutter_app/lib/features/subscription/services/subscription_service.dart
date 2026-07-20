@@ -19,7 +19,7 @@ class SubscriptionService {
       '/v1/subscription/me/entitlement',
       options: Options(headers: await _authHeaders()),
     );
-    return Entitlement.fromMap(Map<String, dynamic>.from(res.data));
+    return Entitlement.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 
   Future<FeatureCheckResult> checkFeature(
@@ -31,7 +31,7 @@ class SubscriptionService {
       data: {'feature_key': featureKey, 'consume_usage': consumeUsage},
       options: Options(headers: await _authHeaders()),
     );
-    return FeatureCheckResult.fromMap(Map<String, dynamic>.from(res.data));
+    return FeatureCheckResult.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 
   Future<UsageStatus> getUsage(String featureKey) async {
@@ -39,7 +39,7 @@ class SubscriptionService {
       '/v1/subscription/me/usage/$featureKey',
       options: Options(headers: await _authHeaders()),
     );
-    return UsageStatus.fromMap(Map<String, dynamic>.from(res.data));
+    return UsageStatus.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 
   Future<List<AccountHistoryEvent>> getHistory() async {
@@ -48,15 +48,15 @@ class SubscriptionService {
       options: Options(headers: await _authHeaders()),
     );
     return (res.data as List)
-        .map((m) => AccountHistoryEvent.fromMap(Map<String, dynamic>.from(m)))
+        .map((m) => AccountHistoryEvent.fromMap(Map<String, dynamic>.from(m as Map)))
         .toList();
   }
 
   Future<List<SubscriptionPlan>> getPlans() async {
     final res = await _dio.get('/v1/subscription/plans');
-    final map = Map<String, dynamic>.from(res.data);
+    final map = Map<String, dynamic>.from(res.data as Map);
     return map.values
-        .map((v) => SubscriptionPlan.fromMap(Map<String, dynamic>.from(v)))
+        .map((v) => SubscriptionPlan.fromMap(Map<String, dynamic>.from(v as Map)))
         .toList();
   }
 
@@ -78,7 +78,7 @@ class SubscriptionService {
       '/v1/subscription/me/referral',
       options: Options(headers: await _authHeaders()),
     );
-    return ReferralStatus.fromMap(Map<String, dynamic>.from(res.data));
+    return ReferralStatus.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 
   Future<({bool success, String message})> applyReferralCode(String code) async {
@@ -102,7 +102,7 @@ class SubscriptionService {
       '/v1/subscription/admin/config',
       options: Options(headers: await _authHeaders()),
     );
-    return Map<String, dynamic>.from(res.data);
+    return Map<String, dynamic>.from(res.data as Map);
   }
 
   Future<void> adminSetMasterSwitch(bool enabled) async {
@@ -199,7 +199,7 @@ class SubscriptionService {
       '/v1/subscription/admin/users/$userId/subscription',
       options: Options(headers: await _authHeaders()),
     );
-    return Map<String, dynamic>.from(res.data);
+    return Map<String, dynamic>.from(res.data as Map);
   }
 
   Future<List<AccountHistoryEvent>> adminGetUserHistory(String userId) async {
@@ -208,7 +208,7 @@ class SubscriptionService {
       options: Options(headers: await _authHeaders()),
     );
     return (res.data as List)
-        .map((m) => AccountHistoryEvent.fromMap(Map<String, dynamic>.from(m)))
+        .map((m) => AccountHistoryEvent.fromMap(Map<String, dynamic>.from(m as Map)))
         .toList();
   }
 
@@ -225,7 +225,7 @@ class SubscriptionService {
       '/v1/subscription/admin/referral/campaign',
       options: Options(headers: await _authHeaders()),
     );
-    return Map<String, dynamic>.from(res.data);
+    return Map<String, dynamic>.from(res.data as Map);
   }
 
   Future<void> adminUpdateReferralCampaign({

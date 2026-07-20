@@ -421,7 +421,8 @@ _register(ManualPdfProvider())
 _register(ExcelUploadProvider())
 _register(EmailImportProvider())
 
-# Priority order per the spec: CAE Sync first, manual upload last.
+# Priority order per the spec: CAE Sync first, then feeds/uploads; the
+# unimplemented email_import (honesty tile) sorts last.
 PRIORITY_ORDER = ("cae_crew_access", "cae_enterprise", "ics_feed",
                   "manual_pdf", "excel_upload", "email_import")
 
