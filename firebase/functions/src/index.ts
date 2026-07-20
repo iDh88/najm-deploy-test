@@ -569,7 +569,7 @@ export {
 /** Notify crew when PDF analysis completes */
 export const onIntelligenceUploadComplete = functions.firestore
   .document("uploads/{uploadId}")
-  .onUpdate(async (change, context) => {
+  .onUpdate(async (change) => {
     const before = change.before.data();
     const after  = change.after.data();
     if (before.status === after.status) return;
@@ -709,7 +709,7 @@ export const weeklyProfileRebuild = functions
 /** Notify admins when a document version finishes processing */
 export const onDocumentVersionProcessed = functions.firestore
   .document("documentVersions/{versionId}")
-  .onUpdate(async (change, context) => {
+  .onUpdate(async (change) => {
     const before = change.before.data();
     const after  = change.after.data();
     if (before.status === after.status) return;

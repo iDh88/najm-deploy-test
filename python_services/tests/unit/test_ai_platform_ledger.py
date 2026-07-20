@@ -46,7 +46,7 @@ def _event(**changes: Any) -> LedgerEventDraft:
         "event_id": "ledger-event-1",
         "event_type": LedgerEventType.USAGE_OUTCOME,
         "request_id": "request-1",
-        "idempotency_key": "ledger-idempotency-1",
+        "idempotency_key": "test-fixture-idempotency-key",
         "principal": AIPrincipalRef(
             principal_id="user-1",
             authorization_ref="authorization-decision-1",
