@@ -26,7 +26,7 @@ import {
   assertFails,
 } from "@firebase/rules-unit-testing";
 import {
-  doc, getDoc, setDoc, updateDoc, deleteDoc,
+  doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc,
   collection, query, where, orderBy, getDocs,
 } from "firebase/firestore";
 import { ref as sRef, uploadBytes, getBytes, deleteObject } from "firebase/storage";
@@ -217,32 +217,28 @@ test("storage rosters/: owner Excel OK; wrong type / wrong owner denied", async 
 
 // ── Roster sync collections (v1.4.0-dev) ────────────────────────────────────
 test("rosterSources: owner can read own connection, cannot write", async () => {
-  await withAdmin(async (db) => {
-    await db.doc("rosterSources/alice_ics_feed").set({
-      user_id: "alice", provider_id: "ics_feed", status: "connected",
-    });
-  });
-  const alice = authedDb("alice");
-  await assertSucceeds(alice.doc("rosterSources/alice_ics_feed").get());
-  await assertFails(alice.doc("rosterSources/alice_ics_feed")
-    .set({ status: "connected", user_id: "alice" }));
+  await seed((d) => setDoc(doc(d, "rosterSources/alice_ics_feed"), {
+    user_id: "alice", provider_id: "ics_feed", status: "connected",
+  }));
+  const alice = db("alice", APPROVED);
+  await assertSucceeds(getDoc(doc(alice, "rosterSources/alice_ics_feed")));
+  await assertFails(setDoc(doc(alice, "rosterSources/alice_ics_feed"),
+    { status: "connected", user_id: "alice" }));
 });
 
 test("rosterSources: stranger cannot read another user's connection", async () => {
-  await withAdmin(async (db) => {
-    await db.doc("rosterSources/alice_ics_feed").set({
-      user_id: "alice", provider_id: "ics_feed", status: "connected",
-    });
-  });
-  await assertFails(authedDb("mallory").doc("rosterSources/alice_ics_feed").get());
+  await seed((d) => setDoc(doc(d, "rosterSources/alice_ics_feed"), {
+    user_id: "alice", provider_id: "ics_feed", status: "connected",
+  }));
+  await assertFails(getDoc(doc(db("mallory", APPROVED),
+    "rosterSources/alice_ics_feed")));
 });
 
 test("syncEvents: clients can neither read nor write analytics", async () => {
-  const alice = authedDb("alice");
-  await assertFails(alice.collection("syncEvents")
-    .add({ userId: "alice", type: "sync_ok" }));
-  await withAdmin(async (db) => {
-    await db.doc("syncEvents/e1").set({ userId: "alice", type: "sync_ok" });
-  });
-  await assertFails(alice.doc("syncEvents/e1").get());
+  const alice = db("alice", APPROVED);
+  await assertFails(addDoc(collection(alice, "syncEvents"),
+    { userId: "alice", type: "sync_ok" }));
+  await seed((d) => setDoc(doc(d, "syncEvents/e1"),
+    { userId: "alice", type: "sync_ok" }));
+  await assertFails(getDoc(doc(alice, "syncEvents/e1")));
 });

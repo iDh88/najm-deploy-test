@@ -45,15 +45,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      # P1-4: `npm ci` requires a committed package-lock.json. Until one is
-      # generated (run `npm install` locally in firebase/functions and commit
-      # the lockfile), fall back to `npm install` so the job can run. Once the
-      # lockfile is committed, add `cache: npm` +
-      # `cache-dependency-path: firebase/functions/package-lock.json` above and
-      # switch this back to `npm ci` for reproducible installs.
+          cache: npm
+          cache-dependency-path: firebase/functions/package-lock.json
+      # P1-4: package-lock.json is now committed, so `npm ci` gives a
+      # reproducible install from the lockfile.
       - name: Install deps
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+        run: npm ci
       - name: Typecheck (tsc --noEmit)
         run: npx tsc --noEmit
       - name: Unit tests (mapping contracts — F36)

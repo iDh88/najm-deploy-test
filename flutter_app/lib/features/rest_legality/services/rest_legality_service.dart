@@ -83,7 +83,7 @@ class RestLegalityService {
         crewType:         crewType,
       ),
     );
-    return Map<String, dynamic>.from(res.data);
+    return Map<String, dynamic>.from(res.data as Map);
   }
 
   // ── Legality check ─────────────────────────────────────────────────────────
@@ -119,7 +119,7 @@ class RestLegalityService {
         crewType:         crewType,
       ),
     );
-    return LegalityResult.fromMap(Map<String, dynamic>.from(res.data));
+    return LegalityResult.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 
   // ── Fatigue score ──────────────────────────────────────────────────────────
@@ -149,7 +149,7 @@ class RestLegalityService {
         crewType:         crewType,
       ),
     );
-    return FatigueScoreResult.fromMap(Map<String, dynamic>.from(res.data));
+    return FatigueScoreResult.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 
   // ── Safety report (combined) ───────────────────────────────────────────────
@@ -189,7 +189,7 @@ class RestLegalityService {
         crewType:         crewType,
       ),
     );
-    return SafetyReport.fromMap(Map<String, dynamic>.from(res.data));
+    return SafetyReport.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 
   // ── Trade legality ─────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ class RestLegalityService {
       'crew_type':        crewType,
       'rest_before_mins': restBeforeMins,
     });
-    return TradeSafetyResult.fromMap(Map<String, dynamic>.from(res.data));
+    return TradeSafetyResult.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 
   // ── Rules reference ────────────────────────────────────────────────────────
@@ -215,6 +215,6 @@ class RestLegalityService {
       {String crewType = 'cabin_standard'}) async {
     final res = await _dio.get(
         '/v1/rest/rules', queryParameters: {'crew_type': crewType});
-    return Map<String, dynamic>.from(res.data);
+    return Map<String, dynamic>.from(res.data as Map);
   }
 }

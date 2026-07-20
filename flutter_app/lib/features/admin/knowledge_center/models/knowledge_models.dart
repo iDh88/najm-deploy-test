@@ -131,12 +131,12 @@ class KnowledgeDocument {
   factory KnowledgeDocument.fromMap(String id, Map<String, dynamic> m) =>
       KnowledgeDocument(
         id: id,
-        name: m['name'] ?? '',
-        category: DocumentCategoryX.fromApi(m['category'] ?? 'OTHER'),
-        description: m['description'] ?? '',
-        activeVersionId: m['activeVersionId'],
-        isDisabled: m['isDisabled'] ?? false,
-        createdAt: DateTime.tryParse(m['createdAt'] ?? '') ?? DateTime.now(),
+        name: m['name'] as String? ?? '',
+        category: DocumentCategoryX.fromApi(m['category'] as String? ?? 'OTHER'),
+        description: m['description'] as String? ?? '',
+        activeVersionId: m['activeVersionId'] as String?,
+        isDisabled: m['isDisabled'] as bool? ?? false,
+        createdAt: DateTime.tryParse(m['createdAt'] as String? ?? '') ?? DateTime.now(),
       );
 }
 
@@ -174,18 +174,18 @@ class DocumentVersion {
   factory DocumentVersion.fromMap(String id, Map<String, dynamic> m) =>
       DocumentVersion(
         id: id,
-        documentId: m['documentId'] ?? '',
-        versionNumber: m['versionNumber'] ?? 1,
-        fileType: m['fileType'] ?? 'PDF',
-        status: DocumentStatusX.fromApi(m['status'] ?? 'PROCESSING'),
-        effectiveDate: DateTime.tryParse(m['effectiveDate'] ?? '') ?? DateTime.now(),
+        documentId: m['documentId'] as String? ?? '',
+        versionNumber: m['versionNumber'] as int? ?? 1,
+        fileType: m['fileType'] as String? ?? 'PDF',
+        status: DocumentStatusX.fromApi(m['status'] as String? ?? 'PROCESSING'),
+        effectiveDate: DateTime.tryParse(m['effectiveDate'] as String? ?? '') ?? DateTime.now(),
         expirationDate: m['expirationDate'] != null
-            ? DateTime.tryParse(m['expirationDate']) : null,
-        uploadedBy: m['uploadedBy'] ?? '',
-        uploadedAt: DateTime.tryParse(m['uploadedAt'] ?? '') ?? DateTime.now(),
-        pageCount: m['pageCount'],
-        chunkCount: m['chunkCount'],
-        processingError: m['processingError'],
+            ? DateTime.tryParse(m['expirationDate'] as String) : null,
+        uploadedBy: m['uploadedBy'] as String? ?? '',
+        uploadedAt: DateTime.tryParse(m['uploadedAt'] as String? ?? '') ?? DateTime.now(),
+        pageCount: m['pageCount'] as int?,
+        chunkCount: m['chunkCount'] as int?,
+        processingError: m['processingError'] as String?,
       );
 
   String get versionLabel => 'Rev $versionNumber';
@@ -209,11 +209,11 @@ class ChangeSummaryItem {
   });
 
   factory ChangeSummaryItem.fromMap(Map<String, dynamic> m) => ChangeSummaryItem(
-    category: m['category'] ?? 'general',
-    description: m['description'] ?? '',
-    oldText: m['oldText'],
-    newText: m['newText'],
-    section: m['section'],
+    category: m['category'] as String? ?? 'general',
+    description: m['description'] as String? ?? '',
+    oldText: m['oldText'] as String?,
+    newText: m['newText'] as String?,
+    section: m['section'] as String?,
   );
 
   String get categoryLabel {
@@ -256,15 +256,15 @@ class DocumentChangeSummary {
 
   factory DocumentChangeSummary.fromMap(Map<String, dynamic> m) =>
       DocumentChangeSummary(
-        documentId: m['documentId'] ?? '',
-        oldVersionId: m['oldVersionId'] ?? '',
-        newVersionId: m['newVersionId'] ?? '',
-        oldVersionNumber: m['oldVersionNumber'] ?? 0,
-        newVersionNumber: m['newVersionNumber'] ?? 0,
-        generatedAt: DateTime.tryParse(m['generatedAt'] ?? '') ?? DateTime.now(),
-        overallSummary: m['overallSummary'] ?? '',
+        documentId: m['documentId'] as String? ?? '',
+        oldVersionId: m['oldVersionId'] as String? ?? '',
+        newVersionId: m['newVersionId'] as String? ?? '',
+        oldVersionNumber: m['oldVersionNumber'] as int? ?? 0,
+        newVersionNumber: m['newVersionNumber'] as int? ?? 0,
+        generatedAt: DateTime.tryParse(m['generatedAt'] as String? ?? '') ?? DateTime.now(),
+        overallSummary: m['overallSummary'] as String? ?? '',
         items: (m['items'] as List? ?? [])
-            .map((i) => ChangeSummaryItem.fromMap(Map<String, dynamic>.from(i)))
+            .map((i) => ChangeSummaryItem.fromMap(Map<String, dynamic>.from(i as Map)))
             .toList(),
       );
 
@@ -291,11 +291,11 @@ class Citation {
   });
 
   factory Citation.fromMap(Map<String, dynamic> m) => Citation(
-    document: m['document'] ?? '',
-    version: m['version'] ?? '',
-    section: m['section'],
-    page: m['page'],
-    label: m['label'] ?? '',
+    document: m['document'] as String? ?? '',
+    version: m['version'] as String? ?? '',
+    section: m['section'] as String?,
+    page: m['page'] as int?,
+    label: m['label'] as String? ?? '',
   );
 }
 
@@ -311,10 +311,10 @@ class AskAnswer {
   });
 
   factory AskAnswer.fromMap(Map<String, dynamic> m) => AskAnswer(
-    answer: m['answer'] ?? '',
-    confidence: m['confidence'] ?? 'LOW',
+    answer: m['answer'] as String? ?? '',
+    confidence: m['confidence'] as String? ?? 'LOW',
     citations: (m['citations'] as List? ?? [])
-        .map((c) => Citation.fromMap(Map<String, dynamic>.from(c)))
+        .map((c) => Citation.fromMap(Map<String, dynamic>.from(c as Map)))
         .toList(),
   );
 }

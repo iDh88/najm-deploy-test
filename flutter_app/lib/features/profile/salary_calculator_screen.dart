@@ -43,7 +43,7 @@ class CustomItem {
   CustomItem({required this.label, required this.amount});
   Map<String, dynamic> toMap() => {'label': label, 'amount': amount};
   factory CustomItem.fromMap(Map m) =>
-      CustomItem(label: m['label'] ?? '', amount: (m['amount'] ?? 0).toDouble());
+      CustomItem(label: m['label'] as String? ?? '', amount: ((m['amount'] ?? 0) as num).toDouble());
 }
 
 class MonthHistory {
@@ -54,9 +54,9 @@ class MonthHistory {
   Map<String, dynamic> toMap() =>
       {'month': month, 'gross': gross, 'net': net};
   factory MonthHistory.fromMap(Map m) => MonthHistory(
-      month: m['month'] ?? '',
-      gross: (m['gross'] ?? 0).toDouble(),
-      net:   (m['net']   ?? 0).toDouble());
+      month: m['month'] as String? ?? '',
+      gross: ((m['gross'] ?? 0) as num).toDouble(),
+      net:   ((m['net']   ?? 0) as num).toDouble());
 }
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
@@ -121,7 +121,7 @@ class SalaryCalcNotifier extends ChangeNotifier {
   bool get ready => _ready;
 
   void _checkMonthReset() {
-    final savedMonth = _box.get(_kSavedMonth, defaultValue: '');
+    final savedMonth = _box.get(_kSavedMonth, defaultValue: '') as String;
     final thisMonth  = DateFormat('yyyy-MM').format(DateTime.now());
     if (savedMonth != thisMonth) {
       // New month — save last month to history if there's data
@@ -161,19 +161,19 @@ class SalaryCalcNotifier extends ChangeNotifier {
   HoursInput _loadHours(String key) {
     final m = _box.get(key, defaultValue: <String, dynamic>{'h': 0, 'm': 0});
     return HoursInput(
-      hours:   (m['h'] ?? 0 as num).toDouble(),
-      minutes: (m['m'] ?? 0 as num).toInt(),
+      hours:   ((m['h'] ?? 0) as num).toDouble(),
+      minutes: ((m['m'] ?? 0) as num).toInt(),
     );
   }
 
   List<MonthHistory> _loadHistory() {
     final raw = _box.get(_kHistory, defaultValue: []);
-    return (raw as List).map((e) => MonthHistory.fromMap(Map.from(e))).toList();
+    return (raw as List).map((e) => MonthHistory.fromMap(Map.from(e as Map))).toList();
   }
 
   List<CustomItem> _loadCustom(String key) {
     final raw = _box.get(key, defaultValue: []);
-    return (raw as List).map((e) => CustomItem.fromMap(Map.from(e))).toList();
+    return (raw as List).map((e) => CustomItem.fromMap(Map.from(e as Map))).toList();
   }
 
   void _save() {

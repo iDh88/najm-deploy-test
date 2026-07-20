@@ -26,11 +26,11 @@ class LegalityViolation {
   factory LegalityViolation.fromMap(Map<String, dynamic> m) =>
       LegalityViolation(
         severity:    _sev(m['severity']),
-        rule:        m['rule']        ?? '',
-        description: m['description'] ?? '',
-        actual:      m['actual']      ?? '',
-        limit:       m['limit'],
-        excess:      m['excess'],
+        rule:        m['rule'] as String?        ?? '',
+        description: m['description'] as String? ?? '',
+        actual:      m['actual'] as String?      ?? '',
+        limit:       m['limit'] as String?,
+        excess:      m['excess'] as String?,
       );
 
   static ViolationSeverity _sev(dynamic v) {
@@ -78,16 +78,16 @@ class RestWindowResult {
   });
 
   factory RestWindowResult.fromMap(Map<String, dynamic> m) => RestWindowResult(
-    durationMins:  m['duration_mins']  ?? 0,
-    minimumMins:   m['minimum_mins']   ?? 0,
-    marginMins:    m['margin_mins']    ?? 0,
-    isSufficient:  m['is_sufficient']  ?? true,
-    isMarginal:    m['is_marginal']    ?? false,
-    durationLabel: m['duration_label'] ?? '—',
-    minimumLabel:  m['minimum_label']  ?? '—',
-    marginLabel:   m['margin_label']   ?? '—',
-    localStart:    m['local_start']    ?? '',
-    localEnd:      m['local_end']      ?? '',
+    durationMins:  m['duration_mins'] as int?  ?? 0,
+    minimumMins:   m['minimum_mins'] as int?   ?? 0,
+    marginMins:    m['margin_mins'] as int?    ?? 0,
+    isSufficient:  m['is_sufficient'] as bool?  ?? true,
+    isMarginal:    m['is_marginal'] as bool?    ?? false,
+    durationLabel: m['duration_label'] as String? ?? '—',
+    minimumLabel:  m['minimum_label'] as String?  ?? '—',
+    marginLabel:   m['margin_label'] as String?   ?? '—',
+    localStart:    m['local_start'] as String?    ?? '',
+    localEnd:      m['local_end'] as String?      ?? '',
   );
 
   double get fillRatio =>
@@ -124,17 +124,17 @@ class FDPResult {
   });
 
   factory FDPResult.fromMap(Map<String, dynamic> m) => FDPResult(
-    actualMins:     m['actual_mins']      ?? 0,
-    limitMins:      m['limit_mins']       ?? 840,
-    marginMins:     m['margin_mins']      ?? 0,
-    isWithinLimit:  m['is_within_limit']  ?? true,
-    isMarginal:     m['is_marginal']      ?? false,
-    earlySignin:    m['early_signin']     ?? false,
-    woclPenetration:m['wocl_penetration'] ?? false,
-    woclMinutes:    m['wocl_minutes']     ?? 0,
-    actualLabel:    m['actual_label']     ?? '—',
-    limitLabel:     m['limit_label']      ?? '—',
-    marginLabel:    m['margin_label']     ?? '—',
+    actualMins:     m['actual_mins'] as int?      ?? 0,
+    limitMins:      m['limit_mins'] as int?       ?? 840,
+    marginMins:     m['margin_mins'] as int?      ?? 0,
+    isWithinLimit:  m['is_within_limit'] as bool?  ?? true,
+    isMarginal:     m['is_marginal'] as bool?      ?? false,
+    earlySignin:    m['early_signin'] as bool?     ?? false,
+    woclPenetration:m['wocl_penetration'] as bool? ?? false,
+    woclMinutes:    m['wocl_minutes'] as int?     ?? 0,
+    actualLabel:    m['actual_label'] as String?     ?? '—',
+    limitLabel:     m['limit_label'] as String?      ?? '—',
+    marginLabel:    m['margin_label'] as String?     ?? '—',
   );
 
   double get usageRatio =>
@@ -161,7 +161,7 @@ class CarryOverResult {
   factory CarryOverResult.fromMap(Map<String, dynamic> m) => CarryOverResult(
     carryOverHours:  (m['carry_over_hours']  as num?)?.toDouble() ?? 0,
     maxAllowedHours: (m['max_allowed_hours'] as num?)?.toDouble() ?? 30,
-    isWithinLimit:   m['is_within_limit']    ?? true,
+    isWithinLimit:   m['is_within_limit'] as bool?    ?? true,
     percentageUsed:  (m['percentage_used']   as num?)?.toDouble() ?? 0,
     remainingHours:  (m['remaining_hours']   as num?)?.toDouble() ?? 30,
   );
@@ -185,11 +185,11 @@ class FatigueFactor {
   });
 
   factory FatigueFactor.fromMap(Map<String, dynamic> m) => FatigueFactor(
-    name:        m['name']        ?? '',
+    name:        m['name'] as String?        ?? '',
     score:       (m['score']      as num?)?.toDouble() ?? 0,
     weight:      (m['weight']     as num?)?.toDouble() ?? 0,
     weighted:    (m['weighted']   as num?)?.toDouble() ?? 0,
-    description: m['description'] ?? '',
+    description: m['description'] as String? ?? '',
   );
 }
 
@@ -219,14 +219,14 @@ class FatigueScoreResult {
   factory FatigueScoreResult.fromMap(Map<String, dynamic> m) =>
       FatigueScoreResult(
         raw:            (m['raw']        as num?)?.toDouble() ?? 0,
-        percentage:     m['percentage']  ?? 0,
+        percentage:     m['percentage'] as int?  ?? 0,
         level:          _fl(m['level']),
-        levelEmoji:     m['level_emoji'] ?? '🟢',
-        woclMinutes:    m['wocl_minutes']?? 0,
-        earlySignin:    m['early_signin']?? false,
-        recommendation: m['recommendation'] ?? '',
+        levelEmoji:     m['level_emoji'] as String? ?? '🟢',
+        woclMinutes:    m['wocl_minutes'] as int? ?? 0,
+        earlySignin:    m['early_signin'] as bool? ?? false,
+        recommendation: m['recommendation'] as String? ?? '',
         factors: (m['factors'] as List? ?? [])
-            .map((f) => FatigueFactor.fromMap(Map<String, dynamic>.from(f)))
+            .map((f) => FatigueFactor.fromMap(Map<String, dynamic>.from(f as Map)))
             .toList(),
       );
 
@@ -269,26 +269,26 @@ class LegalityResult {
   });
 
   factory LegalityResult.fromMap(Map<String, dynamic> m) => LegalityResult(
-    isLegal:     m['is_legal']      ?? true,
-    statusLabel: m['status_label']  ?? 'LEGAL',
-    statusEmoji: m['status_emoji']  ?? '✅',
+    isLegal:     m['is_legal'] as bool?      ?? true,
+    statusLabel: m['status_label'] as String?  ?? 'LEGAL',
+    statusEmoji: m['status_emoji'] as String?  ?? '✅',
     safetyScore: (m['safety_score'] as num?)?.toDouble() ?? 100,
     violations: (m['violations'] as List? ?? [])
-        .map((v) => LegalityViolation.fromMap(Map<String, dynamic>.from(v)))
+        .map((v) => LegalityViolation.fromMap(Map<String, dynamic>.from(v as Map)))
         .toList(),
     warnings: (m['warnings'] as List? ?? [])
-        .map((v) => LegalityViolation.fromMap(Map<String, dynamic>.from(v)))
+        .map((v) => LegalityViolation.fromMap(Map<String, dynamic>.from(v as Map)))
         .toList(),
     advisories: (m['advisories'] as List? ?? [])
-        .map((v) => LegalityViolation.fromMap(Map<String, dynamic>.from(v)))
+        .map((v) => LegalityViolation.fromMap(Map<String, dynamic>.from(v as Map)))
         .toList(),
     rest:     m['rest']      != null
-        ? RestWindowResult.fromMap(Map<String, dynamic>.from(m['rest']))      : null,
+        ? RestWindowResult.fromMap(Map<String, dynamic>.from(m['rest'] as Map))      : null,
     fdp:      m['fdp']       != null
-        ? FDPResult.fromMap(Map<String, dynamic>.from(m['fdp']))              : null,
+        ? FDPResult.fromMap(Map<String, dynamic>.from(m['fdp'] as Map))              : null,
     carryOver:m['carry_over']!= null
-        ? CarryOverResult.fromMap(Map<String, dynamic>.from(m['carry_over'])): null,
-    totalDutyLabel: m['total_duty_label'],
+        ? CarryOverResult.fromMap(Map<String, dynamic>.from(m['carry_over'] as Map)): null,
+    totalDutyLabel: m['total_duty_label'] as String?,
   );
 
   LegalityStatus get status {
@@ -333,20 +333,20 @@ class SafetyReport {
   });
 
   factory SafetyReport.fromMap(Map<String, dynamic> m) => SafetyReport(
-    isLegal:           m['is_legal']            ?? true,
-    isSafe:            m['is_safe']             ?? true,
+    isLegal:           m['is_legal'] as bool?            ?? true,
+    isSafe:            m['is_safe'] as bool?             ?? true,
     safetyScore:       (m['safety_score']       as num?)?.toDouble() ?? 100,
-    fatigueLevel:      m['fatigue_level']        ?? 'LOW',
+    fatigueLevel:      m['fatigue_level'] as String?        ?? 'LOW',
     fatigueScore:      (m['fatigue_score']       as num?)?.toDouble() ?? 0,
-    summary:           m['summary']             ?? '',
+    summary:           m['summary'] as String?             ?? '',
     legalityComponent: (m['legality_component'] as num?)?.toDouble() ?? 0,
     fatigueComponent:  (m['fatigue_component']  as num?)?.toDouble() ?? 0,
     restComponent:     (m['rest_component']     as num?)?.toDouble() ?? 0,
     fdpComponent:      (m['fdp_component']      as num?)?.toDouble() ?? 0,
     legality: m['legality'] != null
-        ? LegalityResult.fromMap(Map<String, dynamic>.from(m['legality']))   : null,
+        ? LegalityResult.fromMap(Map<String, dynamic>.from(m['legality'] as Map))   : null,
     fatigue: m['fatigue'] != null
-        ? FatigueScoreResult.fromMap(Map<String, dynamic>.from(m['fatigue'])): null,
+        ? FatigueScoreResult.fromMap(Map<String, dynamic>.from(m['fatigue'] as Map)): null,
   );
 }
 
@@ -368,10 +368,10 @@ class TradeSafetyResult {
   });
 
   factory TradeSafetyResult.fromMap(Map<String, dynamic> m) => TradeSafetyResult(
-    tradeIsSafe:    m['trade_is_safe']    ?? false,
+    tradeIsSafe:    m['trade_is_safe'] as bool?    ?? false,
     avgSafetyScore: (m['avg_safety_score'] as num?)?.toDouble() ?? 0,
-    recommendation: m['recommendation']  ?? '',
-    offered:   Map<String, dynamic>.from(m['offered']   ?? {}),
-    requested: Map<String, dynamic>.from(m['requested'] ?? {}),
+    recommendation: m['recommendation'] as String?  ?? '',
+    offered:   Map<String, dynamic>.from(m['offered'] as Map?   ?? {}),
+    requested: Map<String, dynamic>.from(m['requested'] as Map? ?? {}),
   );
 }

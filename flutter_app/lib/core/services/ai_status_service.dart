@@ -29,8 +29,8 @@ class AiEngine {
   }
 
   factory AiEngine.fromJson(Map<String, dynamic> j) => AiEngine(
-        engine: j['engine'] ?? '',
-        trigger: j['trigger'] ?? '',
+        engine: j['engine'] as String? ?? '',
+        trigger: j['trigger'] as String? ?? '',
       );
 }
 
@@ -86,11 +86,11 @@ class AiStatus {
   bool get isOnline => status == 'online';
 
   factory AiStatus.fromJson(Map<String, dynamic> j) => AiStatus(
-        status: j['status'] ?? 'unconfigured',
-        statusDetail: j['status_detail'] ?? '',
-        provider: j['provider'] ?? '',
-        model: j['model'] ?? '',
-        serviceVersion: j['service_version'] ?? '',
+        status: j['status'] as String? ?? 'unconfigured',
+        statusDetail: j['status_detail'] as String? ?? '',
+        provider: j['provider'] as String? ?? '',
+        model: j['model'] as String? ?? '',
+        serviceVersion: j['service_version'] as String? ?? '',
         engines: (j['engines'] as List<dynamic>? ?? const [])
             .map((e) => AiEngine.fromJson(e as Map<String, dynamic>))
             .toList(),

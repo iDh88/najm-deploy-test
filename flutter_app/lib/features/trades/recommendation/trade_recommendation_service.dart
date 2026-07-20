@@ -52,7 +52,7 @@ class TradeRecommendationService {
       'max_results':        maxResults,
     });
     return TradeSearchResult.fromMap(
-        Map<String, dynamic>.from(res.data));
+        Map<String, dynamic>.from(res.data as Map));
   }
 
   // ── Behavioral events ────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ class TradeRecommendationService {
     try {
       final res = await _dio.get('/v1/trade/profile/$userId');
       return UserPreferenceSummary.fromMap(
-          Map<String, dynamic>.from(res.data));
+          Map<String, dynamic>.from(res.data as Map));
     } catch (_) {
       return null;
     }

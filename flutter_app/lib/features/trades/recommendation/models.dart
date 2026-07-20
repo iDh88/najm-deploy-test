@@ -31,12 +31,12 @@ class TradeMatch {
   });
 
   factory TradeMatch.fromMap(Map<String, dynamic> m) => TradeMatch(
-    prn:              m['prn']               ?? '',
+    prn:              m['prn'] as String?               ?? '',
     compatibilityPct: (m['compatibility_pct'] as num?)?.toDouble() ?? 0,
-    isLegal:          m['is_legal']           ?? true,
+    isLegal:          m['is_legal'] as bool?           ?? true,
     fatigueLevel:     _fatigue(m['fatigue_level']),
-    routeMatchLabel:  m['route_match_label']  ?? 'Unknown',
-    reasons:          List<String>.from(m['reasons'] ?? []),
+    routeMatchLabel:  m['route_match_label'] as String?  ?? 'Unknown',
+    reasons:          List<String>.from(m['reasons'] as List? ?? []),
     componentScores:  Map<String, double>.from(
       (m['component_scores'] as Map? ?? {})
           .map((k, v) => MapEntry(k.toString(), (v as num).toDouble())),
@@ -84,14 +84,14 @@ class TradeSearchResult {
   });
 
   factory TradeSearchResult.fromMap(Map<String, dynamic> m) => TradeSearchResult(
-    route:        m['route']          ?? '',
-    month:        m['month']          ?? '',
-    totalScanned: m['total_scanned']  ?? 0,
-    legalCount:   m['legal_count']    ?? 0,
-    matchCount:   m['match_count']    ?? 0,
-    isColdStart:  m['is_cold_start']  ?? true,
+    route:        m['route'] as String?          ?? '',
+    month:        m['month'] as String?          ?? '',
+    totalScanned: m['total_scanned'] as int?  ?? 0,
+    legalCount:   m['legal_count'] as int?    ?? 0,
+    matchCount:   m['match_count'] as int?    ?? 0,
+    isColdStart:  m['is_cold_start'] as bool?  ?? true,
     matches: (m['matches'] as List? ?? [])
-        .map((e) => TradeMatch.fromMap(Map<String, dynamic>.from(e)))
+        .map((e) => TradeMatch.fromMap(Map<String, dynamic>.from(e as Map)))
         .toList(),
   );
 }
@@ -123,14 +123,14 @@ class UserPreferenceSummary {
 
   factory UserPreferenceSummary.fromMap(Map<String, dynamic> m) =>
       UserPreferenceSummary(
-        totalEvents:         m['totalEvents']          ?? 0,
-        isColdStart:         m['isColdStart']          ?? true,
-        topRoutes:           List<String>.from(m['topRoutes'] ?? []),
-        topDestinations:     List<String>.from(m['topDestinations'] ?? []),
-        preferredTiming:     m['preferredTiming']      ?? 'morning',
-        fatigueTolerance:    m['fatigueToleranceLevel']?? 'medium',
-        prefersInternational:m['prefersInternational'] ?? false,
-        prefersLongLayovers: m['prefersLongLayovers']  ?? false,
-        avoidsEarlySignin:   m['avoidsEarlySignin']    ?? false,
+        totalEvents:         m['totalEvents'] as int?          ?? 0,
+        isColdStart:         m['isColdStart'] as bool?          ?? true,
+        topRoutes:           List<String>.from(m['topRoutes'] as List? ?? []),
+        topDestinations:     List<String>.from(m['topDestinations'] as List? ?? []),
+        preferredTiming:     m['preferredTiming'] as String?      ?? 'morning',
+        fatigueTolerance:    m['fatigueToleranceLevel'] as String? ?? 'medium',
+        prefersInternational:m['prefersInternational'] as bool? ?? false,
+        prefersLongLayovers: m['prefersLongLayovers'] as bool?  ?? false,
+        avoidsEarlySignin:   m['avoidsEarlySignin'] as bool?    ?? false,
       );
 }

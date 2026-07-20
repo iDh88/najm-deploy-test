@@ -45,6 +45,13 @@ class TradeEventService:
         await _profile_svc.record_event(
             user_id, trade_id, TradeOutcome.EXPIRED, trade_data)
 
+    async def record_event_raw(self, user_id: str, trade_id: str,
+                                outcome: TradeOutcome, trade_data: dict) -> None:
+        """Record an outcome the caller has already resolved to a
+        TradeOutcome (the /events API route validates req.outcome before
+        calling this) — used when the outcome isn't known ahead of time."""
+        await _profile_svc.record_event(user_id, trade_id, outcome, trade_data)
+
     async def get_profile(self, user_id: str):
         return await _profile_svc.get_profile(user_id)
 

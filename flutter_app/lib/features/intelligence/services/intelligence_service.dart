@@ -56,7 +56,7 @@ class IntelligenceService {
 
   Future<Map<String, dynamic>> getUploadStatus(String uploadId) async {
     final res = await _dio.get('/v1/intelligence/upload/$uploadId/status');
-    return Map<String, dynamic>.from(res.data);
+    return Map<String, dynamic>.from(res.data as Map);
   }
 
   // ── Lines ───────────────────────────────────────────────────────────────────
@@ -90,9 +90,9 @@ class IntelligenceService {
   }
 
   MonthlyLine _monthlyLineFromFlightLine(String docId, Map<String, dynamic> m) {
-    final rawSummary = Map<String, dynamic>.from(m['summary'] ?? {});
-    final destinations = List<String>.from(m['destinations'] ?? []);
-    final daysOff = List.from(m['daysOff'] ?? []);
+    final rawSummary = Map<String, dynamic>.from(m['summary'] as Map? ?? {});
+    final destinations = List<String>.from(m['destinations'] as List? ?? []);
+    final daysOff = List.from(m['daysOff'] as List? ?? []);
     final uploadedAt = m['uploadedAt'];
     final createdAt =
         uploadedAt is Timestamp ? uploadedAt.toDate() : DateTime.now();
@@ -190,7 +190,7 @@ class IntelligenceService {
     });
     return (res.data as List)
         .map((m) => MonthlyLine.fromFirestore(
-            m['lineNumber'] ?? '', Map<String, dynamic>.from(m)))
+            m['lineNumber'] as String? ?? '', Map<String, dynamic>.from(m as Map)))
         .toList();
   }
 
@@ -201,6 +201,6 @@ class IntelligenceService {
       'line_a_id': lineAId,
       'line_b_id': lineBId,
     });
-    return LineComparison.fromMap(Map<String, dynamic>.from(res.data));
+    return LineComparison.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 }

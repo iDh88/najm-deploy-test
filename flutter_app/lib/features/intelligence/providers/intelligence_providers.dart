@@ -101,7 +101,7 @@ class UploadNotifier extends StateNotifier<UploadState> {
       if (s == 'complete') {
         state = state.copyWith(
           status: UploadStatus.complete,
-          lineId: status['lineId'],
+          lineId: status['lineId'] as String?,
           progress: 1.0,
         );
         return;
@@ -109,7 +109,7 @@ class UploadNotifier extends StateNotifier<UploadState> {
       if (s == 'failed') {
         state = state.copyWith(
           status: UploadStatus.failed,
-          error: status['error'] ?? 'Processing failed',
+          error: status['error'] as String? ?? 'Processing failed',
         );
         return;
       }

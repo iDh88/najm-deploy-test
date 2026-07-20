@@ -25,13 +25,13 @@ class LayoverCity {
     final d = doc.data() as Map<String, dynamic>;
     return LayoverCity(
       id: doc.id,
-      name: d['name'] ?? '',
-      country: d['country'] ?? '',
-      airportCode: d['airportCode'] ?? '',
-      heroImageUrl: d['heroImageUrl'],
-      timezone: d['timezone'],
-      recommendationCount: d['recommendationCount'] ?? 0,
-      isActive: d['isActive'] ?? true,
+      name: d['name'] as String? ?? '',
+      country: d['country'] as String? ?? '',
+      airportCode: d['airportCode'] as String? ?? '',
+      heroImageUrl: d['heroImageUrl'] as String?,
+      timezone: d['timezone'] as String?,
+      recommendationCount: d['recommendationCount'] as int? ?? 0,
+      isActive: d['isActive'] as bool? ?? true,
     );
   }
 
@@ -71,13 +71,13 @@ class RecommendationComment {
     final d = doc.data() as Map<String, dynamic>;
     return RecommendationComment(
       id: doc.id,
-      recommendationId: d['recommendationId'] ?? '',
-      userId: d['userId'] ?? '',
-      userName: d['userName'] ?? '',
-      userRank: d['userRank'] ?? '',
-      text: d['text'] ?? '',
+      recommendationId: d['recommendationId'] as String? ?? '',
+      userId: d['userId'] as String? ?? '',
+      userName: d['userName'] as String? ?? '',
+      userRank: d['userRank'] as String? ?? '',
+      text: d['text'] as String? ?? '',
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      isDeleted: d['isDeleted'] ?? false,
+      isDeleted: d['isDeleted'] as bool? ?? false,
     );
   }
 

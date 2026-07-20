@@ -135,7 +135,7 @@ class NotificationService {
           presentSound: true,
         ),
       ),
-      payload: message.data['deepLink'] ?? '/home',
+      payload: message.data['deepLink'] as String? ?? '/home',
     );
   }
 
@@ -147,7 +147,7 @@ class NotificationService {
 
   static void _handleNotificationTap(RemoteMessage message) {
     final deepLink = message.data['deepLink'] ?? '/home';
-    _navigateTo(deepLink);
+    _navigateTo(deepLink as String);
   }
 
   static GlobalKey<NavigatorState>? _navigatorKey;

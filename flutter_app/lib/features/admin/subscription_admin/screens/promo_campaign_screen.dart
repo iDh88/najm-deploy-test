@@ -30,12 +30,12 @@ class _PromoCampaignScreenState extends State<PromoCampaignScreen> {
     try {
       final data = await _svc.adminGetReferralCampaign();
       setState(() {
-        _isActive = data['isActive'] ?? true;
+        _isActive = data['isActive'] as bool? ?? true;
         final rawTiers = (data['tiers'] as List? ?? []);
         _tiers = rawTiers.map((t) => _TierDraft(
-          invitesRequired: t['invitesRequired'] ?? 1,
-          rewardDays: t['rewardDays'] ?? 7,
-          label: t['label'] ?? '',
+          invitesRequired: t['invitesRequired'] as int? ?? 1,
+          rewardDays: t['rewardDays'] as int? ?? 7,
+          label: t['label'] as String? ?? '',
         )).toList();
         if (_tiers.isEmpty) {
           _tiers = [

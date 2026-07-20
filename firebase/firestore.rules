@@ -374,11 +374,11 @@ service cloud.firestore {
     // of these documents (server-side assert_no_credentials guard) — these
     // rules are the second wall.
     match /rosterSources/{docId} {
-      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      allow read: if isAuthenticated() && resource.data.user_id == request.auth.uid;
       allow write: if false;
     }
     match /rosterVersions/{docId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow write: if false;
     }
     match /syncEvents/{eventId} {
@@ -386,7 +386,7 @@ service cloud.firestore {
                                      // consumption via Admin SDK only
     }
     match /autoBidRefresh/{userId} {
-      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow read: if isAuthenticated() && request.auth.uid == userId;
       allow write: if false;
     }
 

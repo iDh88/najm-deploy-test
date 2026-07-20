@@ -15,7 +15,8 @@ class FeatureAccessToggleGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entries = featureAccess.entries.toList()
-      ..sort((a, b) => (a.value['displayName'] ?? '').compareTo(b.value['displayName'] ?? ''));
+      ..sort((a, b) => (a.value['displayName'] as String? ?? '')
+          .compareTo(b.value['displayName'] as String? ?? ''));
 
     return Column(
       children: entries.map((e) {
@@ -36,7 +37,7 @@ class FeatureAccessToggleGrid extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(displayName,
+                  Text(displayName as String,
                       style: const TextStyle(
                           color: CIPTheme.textPrimary,
                           fontSize: 14, fontWeight: FontWeight.w600)),

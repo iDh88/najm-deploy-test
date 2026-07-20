@@ -228,7 +228,8 @@ class _SubscriptionSummaryCard extends StatelessWidget {
             Text('Expires: ${sub['expirationDate']}',
                 style: const TextStyle(color: CIPTheme.textMuted, fontSize: 11)),
           ],
-          if (sub['bonusDaysGranted'] != null && sub['bonusDaysGranted'] > 0) ...[
+          if (sub['bonusDaysGranted'] != null &&
+              (sub['bonusDaysGranted'] as num) > 0) ...[
             const SizedBox(height: 4),
             Text('Total bonus days granted: ${sub['bonusDaysGranted']}',
                 style: const TextStyle(color: CIPTheme.textMuted, fontSize: 11)),

@@ -39,7 +39,7 @@ class KnowledgeCenterService {
       data: form,
       options: Options(headers: await _authHeaders()),
     );
-    return Map<String, dynamic>.from(res.data);
+    return Map<String, dynamic>.from(res.data as Map);
   }
 
   Future<Map<String, dynamic>> uploadNewVersion({
@@ -61,7 +61,7 @@ class KnowledgeCenterService {
       data: form,
       options: Options(headers: await _authHeaders()),
     );
-    return Map<String, dynamic>.from(res.data);
+    return Map<String, dynamic>.from(res.data as Map);
   }
 
   // ── Admin: List / Manage ─────────────────────────────────────────────────────
@@ -75,7 +75,7 @@ class KnowledgeCenterService {
       options: Options(headers: await _authHeaders()),
     );
     return (res.data as List)
-        .map((m) => KnowledgeDocument.fromMap(m['id'], Map<String, dynamic>.from(m)))
+        .map((m) => KnowledgeDocument.fromMap(m['id'] as String, Map<String, dynamic>.from(m as Map)))
         .toList();
   }
 
@@ -85,7 +85,7 @@ class KnowledgeCenterService {
       options: Options(headers: await _authHeaders()),
     );
     return (res.data as List)
-        .map((m) => DocumentVersion.fromMap(m['id'], Map<String, dynamic>.from(m)))
+        .map((m) => DocumentVersion.fromMap(m['id'] as String, Map<String, dynamic>.from(m as Map)))
         .toList();
   }
 
@@ -96,7 +96,7 @@ class KnowledgeCenterService {
       options: Options(headers: await _authHeaders()),
     );
     return (res.data as List)
-        .map((m) => DocumentChangeSummary.fromMap(Map<String, dynamic>.from(m)))
+        .map((m) => DocumentChangeSummary.fromMap(Map<String, dynamic>.from(m as Map)))
         .toList();
   }
 
@@ -130,11 +130,11 @@ class KnowledgeCenterService {
       'query': query,
       if (category != null) 'category': category.apiValue,
     });
-    return AskAnswer.fromMap(Map<String, dynamic>.from(res.data));
+    return AskAnswer.fromMap(Map<String, dynamic>.from(res.data as Map));
   }
 
   Future<List<String>> listCategories() async {
     final res = await _dio.get('/v1/knowledge/categories');
-    return List<String>.from(res.data);
+    return List<String>.from(res.data as List);
   }
 }

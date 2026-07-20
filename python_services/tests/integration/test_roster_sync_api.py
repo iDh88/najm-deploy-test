@@ -106,8 +106,10 @@ def test_providers_catalog_shape(client):
     assert res.status_code == 200
     providers = res.json()["providers"]
     ids = [p["provider_id"] for p in providers]
-    assert ids[0] == "cae_crew_access"          # priority order (spec)
-    assert ids[-1] == "manual_pdf"
+    # Full visible catalog in spec priority order (dormant cae_enterprise is
+    # hidden): CAE first, then feeds/uploads, unimplemented email_import last.
+    assert ids == ["cae_crew_access", "ics_feed", "manual_pdf",
+                   "excel_upload", "email_import"]
     cae = providers[0]
     assert cae["recommended"] is True
     assert cae["availability"] == "pending_official_integration"
