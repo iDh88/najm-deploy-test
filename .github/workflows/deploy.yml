@@ -90,7 +90,7 @@ jobs:
           gcloud run services describe cip-python-services \
             --project "${{ vars.GCP_PROJECT_ID }}" --region "${{ vars.GCP_REGION }}" \
             --format='value(status.latestReadyRevisionName)' | tee /tmp/revision.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with: { name: cloud-run-revision, path: /tmp/revision.txt }
 
   cloud-functions:
