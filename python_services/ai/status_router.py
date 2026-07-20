@@ -51,9 +51,16 @@ def _provider_configured() -> bool:
     return bool(os.environ.get(_API_KEY_ENV, "").strip())
 
 
+_KB_UNAVAILABLE = {"available": False, "documents": 0, "documents_disabled": 0,
+                   "latest_version": None, "last_updated": None}
+
+
 def _knowledge_base(db) -> dict[str, Any]:
     """Real knowledge-base state. Any failure degrades to an honest
-    'unavailable' — never a fabricated timestamp."""
+    'unavailable' — never a fabricated timestamp. `db` may be None when
+    Firestore is not reachable (e.g. no credentials in local dev)."""
+    if db is None:
+        return dict(_KB_UNAVAILABLE)
     try:
         docs = [d.to_dict() or {} for d in
                 db.collection("knowledgeDocuments").stream()]
@@ -81,13 +88,23 @@ def _knowledge_base(db) -> dict[str, Any]:
         }
     except Exception:
         logger.exception("knowledge-base status unavailable")
-        return {"available": False, "documents": 0, "documents_disabled": 0,
-                "latest_version": None, "last_updated": None}
+        return dict(_KB_UNAVAILABLE)
 
 
 @router.get("/status")
 async def ai_status(claims: dict = Depends(verify_service_or_user)) -> dict:
     from utils.firebase import get_firestore   # lazy: testability
+
+    # Firestore may be unreachable in local development (no default
+    # credentials). Degrade the knowledge-base card to an honest
+    # 'unavailable' instead of 500-ing the whole status endpoint — the
+    # provider/model/engine fields below do not depend on Firestore.
+    try:
+        db = get_firestore()
+    except Exception:
+        logger.warning("Firestore unavailable; AI status knowledge_base "
+                       "degrades to unavailable", exc_info=True)
+        db = None
 
     configured = _provider_configured()
     return {
@@ -103,5 +120,5 @@ async def ai_status(claims: dict = Depends(verify_service_or_user)) -> dict:
         "service_version": SERVICE_VERSION,
         "engines": [{"engine": name, "trigger": mode}
                     for name, mode in ENGINE_REGISTRY],
-        "knowledge_base": _knowledge_base(get_firestore()),
+        "knowledge_base": _knowledge_base(db),
     }

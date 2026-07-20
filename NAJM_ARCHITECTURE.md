@@ -4,6 +4,95 @@ flows, the configuration/authorization model, and dependencies. Grounded in the 
 2026-07-08. Known deviations between this description and desired behaviour are cross-referenced to
 `plans/NAJM_PRELAUNCH_AUDIT.md` (finding IDs like **F3**).
 
+## 0. AI Platform authority, current state, and target
+
+### Current AI implementation
+
+The executable repository currently uses direct Anthropic calls in the AI
+assistant and Knowledge Engine assistant, direct OpenAI calls for embeddings,
+embedded prompt/model configuration, legacy daily AI counters, and the
+existing Free/Pro and subscriptions-disabled compatibility behavior. These are
+factual current-state descriptions and remain unchanged by Phase 1.
+
+Those direct provider paths are legacy implementation debt. They are not the
+approved future architecture, the daily counters are not NAJM AI Credits or an
+immutable usage ledger, and current prompt/model constants are not target
+control-plane assets.
+
+### Approved target AI Platform — documentation only
+
+The approved provider-independent target is:
+
+    Flutter or trusted service caller
+      -> FastAPI Product API
+      -> AI Orchestrator
+      -> AI Gateway
+      -> one approved Provider Adapter per attempt
+      -> GLM / Claude / OpenAI / Gemini / DeepSeek / Qwen / future providers
+
+Provider Adapters are the only target layer authorized to call provider APIs
+or SDKs. Product APIs, domain engines, Cloud Functions, tools, clients, and
+admin interfaces must not obtain direct provider access. The AI Orchestrator
+owns provider-neutral policy coordination; the AI Gateway owns normalized
+execution; provider/model/prompt selection is registry-governed; users consume
+NAJM AI Credits rather than provider tokens.
+
+Deterministic aviation engines and governed operational sources remain
+authoritative. Model output cannot override legality, authorization,
+entitlement, safety, budget, credits, incident controls, or governed facts.
+Provider secrets remain server-side and adapter-scoped, and observability is
+redacted and privacy-scoped.
+
+These are logical target boundaries. Phase 1 did not implement them, add a
+physical service tier, or change current runtime behavior.
+
+### Authoritative AI Platform documents
+
+The complete approved target architecture is:
+
+1. [AI Platform overview and boundaries](docs/architecture/AI_PLATFORM_OVERVIEW.md)
+2. [AI Orchestrator](docs/architecture/AI_ORCHESTRATOR.md)
+3. [AI Gateway and Provider Adapters](docs/architecture/AI_GATEWAY_AND_PROVIDER_ADAPTERS.md)
+4. [Provider and Model Registries](docs/architecture/AI_REGISTRIES.md)
+5. [Prompt Registry](docs/architecture/PROMPT_REGISTRY.md)
+6. [AI Feature Flags and Entitlements](docs/architecture/AI_FEATURE_FLAGS_AND_ENTITLEMENTS.md)
+7. [AI Credits, Ledger, and Billing](docs/architecture/AI_CREDITS_LEDGER_AND_BILLING.md)
+8. [AI Safety, Observability, and Incidents](docs/architecture/AI_SAFETY_OBSERVABILITY_AND_INCIDENTS.md)
+9. [AI Data Model Proposals](docs/architecture/AI_DATA_MODEL_PROPOSALS.md)
+10. [AI Migration Strategy](docs/architecture/AI_MIGRATION_STRATEGY.md)
+
+### AI architecture source-of-truth hierarchy
+
+The NAJM Master Project Directive remains the platform-wide owner mandate.
+Within that mandate, and subject to a later explicit owner decision, the
+specialized repository AI architecture source order is:
+
+1. The approved documents under docs/architecture/ listed above, for target AI
+   architecture.
+2. docs/ARCHITECTURE_LOCK.md.
+3. This NAJM_ARCHITECTURE.md index and current-state map.
+4. Other ADRs and operational runbooks.
+5. Runtime implementation and deployed configuration, as evidence of current
+   behavior only.
+6. Historical reports, planning estimates, legacy comments, and provider-
+   specific orientation material.
+
+Lower sources cannot override the approved target. Provider-specific wording
+in README, cost-model, runbook, report, or legacy implementation material
+continues to describe current behavior, an operational compatibility path, or
+historical/planning context unless the approved target documents say
+otherwise.
+
+### Migration and compatibility debt
+
+Migration is wrapper-first, behavior-preserving, feature-flagged, and
+reversible under the approved migration strategy. Existing direct
+Anthropic/OpenAI paths may remain only as bounded legacy compatibility paths
+until their capability reaches approved parity. No new direct provider call
+site may be added, and an accepted migration cannot retain a hidden direct
+provider or embedded-prompt fallback. Historical audit, usage, safety, and
+ledger evidence must survive rollback.
+
 ## 1. Topology (three tiers)
 ```
 ┌────────────────────────┐     Firebase ID token (Bearer)      ┌──────────────────────────────┐
@@ -158,8 +247,18 @@ Updated by remediation v1.2.0 (was: PART D of `plans/NAJM_PRELAUNCH_AUDIT.md`).
 | Flutter FTL constants | `shared/constants/constants.dart` | **DISPLAY-ONLY** mirrors of the canonical defaults; never used for verdicts (F8). |
 
 ## 8. External dependencies
-Firebase (Auth, Firestore, Storage, Cloud Functions), Cloud Run (Python), Anthropic API (AI assistant), an embeddings
-provider (Knowledge Engine), and — *future only* — RevenueCat (Apple IAP / Google Play). **No Stripe / HyperPay.**
+Current runtime dependencies include Firebase (Auth, Firestore, Storage, Cloud
+Functions), Cloud Run (Python), direct Anthropic usage, and direct OpenAI
+embedding usage. The provider-specific AI dependencies are legacy current
+state, not target product dependencies.
+
+In the approved target, external AI providers are registry-approved execution
+options behind Provider Adapters. None is implicitly primary or customer-
+facing. Existing RevenueCat/store references are planning or compatibility
+scaffolding rather than finalized AI billing architecture; the approved AI
+Credits and billing boundary is linked in Section 0. Current runtime has no
+Stripe or HyperPay integration, and Phase 1 selects no future commerce
+provider.
 
 ## 9. Build / deploy / CI
 CI (`.github/workflows/ci.yml`) spans Flutter, Cloud Functions, Python, and Firestore rules. Rollback runbook and

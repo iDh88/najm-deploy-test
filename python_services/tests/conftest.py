@@ -8,6 +8,22 @@ from unittest.mock import MagicMock, patch
 from typing import Generator
 
 
+# ─── Offline-harness compatibility shim ───────────────────────────────────────
+# Several tests were authored against tools/offline_harness, whose fake pytest
+# exposes `pytest.run_async`. Provide the same helper under real pytest so those
+# tests behave identically in both harnesses. Mirrors
+# tools/offline_harness/shims/pytest.py::run_async.
+def _run_async(coro):
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(coro)
+    finally:
+        loop.close()
+
+
+pytest.run_async = _run_async
+
+
 # ─── Event Loop ───────────────────────────────────────────────────────────────
 @pytest.fixture(scope="session")
 def event_loop():

@@ -770,7 +770,12 @@ class TestNoHardcodedProviderEndpoints:
             if not root.exists():
                 continue
             for f in list(root.rglob("*.py")) + list(root.rglob("*.dart")):
-                if "__pycache__" in str(f) or f.name == here.name:
+                # Only scan OUR shipped code — skip vendored deps and build
+                # output (a git SHA in a third-party URL can contain "cae").
+                if (f.name == here.name or
+                        any(part in {"__pycache__", ".venv", "venv",
+                                     "node_modules", "build", ".dart_tool"}
+                            for part in f.parts)):
                     continue
                 for m in url_re.finditer(f.read_text(errors="ignore")):
                     offenders.append(f"{f.name}: {m.group(0)}")

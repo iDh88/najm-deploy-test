@@ -1,0 +1,605 @@
+source_path,target_path,classification,content_relation,recommended_action,risk_level,reason,validation_required,final_action
+.claude/settings.local.json,,only in SOURCE / local-machine-only,absent from TARGET,SKIP,low,per-developer Claude Code settings; machine-local,none,SKIP
+.env,,only in SOURCE / secret or sensitive,absent from TARGET,SKIP,high,env file with real secret values; never copied per safety rules 11-12,none,SKIP
+.najm/emulators.log,,only in SOURCE / generated or cached,absent from TARGET,SKIP,low,"runtime log/pid file; machine-local, regenerated at runtime",none,SKIP
+.najm/emulators.pid,,only in SOURCE / generated or cached,absent from TARGET,SKIP,low,"runtime log/pid file; machine-local, regenerated at runtime",none,SKIP
+.najm/flutter.log,,only in SOURCE / generated or cached,absent from TARGET,SKIP,low,"runtime log/pid file; machine-local, regenerated at runtime",none,SKIP
+.najm/flutter.pid,,only in SOURCE / generated or cached,absent from TARGET,SKIP,low,"runtime log/pid file; machine-local, regenerated at runtime",none,SKIP
+.najm/python.log,,only in SOURCE / generated or cached,absent from TARGET,SKIP,low,"runtime log/pid file; machine-local, regenerated at runtime",none,SKIP
+.najm/python.pid,,only in SOURCE / generated or cached,absent from TARGET,SKIP,low,"runtime log/pid file; machine-local, regenerated at runtime",none,SKIP
+CLAUDE.md,CLAUDE.md,only in SOURCE / documentation-only,absent from TARGET,MERGE,low,compatible instructions incorporated into new TARGET AGENTS.md; full original archived for provenance,manual content review,MERGE
+clean.sh,clean.sh,only in SOURCE / script or automation,absent from TARGET,ADD,medium,ops suite (ADR-011): removes only regenerable build artifacts/caches/logs; repository-relative paths; inspected line-by-line,bash -n syntax check; doctor.sh smoke run,ADD
+docs/ARCHITECTURE_LOCK.md,docs/ARCHITECTURE_LOCK.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,"ADR index / architecture lock referenced by ops scripts and SECRETS.md; documentation only (SOURCE working-tree version, newest)",none,ADD
+docs/SECRETS.md,docs/SECRETS.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,secret inventory/sourcing/rotation doc; verified to contain no actual secret values,none,ADD
+docs/architecture/AI_ARCHITECTURE_DECISION_BACKLOG.md,docs/architecture/AI_ARCHITECTURE_DECISION_BACKLOG.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/AI_CREDITS_LEDGER_AND_BILLING.md,docs/architecture/AI_CREDITS_LEDGER_AND_BILLING.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/AI_DATA_MODEL_PROPOSALS.md,docs/architecture/AI_DATA_MODEL_PROPOSALS.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/AI_FEATURE_FLAGS_AND_ENTITLEMENTS.md,docs/architecture/AI_FEATURE_FLAGS_AND_ENTITLEMENTS.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/AI_GATEWAY_AND_PROVIDER_ADAPTERS.md,docs/architecture/AI_GATEWAY_AND_PROVIDER_ADAPTERS.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/AI_MIGRATION_STRATEGY.md,docs/architecture/AI_MIGRATION_STRATEGY.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/AI_ORCHESTRATOR.md,docs/architecture/AI_ORCHESTRATOR.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/AI_PLATFORM_OVERVIEW.md,docs/architecture/AI_PLATFORM_OVERVIEW.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/AI_REGISTRIES.md,docs/architecture/AI_REGISTRIES.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/AI_SAFETY_OBSERVABILITY_AND_INCIDENTS.md,docs/architecture/AI_SAFETY_OBSERVABILITY_AND_INCIDENTS.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/architecture/PROMPT_REGISTRY.md,docs/architecture/PROMPT_REGISTRY.md,only in SOURCE / documentation-only,absent from TARGET,ADD,low,approved target AI-platform architecture docs referenced by NAJM_ARCHITECTURE.md section 0; documentation only,none,ADD
+docs/phases/PHASE_2_dev_environment.md,,only in SOURCE / documentation-only,absent from TARGET,ARCHIVE,low,historical completion report referencing SOURCE-only commit hashes; archived under historical_phases to avoid presenting as current directive,none,ARCHIVE
+docs/phases/PHASE_3_secrets.md,,only in SOURCE / documentation-only,absent from TARGET,ARCHIVE,low,historical completion report referencing SOURCE-only commit hashes; archived under historical_phases,none,ARCHIVE
+doctor.sh,doctor.sh,only in SOURCE / script or automation,absent from TARGET,ADD,low,ops suite (ADR-011): read-only environment diagnostics; repository-relative paths; inspected line-by-line,bash -n syntax check; doctor.sh smoke run,ADD
+firebase/firebase-debug.log,,only in SOURCE / generated or cached,absent from TARGET,SKIP,low,"runtime log/pid file; machine-local, regenerated at runtime",none,SKIP
+firebase/firestore-debug.log,,only in SOURCE / generated or cached,absent from TARGET,SKIP,low,"runtime log/pid file; machine-local, regenerated at runtime",none,SKIP
+flutter_app/e2e/.gitignore,flutter_app/e2e/.gitignore,only in SOURCE / test-only,absent from TARGET,ADD,low,"Playwright E2E suite absent from TARGET; self-contained, emulator-backed (demo-najm), no production access",npm ci + playwright test attempted in validation,ADD
+flutter_app/e2e/package-lock.json,flutter_app/e2e/package-lock.json,only in SOURCE / test-only,absent from TARGET,ADD,low,"Playwright E2E suite absent from TARGET; self-contained, emulator-backed (demo-najm), no production access",npm ci + playwright test attempted in validation,ADD
+flutter_app/e2e/package.json,flutter_app/e2e/package.json,only in SOURCE / test-only,absent from TARGET,ADD,low,"Playwright E2E suite absent from TARGET; self-contained, emulator-backed (demo-najm), no production access",npm ci + playwright test attempted in validation,ADD
+flutter_app/e2e/playwright.config.js,flutter_app/e2e/playwright.config.js,only in SOURCE / test-only,absent from TARGET,ADD,low,"Playwright E2E suite absent from TARGET; self-contained, emulator-backed (demo-najm), no production access",npm ci + playwright test attempted in validation,ADD
+flutter_app/e2e/scripts/start-local.sh,flutter_app/e2e/scripts/start-local.sh,only in SOURCE / script or automation,absent from TARGET,ADD,medium,E2E orchestrator; added with hardcoded JDK PATH prefix made defensive; kills only processes it spawned,shell syntax check; E2E run attempted,ADD
+flutter_app/e2e/tests/app.spec.js,flutter_app/e2e/tests/app.spec.js,only in SOURCE / test-only,absent from TARGET,ADD,low,"Playwright E2E suite absent from TARGET; self-contained, emulator-backed (demo-najm), no production access",npm ci + playwright test attempted in validation,ADD
+plans/phase6-closure-report.md,,only in SOURCE / documentation-only,absent from TARGET,ARCHIVE,low,historical closure report; archived under historical_phases,none,ARCHIVE
+python_services/.env,,only in SOURCE / secret or sensitive,absent from TARGET,SKIP,high,env file with real secret values; never copied per safety rules 11-12,none,SKIP
+python_services/ai_platform/__init__.py,python_services/ai_platform/__init__.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/budget.py,python_services/ai_platform/budget.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/contracts.py,python_services/ai_platform/contracts.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/errors.py,python_services/ai_platform/errors.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/gateway.py,python_services/ai_platform/gateway.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/ledger.py,python_services/ai_platform/ledger.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/orchestrator.py,python_services/ai_platform/orchestrator.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/policy.py,python_services/ai_platform/policy.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/pricing.py,python_services/ai_platform/pricing.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/prompt_renderer.py,python_services/ai_platform/prompt_renderer.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/provider_adapter.py,python_services/ai_platform/provider_adapter.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/ai_platform/registry.py,python_services/ai_platform/registry.py,only in SOURCE / source code,absent from TARGET,ADD,low,standalone scaffolding package for approved target AI Platform (docs/architecture); not imported by main.py; no runtime behavior change,pytest unit suite run,ADD
+python_services/openapi.json,,only in SOURCE / generated or cached,absent from TARGET,SKIP,low,FastAPI-exported OpenAPI document; generated output (TARGET serves /openapi.json in dev); authoritative generator exists,none,SKIP
+python_services/tests/unit/test_ai_platform_budget.py,python_services/tests/unit/test_ai_platform_budget.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+python_services/tests/unit/test_ai_platform_contracts.py,python_services/tests/unit/test_ai_platform_contracts.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+python_services/tests/unit/test_ai_platform_gateway.py,python_services/tests/unit/test_ai_platform_gateway.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+python_services/tests/unit/test_ai_platform_ledger.py,python_services/tests/unit/test_ai_platform_ledger.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+python_services/tests/unit/test_ai_platform_orchestrator.py,python_services/tests/unit/test_ai_platform_orchestrator.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+python_services/tests/unit/test_ai_platform_policy.py,python_services/tests/unit/test_ai_platform_policy.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+python_services/tests/unit/test_ai_platform_pricing.py,python_services/tests/unit/test_ai_platform_pricing.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+python_services/tests/unit/test_ai_platform_prompt_renderer.py,python_services/tests/unit/test_ai_platform_prompt_renderer.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+python_services/tests/unit/test_ai_platform_provider_adapter.py,python_services/tests/unit/test_ai_platform_provider_adapter.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+python_services/tests/unit/test_ai_platform_registry.py,python_services/tests/unit/test_ai_platform_registry.py,only in SOURCE / test-only,absent from TARGET,ADD,low,unit tests for ai_platform package,pytest run,ADD
+reset.sh,reset.sh,only in SOURCE / script or automation,absent from TARGET,ADD,medium,ops suite (ADR-011): guarded deep reset; preserves .env and sources; NOTE: deletes generated Dart files that TARGET commits (restorable via git); repository-relative paths; inspected line-by-line,bash -n syntax check; doctor.sh smoke run,ADD
+restart.sh,restart.sh,only in SOURCE / script or automation,absent from TARGET,ADD,low,ops suite (ADR-011): thin stop+start wrapper; repository-relative paths; inspected line-by-line,bash -n syntax check; doctor.sh smoke run,ADD
+setup.sh,setup.sh,only in SOURCE / script or automation,absent from TARGET,ADD,low,"ops suite (ADR-011): dev bootstrap; non-sudo, fail-fast, idempotent; repository-relative paths; inspected line-by-line",bash -n syntax check; doctor.sh smoke run,ADD
+start.sh,start.sh,only in SOURCE / script or automation,absent from TARGET,ADD,low,ops suite (ADR-011): local emulator-backed dev stack orchestrator; repository-relative paths; inspected line-by-line,bash -n syntax check; doctor.sh smoke run,ADD
+stop.sh,stop.sh,only in SOURCE / script or automation,absent from TARGET,ADD,low,ops suite (ADR-011): stops only services started by start.sh via .najm pid files; repository-relative paths; inspected line-by-line,bash -n syntax check; doctor.sh smoke run,ADD
+update.sh,update.sh,only in SOURCE / script or automation,absent from TARGET,ADD,low,ops suite (ADR-011): re-sync dependencies to manifests; no upgrades past pins; repository-relative paths; inspected line-by-line,bash -n syntax check; doctor.sh smoke run,ADD
+.env.example,.env.example,"present in both, different / configuration",diverged from common ancestor,MERGE,low,"SOURCE ADR-003 regrouped template is a documented superset; merged keeping TARGET-specific vars (SENTRY_DSN, dart-define notes) and adding TARGET GLM provider vars",manual review; no secret values,MERGE
+.github/workflows/ci.yml,.github/workflows/ci.yml,"present in both, different / configuration",diverged from common ancestor,ARCHIVE,medium,SOURCE adds client-secret-isolation CI job that currently FAILS against TARGET (admin_panel/index.html hardcodes X-Service-Token dev-token); adopting would break CI; archived + flagged for manual adoption after fix,none,ARCHIVE
+.github/workflows/deploy.yml,.github/workflows/deploy.yml,"present in both, different / configuration",diverged from common ancestor,ARCHIVE,medium,"SOURCE adds Secret Manager secret injection to Cloud Run deploy; changes production deploy behavior and requires secrets to pre-exist; conservative keep-TARGET, archived for manual adoption",none,ARCHIVE
+.gitignore,.gitignore,"present in both, different / configuration",diverged from common ancestor,MERGE,low,"merged useful SOURCE patterns (.najm/, emulator logs, node_modules, venv variants, serviceAccount patterns, !.env.example) while keeping TARGET rules; did NOT adopt *.freezed.dart/*.g.dart ignores because TARGET commits generated models",git status check for newly-ignored tracked files,MERGE
+NAJM_ARCHITECTURE.md,NAJM_ARCHITECTURE.md,"present in both, different / documentation-only",diverged from common ancestor,MERGE,low,SOURCE working-tree version adds section 0 (AI Platform authority) referencing docs/architecture being added; near-purely additive (2 reworded lines),manual diff review,MERGE
+admin_panel/index.html,admin_panel/index.html,"present in both, different / conflicting implementation",diverged from common ancestor,KEEP_TARGET,high,300 diff lines; TARGET variant works with TARGET-only server.js; SOURCE variant unmergeable safely; SOURCE copy archived,none,KEEP_TARGET
+admin_panel/package.json,admin_panel/package.json,"present in both, different / configuration",diverged from common ancestor,KEEP_TARGET,low,TARGET adds dev script for its server.js; SOURCE merely lacks it,none,KEEP_TARGET
+flutter_app/.flutter-plugins-dependencies,flutter_app/.flutter-plugins-dependencies,"present in both, different / generated or cached",diverged from common ancestor,KEEP_TARGET,low,generated plugin registry; TARGET-local,none,KEEP_TARGET
+flutter_app/.metadata,flutter_app/.metadata,"present in both, different / generated or cached",diverged from common ancestor,KEEP_TARGET,low,Flutter tooling metadata regenerated when TARGET added platform scaffolding,none,KEEP_TARGET
+flutter_app/lib/app/app.dart,flutter_app/lib/app/app.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork; SOURCE at fork base,none,KEEP_TARGET
+flutter_app/lib/app/router.dart,flutter_app/lib/app/router.dart,"present in both, different / conflicting implementation",diverged from common ancestor,KEEP_TARGET,high,"both sides diverged; SOURCE has an uncommitted redirect fix (ref.read to stop router rebuild resetting navigation) that TARGET may benefit from, but TARGET router heavily evolved (line filters, approval flow); unsafe to merge blind; SOURCE copy archived + flagged for manual review",none,KEEP_TARGET
+flutter_app/lib/app/theme.dart,flutter_app/lib/app/theme.dart,"present in both, different / conflicting implementation",diverged from common ancestor,KEEP_TARGET,low,both repos carry equivalent semantic alias layers with different cosmetic values; TARGET builds and is deployed,none,KEEP_TARGET
+flutter_app/lib/core/auth/auth_provider.dart,flutter_app/lib/core/auth/auth_provider.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+flutter_app/lib/core/models/models.dart,flutter_app/lib/core/models/models.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+flutter_app/lib/core/models/models.freezed.dart,flutter_app/lib/core/models/models.freezed.dart,"present in both, different / generated or cached",diverged from common ancestor,KEEP_TARGET,medium,generated by build_runner from TARGET models.dart; regeneration is authoritative (rule 19); SOURCE version matches SOURCE models and is incompatible,none,KEEP_TARGET
+flutter_app/lib/core/models/models.g.dart,flutter_app/lib/core/models/models.g.dart,"present in both, different / generated or cached",diverged from common ancestor,KEEP_TARGET,medium,generated; consistent with TARGET models.dart,none,KEEP_TARGET
+flutter_app/lib/core/repositories/repositories.dart,flutter_app/lib/core/repositories/repositories.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+flutter_app/lib/core/roster_sync/roster_sync_bootstrap.dart,flutter_app/lib/core/roster_sync/roster_sync_bootstrap.dart,"present in both, different / conflicting implementation",diverged from common ancestor,KEEP_TARGET,high,SOURCE uncommitted change gates roster sync on approved-account custom claims; TARGET implemented its own approval-flow stabilization (commit 6c6ac2d); merging could double-gate or conflict; SOURCE copy archived + flagged for manual review,none,KEEP_TARGET
+flutter_app/lib/core/services/ai_service.dart,flutter_app/lib/core/services/ai_service.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+flutter_app/lib/core/services/ai_status_service.dart,flutter_app/lib/core/services/ai_status_service.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,SOURCE removed displayName getter as part of its own refactor line; TARGET code (profile_screen) still uses it,none,KEEP_TARGET
+flutter_app/lib/core/services/queue_sync_service.dart,flutter_app/lib/core/services/queue_sync_service.dart,"present in both, different / conflicting implementation",diverged from common ancestor,KEEP_TARGET,medium,SOURCE turns silent no-op offline replays into UnsupportedError throws and unwires cancelTrade replay that TARGET has wired; behavioral regression risk for TARGET; SOURCE copy archived,none,KEEP_TARGET
+flutter_app/lib/features/admin/knowledge_center/screens/upload_document_screen.dart,flutter_app/lib/features/admin/knowledge_center/screens/upload_document_screen.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,namespace-style difference only (fp. prefix vs hide FileType); TARGET compiles,none,KEEP_TARGET
+flutter_app/lib/features/intelligence/screens/intelligence_hub_screen.dart,flutter_app/lib/features/intelligence/screens/intelligence_hub_screen.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+flutter_app/lib/features/intelligence/services/intelligence_service.dart,flutter_app/lib/features/intelligence/services/intelligence_service.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+flutter_app/lib/features/layover/screens/recommendation_detail_screen.dart,flutter_app/lib/features/layover/screens/recommendation_detail_screen.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,SOURCE refactor (public BadgesRow) tied to its own file set; TARGET consistent as-is,none,KEEP_TARGET
+flutter_app/lib/features/layover/widgets/recommendation_card.dart,flutter_app/lib/features/layover/widgets/recommendation_card.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,same refactor pair as recommendation_detail_screen,none,KEEP_TARGET
+flutter_app/lib/features/lines/line_detail_screen.dart,flutter_app/lib/features/lines/line_detail_screen.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork (line filters),none,KEEP_TARGET
+flutter_app/lib/features/lines/lines_screen.dart,flutter_app/lib/features/lines/lines_screen.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork (line filters),none,KEEP_TARGET
+flutter_app/lib/features/onboarding/profile_setup_screen.dart,flutter_app/lib/features/onboarding/profile_setup_screen.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+flutter_app/lib/features/profile/profile_screen.dart,flutter_app/lib/features/profile/profile_screen.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,uses displayName getter TARGET keeps; SOURCE variant belongs to SOURCE refactor line,none,KEEP_TARGET
+flutter_app/lib/features/rest_legality/widgets/legality_card.dart,flutter_app/lib/features/rest_legality/widgets/legality_card.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,formatting-only difference,none,KEEP_TARGET
+flutter_app/lib/features/trades/trade_detail_screen.dart,flutter_app/lib/features/trades/trade_detail_screen.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET keeps labelAr strings; SOURCE blanked them — likely its own i18n cleanup; cosmetic,none,KEEP_TARGET
+flutter_app/lib/features/trades/trade_initiate_screen.dart,flutter_app/lib/features/trades/trade_initiate_screen.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,same as trade_detail,none,KEEP_TARGET
+flutter_app/lib/firebase_options.dart,flutter_app/lib/firebase_options.dart,"present in both, different / configuration",diverged from common ancestor,KEEP_TARGET,high,TARGET holds real najm-dev-9159c web client config; SOURCE holds REPLACE_WITH_ placeholders; rule 13 forbids replacing production config with placeholders,none,KEEP_TARGET
+flutter_app/lib/main.dart,flutter_app/lib/main.dart,"present in both, different / source code",diverged from common ancestor,MERGE,medium,"adopted SOURCE version: adds USE_FIREBASE_EMULATORS compile-time-gated emulator wiring (default false, production path unchanged — still DefaultFirebaseOptions) required by the added E2E suite; remainder of diff is comments",flutter analyze + flutter test + release web build,MERGE
+flutter_app/lib/shared/l10n/app_en.arb,flutter_app/lib/shared/l10n/app_en.arb,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,two strings differ in apostrophe style only,none,KEEP_TARGET
+flutter_app/lib/shared/widgets/main_shell.dart,flutter_app/lib/shared/widgets/main_shell.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+flutter_app/lib/shared/widgets/shared_widgets.dart,flutter_app/lib/shared/widgets/shared_widgets.dart,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,import-order difference only,none,KEEP_TARGET
+flutter_app/pubspec.lock,flutter_app/pubspec.lock,"present in both, different / configuration",diverged from common ancestor,KEEP_TARGET,medium,TARGET lockfile is what TARGET currently builds/deploys with; no pubspec.yaml difference exists to justify adopting SOURCE lock,none,KEEP_TARGET
+flutter_app/web/index.html,flutter_app/web/index.html,"present in both, different / configuration",diverged from common ancestor,KEEP_TARGET,low,TARGET uses the newer non-deprecated mobile-web-app-capable meta,none,KEEP_TARGET
+python_services/ai/nlp_router.py,python_services/ai/nlp_router.py,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,"TARGET adds GLM provider support (AI_PROVIDER switch, glm_client); SOURCE predates it",none,KEEP_TARGET
+python_services/ai/status_router.py,python_services/ai/status_router.py,"present in both, different / source code",diverged from common ancestor,MERGE,low,adopted SOURCE version: additive graceful degradation when Firestore unreachable (db=None -> knowledge_base 'unavailable' instead of 500),pytest run,MERGE
+python_services/main.py,python_services/main.py,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+python_services/parser/pdf_parser.py,python_services/parser/pdf_parser.py,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+python_services/tests/conftest.py,python_services/tests/conftest.py,"present in both, different / test-only",diverged from common ancestor,MERGE,low,adopted SOURCE version: adds pytest.run_async shim (offline-harness compatibility); purely additive,pytest run,MERGE
+python_services/tests/unit/test_roster_sync.py,python_services/tests/unit/test_roster_sync.py,"present in both, different / test-only",diverged from common ancestor,MERGE,low,adopted SOURCE version: hardens repo-scan test to skip vendored/build dirs; purely additive to the skip list,pytest run,MERGE
+python_services/utils/auth.py,python_services/utils/auth.py,"present in both, different / source code",diverged from common ancestor,KEEP_TARGET,low,TARGET evolved after fork,none,KEEP_TARGET
+python_services/utils/firebase.py,python_services/utils/firebase.py,"present in both, different / source code",diverged from common ancestor,MERGE,low,adopted SOURCE version: additive emulator-aware Firebase Admin init (anonymous credentials ONLY when *_EMULATOR_HOST set); explicit-key and ADC production paths unchanged,pytest run; code path review,MERGE
+,.env.local,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,AUDIT/product_recovery/extracts/line_detail_section.md,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,AUDIT/product_recovery/extracts/lines_screen_section.md,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,AUDIT/product_recovery/extracts/routes_nav_section.md,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,AUDIT/product_recovery/extracts/section_map.txt,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,AUDIT/product_recovery/product_audit_report.md,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,AUDIT/product_recovery/product_audit_report_grep.md,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,AUDIT/product_recovery/run_product_audit.sh,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,AUDIT/product_recovery/run_product_audit_grep.sh,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,LOCAL_RUN.md,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,admin_panel/server.js,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/.gitignore,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/build.gradle.kts,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/google-services.json,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/debug/AndroidManifest.xml,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/AndroidManifest.xml,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/kotlin/com/example/crew_intelligence_platform/MainActivity.kt,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/res/drawable-v21/launch_background.xml,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/res/drawable/launch_background.xml,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/res/mipmap-hdpi/ic_launcher.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/res/mipmap-mdpi/ic_launcher.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/res/values-night/styles.xml,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/main/res/values/styles.xml,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/app/src/profile/AndroidManifest.xml,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/build.gradle.kts,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/crew_intelligence_platform_android.iml,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/gradle.properties,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/gradle/wrapper/gradle-wrapper.jar,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/gradle/wrapper/gradle-wrapper.properties,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/gradlew,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/gradlew.bat,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/local.properties,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/android/settings.gradle.kts,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/firebase.json,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/.gitignore,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Flutter/AppFrameworkInfo.plist,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Flutter/Debug.xcconfig,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Flutter/Generated.xcconfig,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Flutter/Release.xcconfig,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Flutter/flutter_export_environment.sh,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner.xcodeproj/project.pbxproj,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner.xcworkspace/contents.xcworkspacedata,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/AppDelegate.swift,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Base.lproj/LaunchScreen.storyboard,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Base.lproj/Main.storyboard,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/GeneratedPluginRegistrant.h,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/GeneratedPluginRegistrant.m,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/GoogleService-Info.plist,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Info.plist,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/Runner-Bridging-Header.h,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/Runner/SceneDelegate.swift,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/ios/RunnerTests/RunnerTests.swift,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/.gitignore,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/CMakeLists.txt,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/flutter/CMakeLists.txt,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/flutter/generated_plugin_registrant.cc,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/flutter/generated_plugin_registrant.h,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/flutter/generated_plugins.cmake,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/runner/CMakeLists.txt,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/runner/main.cc,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/runner/my_application.cc,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/linux/runner/my_application.h,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/.gitignore,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Flutter/Flutter-Debug.xcconfig,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Flutter/Flutter-Release.xcconfig,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Flutter/GeneratedPluginRegistrant.swift,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner.xcodeproj/project.pbxproj,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner.xcworkspace/contents.xcworkspacedata,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/AppDelegate.swift,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Base.lproj/MainMenu.xib,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Configs/AppInfo.xcconfig,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Configs/Debug.xcconfig,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Configs/Release.xcconfig,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Configs/Warnings.xcconfig,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/DebugProfile.entitlements,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Info.plist,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/MainFlutterWindow.swift,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/Runner/Release.entitlements,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/macos/RunnerTests/RunnerTests.swift,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/test/widget_test.dart,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/.gitignore,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/CMakeLists.txt,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/flutter/CMakeLists.txt,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/flutter/generated_plugin_registrant.cc,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/flutter/generated_plugin_registrant.h,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/flutter/generated_plugins.cmake,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/CMakeLists.txt,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/Runner.rc,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/flutter_window.cpp,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/flutter_window.h,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/main.cpp,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/resource.h,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/resources/app_icon.ico,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/runner.exe.manifest,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/utils.cpp,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/utils.h,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/win32_window.cpp,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,flutter_app/windows/runner/win32_window.h,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,plans/repository-consolidation/initial-state.md,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,python_services/ai/glm_client.py,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,python_services/create_admin.py,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,python_services/serviceAccountKey.json,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,scripts/deploy_vercel.sh,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,vercel.json,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+,vercel_api/api/v1/ai/chat.js,only in TARGET,TARGET-only work or platform scaffolding,KEEP_TARGET,low,TARGET is authoritative; nothing to consolidate,none,KEEP_TARGET
+.github/CODEOWNERS,.github/CODEOWNERS,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+.github/dependabot.yml,.github/dependabot.yml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+.github/workflows/rollback.yml,.github/workflows/rollback.yml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+.github/workflows/security.yml,.github/workflows/security.yml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+ADDENDUM_STATIC_ANALYSIS_TS_DART.md,ADDENDUM_STATIC_ANALYSIS_TS_DART.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+AUDIT/ADDENDUM_STATIC_ANALYSIS_TS_DART.md,AUDIT/ADDENDUM_STATIC_ANALYSIS_TS_DART.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+AUDIT/FORENSIC_RELEASE_AUDIT.md,AUDIT/FORENSIC_RELEASE_AUDIT.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+FINAL_RELEASE_REPORT.md,FINAL_RELEASE_REPORT.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+FORENSIC_RELEASE_AUDIT.md,FORENSIC_RELEASE_AUDIT.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+NAJM_MASTER_PROJECT_DIRECTIVE.md,NAJM_MASTER_PROJECT_DIRECTIVE.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+OWNER_DECISION_REQUEST.md,OWNER_DECISION_REQUEST.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+README.md,README.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+REMEDIATION_CHANGELOG.md,REMEDIATION_CHANGELOG.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+VERSION.md,VERSION.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+VISION_GAP_ANALYSIS.md,VISION_GAP_ANALYSIS.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/ROSTER_SYNC.md,docs/ROSTER_SYNC.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/ZERO_KNOWLEDGE_CREDENTIALS.md,docs/ZERO_KNOWLEDGE_CREDENTIALS.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/api-contract.yaml,docs/api-contract.yaml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/cost-model.md,docs/cost-model.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/devops-runbook.md,docs/devops-runbook.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/legal.md,docs/legal.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/openapi.yaml,docs/openapi.yaml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/privacy-policy.md,docs/privacy-policy.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/terms-of-service.md,docs/terms-of-service.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/trade_recommendation_architecture.md,docs/trade_recommendation_architecture.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+docs/ui-component-spec.md,docs/ui-component-spec.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/.firebaserc,firebase/.firebaserc,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/firebase.json,firebase/firebase.json,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/firestore.indexes.json,firebase/firestore.indexes.json,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/firestore.rules,firebase/firestore.rules,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/functions/.gitignore,firebase/functions/.gitignore,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/functions/package.json,firebase/functions/package.json,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/functions/src/admin_setup.ts,firebase/functions/src/admin_setup.ts,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/functions/src/index.ts,firebase/functions/src/index.ts,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/functions/src/mapping.ts,firebase/functions/src/mapping.ts,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/functions/test/mapping.test.js,firebase/functions/test/mapping.test.js,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/functions/tsconfig.json,firebase/functions/tsconfig.json,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/storage.rules,firebase/storage.rules,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/test/package.json,firebase/test/package.json,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+firebase/test/rules.spec.mjs,firebase/test/rules.spec.mjs,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/.flutter-plugins,flutter_app/.flutter-plugins,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/.gitignore,flutter_app/.gitignore,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/README.md,flutter_app/README.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/analysis_options.yaml,flutter_app/analysis_options.yaml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/assets/images/najm_logo.png,flutter_app/assets/images/najm_logo.png,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/assets/legal/privacy-policy.md,flutter_app/assets/legal/privacy-policy.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/assets/legal/release-notes.md,flutter_app/assets/legal/release-notes.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/assets/legal/terms-of-service.md,flutter_app/assets/legal/terms-of-service.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/crew_intelligence_platform.iml,flutter_app/crew_intelligence_platform.iml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/l10n.yaml,flutter_app/l10n.yaml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/constants/app_constants.dart,flutter_app/lib/core/constants/app_constants.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/models/filter_models.dart,flutter_app/lib/core/models/filter_models.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/roster_sync/credential_manager.dart,flutter_app/lib/core/roster_sync/credential_manager.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/roster_sync/providers/cae_crew_access_connector.dart,flutter_app/lib/core/roster_sync/providers/cae_crew_access_connector.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/roster_sync/providers/ics_feed_connector.dart,flutter_app/lib/core/roster_sync/providers/ics_feed_connector.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/roster_sync/providers/ics_normalizer.dart,flutter_app/lib/core/roster_sync/providers/ics_normalizer.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/roster_sync/roster_connector.dart,flutter_app/lib/core/roster_sync/roster_connector.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/roster_sync/roster_sync_api.dart,flutter_app/lib/core/roster_sync/roster_sync_api.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/roster_sync/roster_sync_providers.dart,flutter_app/lib/core/roster_sync/roster_sync_providers.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/roster_sync/sync_models.dart,flutter_app/lib/core/roster_sync/sync_models.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/roster_sync/sync_service.dart,flutter_app/lib/core/roster_sync/sync_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/services/connectivity_service.dart,flutter_app/lib/core/services/connectivity_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/services/line_search_service.dart,flutter_app/lib/core/services/line_search_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/services/notification_service.dart,flutter_app/lib/core/services/notification_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/services/offline_cache_service.dart,flutter_app/lib/core/services/offline_cache_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/services/storage_service.dart,flutter_app/lib/core/services/storage_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/services/upload_roster_widget.dart,flutter_app/lib/core/services/upload_roster_widget.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/theme/app_theme.dart,flutter_app/lib/core/theme/app_theme.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/utils/content_filter.dart,flutter_app/lib/core/utils/content_filter.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/core/utils/period_utils.dart,flutter_app/lib/core/utils/period_utils.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/knowledge_center/models/knowledge_models.dart,flutter_app/lib/features/admin/knowledge_center/models/knowledge_models.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/knowledge_center/providers/knowledge_providers.dart,flutter_app/lib/features/admin/knowledge_center/providers/knowledge_providers.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/knowledge_center/screens/document_detail_screen.dart,flutter_app/lib/features/admin/knowledge_center/screens/document_detail_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/knowledge_center/screens/knowledge_center_screen.dart,flutter_app/lib/features/admin/knowledge_center/screens/knowledge_center_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/knowledge_center/services/knowledge_center_service.dart,flutter_app/lib/features/admin/knowledge_center/services/knowledge_center_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/knowledge_center/widgets/knowledge_widgets.dart,flutter_app/lib/features/admin/knowledge_center/widgets/knowledge_widgets.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/subscription_admin/screens/plan_editor_screen.dart,flutter_app/lib/features/admin/subscription_admin/screens/plan_editor_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/subscription_admin/screens/promo_campaign_screen.dart,flutter_app/lib/features/admin/subscription_admin/screens/promo_campaign_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/subscription_admin/screens/subscription_control_panel_screen.dart,flutter_app/lib/features/admin/subscription_admin/screens/subscription_control_panel_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/subscription_admin/screens/user_subscription_lookup_screen.dart,flutter_app/lib/features/admin/subscription_admin/screens/user_subscription_lookup_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/admin/subscription_admin/widgets/feature_access_toggle_grid.dart,flutter_app/lib/features/admin/subscription_admin/widgets/feature_access_toggle_grid.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/assistant/ask_operations_screen.dart,flutter_app/lib/features/assistant/ask_operations_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/assistant/assistant_screen.dart,flutter_app/lib/features/assistant/assistant_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/bids/bids_screen.dart,flutter_app/lib/features/bids/bids_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/home/home_screen.dart,flutter_app/lib/features/home/home_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/intelligence/models/intelligence_models.dart,flutter_app/lib/features/intelligence/models/intelligence_models.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/intelligence/providers/intelligence_providers.dart,flutter_app/lib/features/intelligence/providers/intelligence_providers.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/intelligence/screens/comparison_screen.dart,flutter_app/lib/features/intelligence/screens/comparison_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/intelligence/screens/line_dashboard_screen.dart,flutter_app/lib/features/intelligence/screens/line_dashboard_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/intelligence/screens/pairing_detail_screen.dart,flutter_app/lib/features/intelligence/screens/pairing_detail_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/intelligence/screens/search_screen.dart,flutter_app/lib/features/intelligence/screens/search_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/intelligence/screens/upload_screen.dart,flutter_app/lib/features/intelligence/screens/upload_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/intelligence/screens/upload_search_comparison_screens.dart,flutter_app/lib/features/intelligence/screens/upload_search_comparison_screens.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/intelligence/widgets/all_widgets.dart,flutter_app/lib/features/intelligence/widgets/all_widgets.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/models/city.dart,flutter_app/lib/features/layover/models/city.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/models/recommendation.dart,flutter_app/lib/features/layover/models/recommendation.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/screens/add_recommendation_screen.dart,flutter_app/lib/features/layover/screens/add_recommendation_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/screens/cities_hub_screen.dart,flutter_app/lib/features/layover/screens/cities_hub_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/screens/city_detail_screen.dart,flutter_app/lib/features/layover/screens/city_detail_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/screens/saved_screen.dart,flutter_app/lib/features/layover/screens/saved_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/services/auth_service.dart,flutter_app/lib/features/layover/services/auth_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/services/layover_service.dart,flutter_app/lib/features/layover/services/layover_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/widgets/category_tab_bar.dart,flutter_app/lib/features/layover/widgets/category_tab_bar.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/layover/widgets/filter_bar.dart,flutter_app/lib/features/layover/widgets/filter_bar.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/legal/legal_document_screen.dart,flutter_app/lib/features/legal/legal_document_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/onboarding/disclaimer_screen.dart,flutter_app/lib/features/onboarding/disclaimer_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/onboarding/onboarding_screen.dart,flutter_app/lib/features/onboarding/onboarding_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/profile/preferences_screen.dart,flutter_app/lib/features/profile/preferences_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/profile/providers/profile_providers.dart,flutter_app/lib/features/profile/providers/profile_providers.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/profile/salary_calculator_screen.dart,flutter_app/lib/features/profile/salary_calculator_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/profile/widgets/profile_widgets.dart,flutter_app/lib/features/profile/widgets/profile_widgets.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/rest_legality/models/rest_models.dart,flutter_app/lib/features/rest_legality/models/rest_models.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/rest_legality/providers/rest_providers.dart,flutter_app/lib/features/rest_legality/providers/rest_providers.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/rest_legality/screens/rest_calculator_screen.dart,flutter_app/lib/features/rest_legality/screens/rest_calculator_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/rest_legality/screens/trade_legality_screen.dart,flutter_app/lib/features/rest_legality/screens/trade_legality_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/rest_legality/services/rest_legality_service.dart,flutter_app/lib/features/rest_legality/services/rest_legality_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/rest_legality/widgets/timeline_widget.dart,flutter_app/lib/features/rest_legality/widgets/timeline_widget.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/settings/roster_sources_screens.dart,flutter_app/lib/features/settings/roster_sources_screens.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/settings/settings_screen.dart,flutter_app/lib/features/settings/settings_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/subscription/models/subscription_models.dart,flutter_app/lib/features/subscription/models/subscription_models.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/subscription/providers/subscription_providers.dart,flutter_app/lib/features/subscription/providers/subscription_providers.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/subscription/screens/account_history_screen.dart,flutter_app/lib/features/subscription/screens/account_history_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/subscription/screens/referral_screen.dart,flutter_app/lib/features/subscription/screens/referral_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/subscription/screens/upgrade_screen.dart,flutter_app/lib/features/subscription/screens/upgrade_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/subscription/services/subscription_service.dart,flutter_app/lib/features/subscription/services/subscription_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/subscription/widgets/feature_gate_wrapper.dart,flutter_app/lib/features/subscription/widgets/feature_gate_wrapper.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/subscription/widgets/upgrade_prompt_sheet.dart,flutter_app/lib/features/subscription/widgets/upgrade_prompt_sheet.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/subscription/widgets/usage_limit_banner.dart,flutter_app/lib/features/subscription/widgets/usage_limit_banner.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/models.dart,flutter_app/lib/features/trades/recommendation/models.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/preference_insights_screen.dart,flutter_app/lib/features/trades/recommendation/preference_insights_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/recommendation_provider.dart,flutter_app/lib/features/trades/recommendation/recommendation_provider.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/trade_recommendation_service.dart,flutter_app/lib/features/trades/recommendation/trade_recommendation_service.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/trade_search_screen.dart,flutter_app/lib/features/trades/recommendation/trade_search_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/widgets/cold_start_banner.dart,flutter_app/lib/features/trades/recommendation/widgets/cold_start_banner.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/widgets/match_card.dart,flutter_app/lib/features/trades/recommendation/widgets/match_card.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/widgets/prn_workflow_sheet.dart,flutter_app/lib/features/trades/recommendation/widgets/prn_workflow_sheet.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/widgets/score_breakdown_sheet.dart,flutter_app/lib/features/trades/recommendation/widgets/score_breakdown_sheet.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/recommendation/widgets/search_header.dart,flutter_app/lib/features/trades/recommendation/widgets/search_header.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/trade_intel_screens.dart,flutter_app/lib/features/trades/trade_intel_screens.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/trade_search_screen.dart,flutter_app/lib/features/trades/trade_search_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/features/trades/trades_screen.dart,flutter_app/lib/features/trades/trades_screen.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/shared/constants/constants.dart,flutter_app/lib/shared/constants/constants.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/shared/l10n/app_ar.arb,flutter_app/lib/shared/l10n/app_ar.arb,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/shared/widgets/legality_badge.dart,flutter_app/lib/shared/widgets/legality_badge.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/shared/widgets/mode_switcher.dart,flutter_app/lib/shared/widgets/mode_switcher.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/shared/widgets/offline_widgets.dart,flutter_app/lib/shared/widgets/offline_widgets.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/lib/shared/widgets/skeleton_loader.dart,flutter_app/lib/shared/widgets/skeleton_loader.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/pubspec.yaml,flutter_app/pubspec.yaml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/test/unit/app_constants_test.dart,flutter_app/test/unit/app_constants_test.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/test/unit/content_filter_test.dart,flutter_app/test/unit/content_filter_test.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/test/unit/ics_normalizer_test.dart,flutter_app/test/unit/ics_normalizer_test.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/test/unit/profile_test.dart,flutter_app/test/unit/profile_test.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/test/unit/roster_sync_test.dart,flutter_app/test/unit/roster_sync_test.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/test/widget/legal_document_test.dart,flutter_app/test/widget/legal_document_test.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/test/widget/profile_widgets_test.dart,flutter_app/test/widget/profile_widgets_test.dart,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/web/favicon.png,flutter_app/web/favicon.png,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/web/icons/Icon-192.png,flutter_app/web/icons/Icon-192.png,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/web/icons/Icon-512.png,flutter_app/web/icons/Icon-512.png,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/web/icons/Icon-maskable-192.png,flutter_app/web/icons/Icon-maskable-192.png,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/web/icons/Icon-maskable-512.png,flutter_app/web/icons/Icon-maskable-512.png,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+flutter_app/web/manifest.json,flutter_app/web/manifest.json,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/2026-07-07_remediation_plan_for_opus48.md,plans/2026-07-07_remediation_plan_for_opus48.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/NAJM_PRELAUNCH_AUDIT.md,plans/NAJM_PRELAUNCH_AUDIT.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/PHASE_3_operational_readiness_and_DR_certification.md,plans/PHASE_3_operational_readiness_and_DR_certification.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/STATUS.md,plans/STATUS.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/legacy-payments-analysis.md,plans/legacy-payments-analysis.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/phase0-verification-report.md,plans/phase0-verification-report.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/phase1-verification-report.md,plans/phase1-verification-report.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/phase2-verification-report.md,plans/phase2-verification-report.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/phase2/production-readiness.md,plans/phase2/production-readiness.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/phase2/rollback-runbook.md,plans/phase2/rollback-runbook.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/prompt-phase1-security.md,plans/prompt-phase1-security.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/prompt-phase2-production.md,plans/prompt-phase2-production.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+plans/remediation-plan-verified.md,plans/remediation-plan-verified.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/Dockerfile,python_services/Dockerfile,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/__init__.py,python_services/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/ai/__init__.py,python_services/ai/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/auto_bid/__init__.py,python_services/auto_bid/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/auto_bid/engine.py,python_services/auto_bid/engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/behavioral_learning/__init__.py,python_services/behavioral_learning/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/behavioral_learning/profile_rebuild_job.py,python_services/behavioral_learning/profile_rebuild_job.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/behavioral_learning/record_event_helper.py,python_services/behavioral_learning/record_event_helper.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/behavioral_learning/trade_event_service.py,python_services/behavioral_learning/trade_event_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/compatibility_scoring/__init__.py,python_services/compatibility_scoring/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/compatibility_scoring/scorer.py,python_services/compatibility_scoring/scorer.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/filter_engine/__init__.py,python_services/filter_engine/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/filter_engine/ai_bridge.py,python_services/filter_engine/ai_bridge.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/filter_engine/engine.py,python_services/filter_engine/engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/filter_engine/hybrid.py,python_services/filter_engine/hybrid.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/filter_engine/registry.py,python_services/filter_engine/registry.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/filter_engine/router.py,python_services/filter_engine/router.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/filter_engine/schema.py,python_services/filter_engine/schema.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/__init__.py,python_services/intelligence/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/engines/__init__.py,python_services/intelligence/engines/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/engines/analytics_engine.py,python_services/intelligence/engines/analytics_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/engines/classification_engine.py,python_services/intelligence/engines/classification_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/engines/comparison_engine.py,python_services/intelligence/engines/comparison_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/engines/fatigue_engine.py,python_services/intelligence/engines/fatigue_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/engines/insight_engine.py,python_services/intelligence/engines/insight_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/engines/pattern_engine.py,python_services/intelligence/engines/pattern_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/models/__init__.py,python_services/intelligence/models/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/models/analytics_models.py,python_services/intelligence/models/analytics_models.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/models/fatigue_models.py,python_services/intelligence/models/fatigue_models.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/models/insight_models.py,python_services/intelligence/models/insight_models.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/models/pairing_models.py,python_services/intelligence/models/pairing_models.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/models/raw_models.py,python_services/intelligence/models/raw_models.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/pipeline/__init__.py,python_services/intelligence/pipeline/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/pipeline/extraction_pipeline.py,python_services/intelligence/pipeline/extraction_pipeline.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/pipeline/ocr_fallback.py,python_services/intelligence/pipeline/ocr_fallback.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/pipeline/pdf_extractor.py,python_services/intelligence/pipeline/pdf_extractor.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/pipeline/structural_parser.py,python_services/intelligence/pipeline/structural_parser.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/router.py,python_services/intelligence/router.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/utils/__init__.py,python_services/intelligence/utils/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/utils/aviation_codes.py,python_services/intelligence/utils/aviation_codes.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/utils/legality_checker.py,python_services/intelligence/utils/legality_checker.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/intelligence/utils/time_utils.py,python_services/intelligence/utils/time_utils.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/__init__.py,python_services/knowledge_engine/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/ai_assistant.py,python_services/knowledge_engine/ai_assistant.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/chunker.py,python_services/knowledge_engine/chunker.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/embeddings.py,python_services/knowledge_engine/embeddings.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/extractors.py,python_services/knowledge_engine/extractors.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/indexing_service.py,python_services/knowledge_engine/indexing_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/models.py,python_services/knowledge_engine/models.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/retrieval_service.py,python_services/knowledge_engine/retrieval_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/router.py,python_services/knowledge_engine/router.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/storage_service.py,python_services/knowledge_engine/storage_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/vector_store.py,python_services/knowledge_engine/vector_store.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/knowledge_engine/version_diff.py,python_services/knowledge_engine/version_diff.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/layover/__init__.py,python_services/layover/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/layover/router.py,python_services/layover/router.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/legality/__init__.py,python_services/legality/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/legality/engine.py,python_services/legality/engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/legality/rules_source.py,python_services/legality/rules_source.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/parser/__init__.py,python_services/parser/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/parser/excel_parser.py,python_services/parser/excel_parser.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/parser/prn_parser.py,python_services/parser/prn_parser.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/preference_engine/__init__.py,python_services/preference_engine/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/preference_engine/models.py,python_services/preference_engine/models.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/preference_engine/profile_builder.py,python_services/preference_engine/profile_builder.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/preference_engine/profile_service.py,python_services/preference_engine/profile_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/ranking/__init__.py,python_services/ranking/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/ranking/scorer.py,python_services/ranking/scorer.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/recommendation_engine/__init__.py,python_services/recommendation_engine/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/recommendation_engine/engine.py,python_services/recommendation_engine/engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/requirements.txt,python_services/requirements.txt,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/rest_engine/__init__.py,python_services/rest_engine/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/rest_engine/calculator.py,python_services/rest_engine/calculator.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/rest_engine/fatigue.py,python_services/rest_engine/fatigue.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/rest_engine/legality.py,python_services/rest_engine/legality.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/rest_engine/router.py,python_services/rest_engine/router.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/rest_engine/rules.py,python_services/rest_engine/rules.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/rest_engine/scoring.py,python_services/rest_engine/scoring.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/rest_engine/timezone_utils.py,python_services/rest_engine/timezone_utils.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/rest_engine/validators.py,python_services/rest_engine/validators.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/roster_sync/__init__.py,python_services/roster_sync/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/roster_sync/engine_fanout.py,python_services/roster_sync/engine_fanout.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/roster_sync/ics_parser.py,python_services/roster_sync/ics_parser.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/roster_sync/import_service.py,python_services/roster_sync/import_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/roster_sync/providers/__init__.py,python_services/roster_sync/providers/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/roster_sync/router.py,python_services/roster_sync/router.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/roster_sync/schema.py,python_services/roster_sync/schema.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/roster_sync/version_service.py,python_services/roster_sync/version_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/route_familiarity_engine/__init__.py,python_services/route_familiarity_engine/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/route_familiarity_engine/analyzer.py,python_services/route_familiarity_engine/analyzer.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/ruff.toml,python_services/ruff.toml,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/salary/__init__.py,python_services/salary/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/salary/calculator.py,python_services/salary/calculator.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/__init__.py,python_services/subscription_engine/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/config_service.py,python_services/subscription_engine/config_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/feature_gate.py,python_services/subscription_engine/feature_gate.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/models.py,python_services/subscription_engine/models.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/notification_triggers.py,python_services/subscription_engine/notification_triggers.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/referral_service.py,python_services/subscription_engine/referral_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/router.py,python_services/subscription_engine/router.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/subscription_service.py,python_services/subscription_engine/subscription_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/trial_service.py,python_services/subscription_engine/trial_service.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/subscription_engine/usage_tracker.py,python_services/subscription_engine/usage_tracker.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/__init__.py,python_services/tests/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/eval/__init__.py,python_services/tests/eval/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/eval/test_ai_grounding.py,python_services/tests/eval/test_ai_grounding.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/integration/__init__.py,python_services/tests/integration/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/integration/test_api.py,python_services/tests/integration/test_api.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/integration/test_roster_sync_api.py,python_services/tests/integration/test_roster_sync_api.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/integration/test_trade_search_api.py,python_services/tests/integration/test_trade_search_api.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/__init__.py,python_services/tests/unit/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_auth_identity.py,python_services/tests/unit/test_auth_identity.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_engine_consistency.py,python_services/tests/unit/test_engine_consistency.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_filter_engine.py,python_services/tests/unit/test_filter_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_ics_parity.py,python_services/tests/unit/test_ics_parity.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_knowledge_engine.py,python_services/tests/unit/test_knowledge_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_layover_content.py,python_services/tests/unit/test_layover_content.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_legality.py,python_services/tests/unit/test_legality.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_parser_ranking.py,python_services/tests/unit/test_parser_ranking.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_preference_engine.py,python_services/tests/unit/test_preference_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_profile_backend.py,python_services/tests/unit/test_profile_backend.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_rest_engine.py,python_services/tests/unit/test_rest_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_route_familiarity.py,python_services/tests/unit/test_route_familiarity.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_rules_source.py,python_services/tests/unit/test_rules_source.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/tests/unit/test_subscription_engine.py,python_services/tests/unit/test_subscription_engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/trade_engine/__init__.py,python_services/trade_engine/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/trade_engine/router.py,python_services/trade_engine/router.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/trade_intel/__init__.py,python_services/trade_intel/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/trade_intel/engine.py,python_services/trade_intel/engine.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/trade_intel/whatsapp.py,python_services/trade_intel/whatsapp.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/utils/__init__.py,python_services/utils/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/utils/logging_config.py,python_services/utils/logging_config.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/utils/rate_limiter.py,python_services/utils/rate_limiter.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+python_services/utils/version.py,python_services/utils/version.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+reports/ARCHITECTURE_REPORT.md,reports/ARCHITECTURE_REPORT.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+reports/CHANGED_FILES.txt,reports/CHANGED_FILES.txt,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+reports/PERFORMANCE_AND_TESTING.md,reports/PERFORMANCE_AND_TESTING.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+reports/RELEASE_READINESS.md,reports/RELEASE_READINESS.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+reports/SECURITY_REPORT.md,reports/SECURITY_REPORT.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+scripts/seed_legality_rules.py,scripts/seed_legality_rules.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+scripts/setup_super_admin.sh,scripts/setup_super_admin.sh,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+test_fixtures/roster_sync/ics_golden.ics,test_fixtures/roster_sync/ics_golden.ics,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+test_fixtures/roster_sync/ics_golden.json,test_fixtures/roster_sync/ics_golden.json,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/README.md,tools/offline_harness/README.md,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/check_undefined_names.py,tools/offline_harness/check_undefined_names.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/run_tests.py,tools/offline_harness/run_tests.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/anthropic.py,tools/offline_harness/shims/anthropic.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/fastapi/__init__.py,tools/offline_harness/shims/fastapi/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/fastapi/middleware/__init__.py,tools/offline_harness/shims/fastapi/middleware/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/fastapi/middleware/cors.py,tools/offline_harness/shims/fastapi/middleware/cors.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/fastapi/middleware/gzip.py,tools/offline_harness/shims/fastapi/middleware/gzip.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/fastapi/responses.py,tools/offline_harness/shims/fastapi/responses.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/fastapi/testclient.py,tools/offline_harness/shims/fastapi/testclient.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/firebase_admin/__init__.py,tools/offline_harness/shims/firebase_admin/__init__.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/firebase_admin/auth.py,tools/offline_harness/shims/firebase_admin/auth.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/firebase_admin/credentials.py,tools/offline_harness/shims/firebase_admin/credentials.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/firebase_admin/firestore.py,tools/offline_harness/shims/firebase_admin/firestore.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/firebase_admin/storage.py,tools/offline_harness/shims/firebase_admin/storage.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/httpx.py,tools/offline_harness/shims/httpx.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/openpyxl.py,tools/offline_harness/shims/openpyxl.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/pdfplumber.py,tools/offline_harness/shims/pdfplumber.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/pydantic.py,tools/offline_harness/shims/pydantic.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/pytest.py,tools/offline_harness/shims/pytest.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/pytz.py,tools/offline_harness/shims/pytz.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/shims/uvicorn.py,tools/offline_harness/shims/uvicorn.py,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/ts_stubs/tsconfig.offline.json,tools/offline_harness/ts_stubs/tsconfig.offline.json,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/ts_stubs/types/axios.d.ts,tools/offline_harness/ts_stubs/types/axios.d.ts,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/ts_stubs/types/firebase-admin.d.ts,tools/offline_harness/ts_stubs/types/firebase-admin.d.ts,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/ts_stubs/types/firebase-functions.d.ts,tools/offline_harness/ts_stubs/types/firebase-functions.d.ts,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE
+tools/offline_harness/ts_stubs/types/node-globals.d.ts,tools/offline_harness/ts_stubs/types/node-globals.d.ts,"present in both, byte-identical",identical,NONE,low,no action needed,none,NONE

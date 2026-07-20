@@ -1,0 +1,177 @@
+# Production deploy — manual, gated, per-component.
+#
+# F33 (audit P2-5): the repo had CI but no deploy pipeline and no rollback
+# procedure. This workflow deploys the three server-side stacks; the Flutter
+# app ships through the App Store / Play Console release process and is
+# intentionally NOT deployed from here.
+#
+# ── One-time repo setup (required before first run) ──────────────────────────
+#  1. Create a GitHub Environment named `production` with required reviewers —
+#     that is the manual-approval gate for every deploy.
+#  2. Authentication uses Workload Identity Federation (no long-lived keys):
+#       vars.GCP_WORKLOAD_IDENTITY_PROVIDER  e.g. projects/…/locations/global/
+#                                            workloadIdentityPools/…/providers/…
+#       vars.GCP_SERVICE_ACCOUNT             deployer@cip-najm.iam.gserviceaccount.com
+#     The service account needs: Cloud Run Admin, Cloud Build Editor,
+#     Artifact Registry Writer, Firebase Admin, Service Account User, and
+#     Secret Manager Secret Accessor (to read the injected secrets).
+#  3. vars.GCP_PROJECT_ID (cip-najm) and vars.GCP_REGION (me-central1).
+#  4. vars.ALLOWED_ORIGINS — CORS allow-list for the deployed API, e.g.
+#     "https://cip-najm.web.app,https://cip-najm.firebaseapp.com".
+#  5. Secret Manager secrets must exist in the project (see docs/SECRETS.md):
+#     internal-service-token, anthropic-api-key, openai-api-key, admin-setup-token.
+#
+# Every deploy records the git SHA it shipped, which is what rollback.yml
+# consumes.
+
+name: Deploy (production)
+
+on:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: "What to deploy"
+        required: true
+        type: choice
+        options:
+          - all
+          - python-services
+          - cloud-functions
+          - firestore-rules
+          - storage-rules
+          - admin-panel-hosting
+      confirm:
+        description: 'Type "deploy" to confirm'
+        required: true
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write   # WIF
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require confirmation string
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "deploy" ]; then
+            echo "::error::Confirmation input must be exactly 'deploy'."
+            exit 1
+          fi
+
+  python-services:
+    # Cloud Run deploy of the FastAPI service.
+    if: contains(fromJSON('["all","python-services"]'), github.event.inputs.component)
+    needs: guard
+    runs-on: ubuntu-latest
+    environment: production        # manual-approval gate
+    defaults: { run: { working-directory: python_services } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Build & push image (Cloud Build)
+        run: |
+          gcloud builds submit \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --tag "${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/cip/python-services:${{ github.sha }}"
+      - name: Deploy to Cloud Run (tagged with git SHA)
+        # Secrets are delivered by Google Secret Manager (ADR-003), never baked
+        # into the image or set in plaintext. The referenced secrets MUST exist
+        # in this project first (see docs/SECRETS.md); the deploy fails closed
+        # otherwise. Non-secret runtime config is set via --set-env-vars.
+        run: |
+          gcloud run deploy cip-python-services \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --region "${{ vars.GCP_REGION }}" \
+            --image "${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/cip/python-services:${{ github.sha }}" \
+            --revision-suffix "sha-${GITHUB_SHA::12}" \
+            --allow-unauthenticated \
+            --set-secrets "INTERNAL_SERVICE_TOKEN=internal-service-token:latest,ANTHROPIC_API_KEY=anthropic-api-key:latest,OPENAI_API_KEY=openai-api-key:latest,ADMIN_SETUP_TOKEN=admin-setup-token:latest" \
+            --set-env-vars "ENV=production,LOG_LEVEL=INFO,GCP_PROJECT=${{ vars.GCP_PROJECT_ID }},GOOGLE_CLOUD_PROJECT=${{ vars.GCP_PROJECT_ID }},ALLOWED_ORIGINS=${{ vars.ALLOWED_ORIGINS }}"
+      - name: Record deployed revision
+        run: |
+          gcloud run services describe cip-python-services \
+            --project "${{ vars.GCP_PROJECT_ID }}" --region "${{ vars.GCP_REGION }}" \
+            --format='value(status.latestReadyRevisionName)' | tee /tmp/revision.txt
+      - uses: actions/upload-artifact@v4
+        with: { name: cloud-run-revision, path: /tmp/revision.txt }
+
+  cloud-functions:
+    if: contains(fromJSON('["all","cloud-functions"]'), github.event.inputs.component)
+    needs: guard
+    runs-on: ubuntu-latest
+    environment: production
+    defaults: { run: { working-directory: firebase/functions } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - name: Install deps
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Typecheck before deploy
+        run: npx tsc --noEmit
+      - name: Deploy functions
+        run: npx firebase-tools deploy --only functions --project "${{ vars.GCP_PROJECT_ID }}" --non-interactive
+
+  firestore-rules:
+    if: contains(fromJSON('["all","firestore-rules"]'), github.event.inputs.component)
+    needs: guard
+    runs-on: ubuntu-latest
+    environment: production
+    defaults: { run: { working-directory: firebase } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - name: Deploy Firestore rules + indexes
+        run: |
+          npx firebase-tools deploy --only firestore:rules,firestore:indexes \
+            --project "${{ vars.GCP_PROJECT_ID }}" --non-interactive
+
+  storage-rules:
+    if: contains(fromJSON('["all","storage-rules"]'), github.event.inputs.component)
+    needs: guard
+    runs-on: ubuntu-latest
+    environment: production
+    defaults: { run: { working-directory: firebase } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - name: Deploy Storage rules
+        run: |
+          npx firebase-tools deploy --only storage \
+            --project "${{ vars.GCP_PROJECT_ID }}" --non-interactive
+
+  admin-panel-hosting:
+    if: contains(fromJSON('["all","admin-panel-hosting"]'), github.event.inputs.component)
+    needs: guard
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - name: Deploy hosting (admin panel)
+        run: |
+          npx firebase-tools deploy --only hosting \
+            --project "${{ vars.GCP_PROJECT_ID }}" --non-interactive
