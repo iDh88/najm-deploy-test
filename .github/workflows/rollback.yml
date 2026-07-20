@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
@@ -100,7 +100,7 @@ jobs:
         with: { ref: "${{ github.event.inputs.git_ref }}" }
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
@@ -124,7 +124,7 @@ jobs:
           test -n "${{ github.event.inputs.git_ref }}" || { echo "::error::'git_ref' required"; exit 1; }
       - uses: actions/checkout@v4
         with: { ref: "${{ github.event.inputs.git_ref }}" }
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
@@ -145,7 +145,7 @@ jobs:
           test -n "${{ github.event.inputs.git_ref }}" || { echo "::error::'git_ref' required"; exit 1; }
       - uses: actions/checkout@v4
         with: { ref: "${{ github.event.inputs.git_ref }}" }
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
